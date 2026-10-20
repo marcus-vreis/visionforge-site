@@ -2,6 +2,7 @@
 
 import json
 import math
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,8 @@ from visionforge.tasks.engine import GenericTaskEngine
 from visionforge.tasks.registry import get_task
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "public/examples"
+# Downloadable Python sources must stay free of generated public bytecode.
+sys.dont_write_bytecode = True
 torch.set_num_threads(2)
 
 
