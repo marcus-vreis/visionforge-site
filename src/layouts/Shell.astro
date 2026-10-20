@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+import type { SiteCopy } from '../content/types';
+import { release } from '../content/release';
+interface Props { copy: SiteCopy; title?: string; description?: string; route?: string }
+const { copy, title = copy.title, description = copy.description, route = '' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const root = new URL(base, Astro.site).href;
+const home = copy.lang === 'pt' ? base : `${base}en/`;
+const ptUrl = `${root}${route}`;
+const enUrl = `${root}en/${route}`;
+const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
+---
+<!doctype html>
+<html lang={copy.lang === 'pt' ? 'pt-BR' : 'en'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#07080a" />
+    <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="pt-BR" href={ptUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={ptUrl} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VisionForge" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={copy.lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta property="og:image" content={`${root}images/social.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>
+      (() => {
+        let choice = 'system';
+        try { choice = localStorage.getItem('vf-site.theme') || 'system'; } catch {}
+        if (!['system','light','dark'].includes(choice)) choice = 'system';
+        const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = choice === 'system' ? (dark ? 'dark' : 'light') : choice;
+        document.documentElement.dataset.themeChoice = choice;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip button button-primary" href="#main">{copy.nav.skip}</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href={copy.lang === 'pt' ? base : `${base}en/`} aria-label="VisionForge">
+          <svg aria-hidden="true" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-dasharray="2 4"/><path d="M16 1v7m0 16v7M1 16h7m16 0h7" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Vision<b>Forge</b></span>
+        </a>
+        <nav class="header-nav" aria-label={copy.lang === 'pt' ? 'Navegação principal' : 'Main navigation'}>
+          <a href={`${home}#tasks`}>{copy.nav.tasks}</a><a href={`${home}#research`}>{copy.nav.research}</a><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={`${home}#install`}>{copy.nav.install} ↗</a>
+        </nav>
+        <div class="header-controls">
+          <a href={`${base}${route}`} lang="pt-BR" aria-label="Português" aria-current={copy.lang === 'pt' ? 'page' : undefined}>PT</a><span aria-hidden="true">/</span><a href={`${base}en/${route}`} lang="en" aria-label="English" aria-current={copy.lang === 'en' ? 'page' : undefined}>EN</a>
+          <label class="sr-only" for="theme">{copy.nav.theme}</label>
+          <select hidden id="theme" class="theme-select"><option value="system">{copy.nav.system}</option><option value="light">{copy.nav.light}</option><option value="dark">{copy.nav.dark}</option></select>
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer"><div class="container">
+      <div class="footer-top"><div><a class="brand" href={home}><span>Vision<b>Forge</b></span></a><p>{copy.footer.description}</p></div><div class="footer-links"><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={release.repository}>GitHub</a><a href={release.pypi}>PyPI</a><a href={release.latest}>{copy.footer.release}</a><a href={`${release.repository}/blob/main/LICENSE`}>MIT</a></div></div>
+      <div class="footer-bottom"><p>{copy.footer.made} <a href="https://github.com/marcus-vreis">Marcus Reis</a></p><a href={release.websiteRepository}>{copy.footer.source} ↗</a><p>© {new Date().getFullYear()} VisionForge</p></div>
+    </div></footer>
+    <script>
+      const select = document.querySelector<HTMLSelectElement>('#theme')!;
+      select.hidden = false;
+      select.value = document.documentElement.dataset.themeChoice ?? 'system';
+      const media = matchMedia('(prefers-color-scheme: dark)');
+      function applyTheme() { document.documentElement.dataset.theme = select.value === 'system' ? (media.matches ? 'dark' : 'light') : select.value; }
+      select.addEventListener('change',() => { applyTheme(); try { localStorage.setItem('vf-site.theme',select.value); } catch {} });
+      media.addEventListener('change',() => { if (select.value === 'system') applyTheme(); });
+    </script>
+  </body>
+</html>

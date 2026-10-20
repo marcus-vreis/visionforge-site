@@ -1,0 +1,13 @@
+---
+interface Props { lang: 'pt' | 'en' }
+const { lang } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const prefix = lang === 'pt' ? 'custom-task' : 'custom-task-en';
+---
+<figure class="task-screenshot">
+  <a href={`${base}images/${prefix}-dark.webp`} aria-label={lang === 'pt' ? 'Ampliar captura da tarefa própria' : 'Enlarge custom-task screenshot'}>
+    <img class="shot-dark" src={`${base}images/${prefix}-dark.webp`} width="1440" height="1100" loading="lazy" alt={lang === 'pt' ? 'Interface real do VisionForge: aba Research method com o campo research_weight gerado do Config em Python.' : 'Actual VisionForge interface: Research method tab with the research_weight field generated from the Python Config.'} />
+    <img class="shot-light" src={`${base}images/${prefix}-light.webp`} width="1440" height="1100" loading="lazy" alt={lang === 'pt' ? 'Interface real do VisionForge: aba Research method com o campo research_weight gerado do Config em Python.' : 'Actual VisionForge interface: Research method tab with the research_weight field generated from the Python Config.'} />
+  </a>
+  <figcaption>{lang === 'pt' ? 'Captura real · tarefa do tutorial carregada localmente · dados sintéticos, sem resultado de pesquisa.' : 'Actual screenshot · tutorial task loaded locally · synthetic data, no research result.'}</figcaption>
+</figure>

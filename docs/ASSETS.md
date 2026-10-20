@@ -7,3 +7,7 @@
 - Fonts: Bricolage Grotesque, Familjen Grotesk and IBM Plex Mono from pinned Fontsource packages. SIL OFL license notices are included under `public/licenses/`.
 
 The English variants were captured after switching the application's own PT/EN control; the light variants use its own theme control.
+
+- `custom-task-dark.webp`, `custom-task-light.webp` and `custom-task-en-*`: actual v0.17.0 GUI captured on 2026-10-20 from source `a032359`, 1440 × 1100. Isolated workspace contains the downloadable `research_method.py` in `user_tasks/`; generated form shows `research_weight`, `n_samples=32`, `epochs=1`, `batch_size=8` and CPU selected. Demonstration name “Researcher”, experiment `tutorial_cpu`. No personal paths, datasets or experiment results are shown. Training was separately verified in a temporary directory on CPU.
+- `public/examples/research_method.py`: adapted from VisionForge v0.17.0's MIT-licensed `tasks/scaffold.py`, adding a Pydantic field, an illustrative parameter penalty and sample-weighted MAE aggregation. The synthetic data and model are educational examples.
+- `public/examples/research_cnn.py`: small RGB model built with PyTorch and the existing `register_model` decorator. The guide imports this exact file as text to avoid divergence between displayed and downloadable code.

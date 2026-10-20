@@ -1,0 +1,39 @@
+---
+import type { Language } from '../content/types';
+import CodeBlock from './CodeBlock.astro';
+import TaskScreenshot from './TaskScreenshot.astro';
+import '../styles/guides.css';
+interface Props { lang: Language }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const home = `${import.meta.env.BASE_URL}${pt ? '' : 'en/'}`;
+const cards = pt ? [
+  { slug: '', title: '01 / Primeiro treino', text: 'Organize os dados, acompanhe o treino e recupere a configuração do experimento.' },
+  { slug: 'model/', title: '02 / Sua arquitetura', text: 'Registre um nn.Module e use seu modelo na classificação ou regressão.' },
+  { slug: 'task/', title: '03 / Seu método, sua página', text: 'Defina campos, dados, loss e métricas. O VisionForge monta o formulário de treinamento.' },
+] : [
+  { slug: '', title: '01 / First training run', text: 'Organize data, monitor training and recover the experiment configuration.' },
+  { slug: 'model/', title: '02 / Your architecture', text: 'Register an nn.Module and use your model for classification or regression.' },
+  { slug: 'task/', title: '03 / Your method, your page', text: 'Define fields, data, loss and metrics. VisionForge builds the training form.' },
+];
+---
+<section id="extend" class="section extension" aria-labelledby="extension-title">
+  <div class="container">
+    <span class="eyebrow">{pt ? 'Para quem cria métodos' : 'For researchers building methods'}</span>
+    <div class="extension-heading">
+      <h2 id="extension-title">{pt ? 'Sua pesquisa ganha uma página de treinamento.' : 'Give your research its own training page.'}</h2>
+      <p class="section-intro">{pt ? 'Uma nova arquitetura ou uma tarefa inteira: leve seu código Python para a interface e concentre o trabalho no método que quer investigar.' : 'A new architecture or a whole task: bring your Python code into the interface and focus on the method you want to investigate.'}</p>
+    </div>
+    <div class="extension-flow" aria-label={pt ? 'Do Python ao experimento' : 'From Python to an experiment'}>
+      <div><span>01</span><h3>Python</h3><p>{pt ? 'Config + quatro hooks' : 'Config + four hooks'}</p></div>
+      <div><span>02</span><h3>{pt ? 'Interface' : 'Interface'}</h3><p>{pt ? 'Aba, campos e validação' : 'Tab, fields and validation'}</p></div>
+      <div><span>03</span><h3>{pt ? 'Experimento' : 'Experiment'}</h3><p>{pt ? 'Treino, histórico e run.json' : 'Training, history and run.json'}</p></div>
+    </div>
+    <TaskScreenshot lang={lang} />
+    <div class="extension-detail">
+      <div><h3>{pt ? 'Você define o método. O engine conduz o treino.' : 'You define the method. The engine drives training.'}</h3><p>{pt ? 'Na tarefa do tutorial, research_weight nasce em um Field do Pydantic, aparece no formulário e controla uma penalização na loss. Os quatro hooks conectam modelo, loaders, loss e métricas ao monitor ao vivo, às buscas e às réplicas multi-seed.' : 'In the tutorial task, research_weight starts as a Pydantic Field, appears in the form and controls a loss penalty. Four hooks connect your model, loaders, loss and metrics to live monitoring, sweeps and multi-seed replicates.'}</p><a class="button button-primary" href={`${home}docs/task/`}>{pt ? 'Criar minha página de treinamento' : 'Build my training page'} →</a></div>
+      <CodeBlock lang={lang} id="extension-command" label={pt ? 'Na pasta da sua pesquisa · ambiente já instalado' : 'In your research folder · environment already installed'} code={`# Windows (PowerShell)\n.\\.venv\\Scripts\\visionforge.exe new-task my_method\n.\\.venv\\Scripts\\visionforge.exe gui\n\n# Linux / macOS\n./.venv/bin/visionforge new-task my_method\n./.venv/bin/visionforge gui`} />
+    </div>
+    <div class="guide-cards">{cards.map(card => <a href={`${home}docs/${card.slug}`}><h3>{card.title}<span aria-hidden="true"> →</span></h3><p>{card.text}</p></a>)}</div>
+  </div>
+</section>

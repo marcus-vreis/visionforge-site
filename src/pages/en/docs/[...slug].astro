@@ -1,0 +1,10 @@
+---
+import GuidePage from '../../../layouts/Guide.astro';
+import { guides } from '../../../content/guides';
+/** Generate every English tutorial as a static route. */
+export function getStaticPaths() {
+  return guides.filter(guide => guide.lang === 'en').map(guide => ({ params: { slug: guide.slug || undefined }, props: { guide } }));
+}
+const { guide } = Astro.props;
+---
+<GuidePage guide={guide} />

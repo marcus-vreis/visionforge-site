@@ -1,0 +1,54 @@
+---
+import Shell from './Shell.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import TaskScreenshot from '../components/TaskScreenshot.astro';
+import type { Guide } from '../content/guide-types';
+import { guides } from '../content/guides';
+import { copy as ptCopy } from '../content/pt';
+import { copy as enCopy } from '../content/en';
+import { release } from '../content/release';
+import '../styles/guides.css';
+interface Props { guide: Guide }
+const { guide } = Astro.props;
+const pt = guide.lang === 'pt';
+const copy = pt ? ptCopy : enCopy;
+const base = import.meta.env.BASE_URL;
+const home = `${base}${pt ? '' : 'en/'}`;
+const route = `docs/${guide.slug ? `${guide.slug}/` : ''}`;
+const siblings = guides.filter(item => item.lang === guide.lang);
+---
+<Shell copy={copy} title={`${guide.title} — VisionForge`} description={guide.description} route={route}>
+  <div class="container docs-layout">
+    <aside class="docs-sidebar">
+      <a class="docs-home" href={home}>← {pt ? 'Apresentação' : 'Overview'}</a>
+      <nav aria-label={pt ? 'Guias de uso' : 'User guides'}>
+        <span class="eyebrow">{pt ? 'Guias de uso' : 'User guides'}</span>
+        {siblings.map((item, index) => <a href={`${home}docs/${item.slug ? `${item.slug}/` : ''}`} aria-current={item.slug === guide.slug ? 'page' : undefined}><span>0{index + 1}</span>{item.title}</a>)}
+      </nav>
+      <nav class="docs-toc" aria-label={pt ? 'Nesta página' : 'On this page'}>
+        <span class="eyebrow">{pt ? 'Nesta página' : 'On this page'}</span>
+        {guide.sections.map(section => <a href={`#${section.id}`}>{section.title}</a>)}
+      </nav>
+      <a href={`${home}#install`}>{pt ? 'Instalação por sistema' : 'Installation by OS'} ↗</a>
+    </aside>
+    <article class="guide-article">
+      <header class="guide-header">
+        <span class="eyebrow">VisionForge / {pt ? 'Documentação' : 'Documentation'}</span>
+        <h1>{guide.title}</h1>
+        <p class="guide-lede">{guide.description}</p>
+        <p class="guide-version">v{release.version} · {pt ? 'API e exemplos conferidos em 20/10/2026' : 'API and examples checked on 2026-10-20'}</p>
+      </header>
+      {guide.slug === 'task' && <TaskScreenshot lang={guide.lang} />}
+      {guide.sections.map((section, index) => <section id={section.id} class="guide-section" aria-labelledby={`${section.id}-title`}>
+        <h2 id={`${section.id}-title`}><a href={`#${section.id}`}>{section.title}</a></h2>
+        {section.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+        {section.steps && <ol>{section.steps.map(step => <li>{step}</li>)}</ol>}
+        {section.code && <CodeBlock code={section.code} label={section.codeLabel ?? 'Python'} lang={guide.lang} id={`guide-code-${index}`} />}
+        {section.note && <aside class="notice">{section.note}</aside>}
+      </section>)}
+      {guide.slug !== '' && <div class="guide-download notice"><p>{pt ? 'Arquivo completo do exemplo, pronto para salvar na pasta indicada no guia:' : 'Complete example file, ready to save in the folder specified in the guide:'}</p><a class="button" download href={`${base}examples/${guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'}`}>{pt ? 'Baixar' : 'Download'} {guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'} ↓</a></div>}
+      <footer class="guide-sources"><p>{pt ? 'Referência do projeto' : 'Project reference'}: <a href={`${release.repository}/blob/v${release.version}/${guide.source}`}>{guide.source} ↗</a></p><p>{pt ? 'O exemplo de tarefa usa dados sintéticos e uma penalização ilustrativa; não representa um método validado para publicação.' : 'The task example uses synthetic data and an illustrative penalty; it does not represent a method validated for publication.'}</p></footer>
+      <nav class="guide-next" aria-label={pt ? 'Outros guias' : 'Other guides'}>{siblings.filter(item => item.slug !== guide.slug).map(item => <a href={`${home}docs/${item.slug ? `${item.slug}/` : ''}`}>{item.title} →</a>)}</nav>
+    </article>
+  </div>
+</Shell>

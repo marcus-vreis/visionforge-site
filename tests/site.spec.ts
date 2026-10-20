@@ -13,6 +13,8 @@ for (const language of ['pt','en'] as const) {
     await expect(page.locator('a[href$=".whl"]')).toHaveCount(1);
     await expect(page.locator('a[href$=".tar.gz"]')).toHaveCount(1);
     await page.evaluate(() => document.fonts.ready);
+    await page.locator('img').evaluateAll(nodes => nodes.forEach(node => { (node as HTMLImageElement).loading = 'eager'; }));
+    await expect.poll(() => page.locator('img').evaluateAll(nodes => nodes.every(node => { const img = node as HTMLImageElement; return img.complete && img.naturalWidth > 0; }))).toBe(true);
     const images = await page.locator('img').evaluateAll(nodes => nodes.map(node => { const img = node as HTMLImageElement; return {src:img.src, loaded:img.complete && img.naturalWidth > 0}; }));
     expect(images.length).toBeGreaterThan(0);
     expect(images.filter(img => !img.loaded)).toEqual([]);

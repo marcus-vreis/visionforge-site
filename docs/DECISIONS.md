@@ -32,3 +32,14 @@
 **Reason:** Visitors should recognize the product they will install. A marketing page needs readable text and useful narrative at small sizes rather than a reproduction of the application layout.
 
 **Consequences:** Test light/dark colors and small viewports, host fonts locally, respect reduced motion and retain all essential content without JavaScript. Never present illustrative diagrams as experiment results.
+
+## ADR-004 — Localized tutorials with executable extension examples
+
+**Date:** 2026-10-20
+**Status:** Accepted
+
+**Decision:** Publish first-use, custom-model and custom-task tutorials in both languages. Share the document shell, navigation and typed tutorial structure. Teach the existing Python extension points; distribute a complete RGB model and a synthetic custom task alongside focused code excerpts. Use real custom-task screenshots from an isolated workspace.
+
+**Reason:** Research users need to see how their Python method becomes a training page. A model builder and a full task have different contracts. The custom task's Pydantic field must demonstrably affect its loss, rather than merely decorate a mock form. The current classification panel has no dedicated custom-model selector, so the architecture tutorial uses exported YAML and the CLI.
+
+**Consequences:** Keep example code, PT/EN instructions and captures in agreement with the supported product version. Exercise registry discovery, gradients, validation, loss weighting and a complete CPU epoch against VisionForge before changing examples. The small synthetic run proves integration only. It does not establish research quality or GPU compatibility. No product source changes or visitor-time training are introduced.

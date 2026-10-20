@@ -1,0 +1,32 @@
+---
+interface Props { code: string; label: string; lang: 'pt' | 'en'; id: string }
+const { code, label, lang, id } = Astro.props;
+const copy = lang === 'pt' ? 'Copiar' : 'Copy';
+---
+<div class="terminal guide-code" data-guide-code>
+  <div class="terminal-bar"><span>{label}</span><button hidden class="copy-button" type="button" data-copy-code aria-controls={id}>{copy}</button></div>
+  <pre id={id} tabindex="0"><code>{code}</code></pre>
+  <p class="copy-status" role="status" aria-live="polite"></p>
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-guide-code]').forEach(block => {
+    const button = block.querySelector<HTMLButtonElement>('[data-copy-code]')!;
+    const pre = block.querySelector<HTMLPreElement>('pre')!;
+    const status = block.querySelector<HTMLElement>('[role=status]')!;
+    const pt = document.documentElement.lang === 'pt-BR';
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent ?? '');
+        status.textContent = pt ? 'Copiado.' : 'Copied.';
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const selection = window.getSelection();
+        selection?.removeAllRanges(); selection?.addRange(range);
+        pre.focus();
+        status.textContent = pt ? 'Cópia indisponível. Código selecionado; use Ctrl+C ou ⌘C.' : 'Clipboard unavailable. Code selected; use Ctrl+C or ⌘C.';
+      }
+    });
+  });
+</script>

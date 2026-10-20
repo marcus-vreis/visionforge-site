@@ -34,6 +34,9 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 
 - `src/content/pt.ts` e `en.ts`: textos da apresentação.
 - `src/content/release.ts`: versão publicada, links de download e fontes verificadas.
+- `src/content/guides.ts`: guias completos de primeiro uso, arquitetura e tarefa própria em PT/EN.
+- `src/layouts/Guide.astro`: navegação dos guias, sumário, código copiável e downloads.
+- `public/examples/`: exemplos Python completos para os tutoriais; não são executados pelo site.
 - `src/components/Installer.astro`: comandos por sistema, derivados do guia de instalação do produto.
 - `public/images/`: capturas reais da interface e imagem de compartilhamento.
 
@@ -46,6 +49,16 @@ Para atualizar uma versão:
 5. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
+
+Os guias ficam em `/docs/`, `/docs/model/` e `/docs/task/`, com equivalentes sob `/en/`. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
+
+Para verificar exemplos contra o ambiente local do VisionForge, sem baixar datasets ou pesos e usando somente CPU:
+
+```powershell
+& ../VisionForge/.venv/Scripts/python.exe tests/examples.py
+```
+
+Esse comando usa o produto instalado no ambiente indicado; não instala nem altera dependências. Ele verifica descoberta, dimensões/gradientes do modelo, schema e limites do campo próprio, efeito na loss, agregação da métrica e uma época completa com checkpoint e `run.json`. Ao alterar exemplos, rode também essa verificação e atualize a procedência das capturas. Ela é local; a CI do site executa check, build e testes de navegador.
 
 ## Publicação
 
