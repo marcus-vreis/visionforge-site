@@ -1,5 +1,6 @@
 import type { Guide } from './guide-types';
 import { modelExample, taskFieldExample } from './examples';
+import { projectGuides } from './project-guide';
 
 const workspace = `my-research/
   .venv/
@@ -273,4 +274,5 @@ export const guides: Guide[] = [
       ] },
     ],
   },
+  ...projectGuides,
 ];

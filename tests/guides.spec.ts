@@ -18,7 +18,7 @@ for (const lang of ['pt', 'en'] as const) {
     await expect(page.locator('link[hreflang=en]')).toHaveAttribute('href', en);
     await page.getByRole('link', { name: lang === 'pt' ? 'English' : 'Português', exact: true }).click();
     await expect(page).toHaveURL(new RegExp(lang === 'pt' ? '/en/docs/task/$' : '/visionforge-site/docs/task/$'));
-    for (const slug of ['', 'model/', 'task/']) {
+    for (const slug of ['', 'model/', 'task/', 'project/']) {
       await page.goto(`${prefix}docs/${slug}`);
       await expect(page.locator('.docs-sidebar a[aria-current=page]')).toHaveCount(1);
       for (const anchor of await page.locator('.docs-toc a').all()) {
@@ -32,7 +32,8 @@ for (const lang of ['pt', 'en'] as const) {
         await expect(download).toHaveCount(1);
         const response = await request.get((await download.getAttribute('href'))!);
         expect(response.status()).toBe(200);
-        expect(await response.text()).toContain(slug === 'model/' ? '@register_model("research_cnn")' : '@register_task(');
+        if (slug === 'project/') expect((await response.body()).subarray(0, 2).toString()).toBe('PK');
+        else expect(await response.text()).toContain(slug === 'model/' ? '@register_model("research_cnn")' : '@register_task(');
       }
     }
     expect(errors).toEqual([]);
@@ -58,10 +59,10 @@ test('guide code copies exact content and offers a keyboard fallback', async ({ 
 for (const width of [360, 768, 1440]) {
   test(`guides remain accessible at ${width}px in both themes`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
-    for (const slug of ['', 'model/', 'task/']) {
+    for (const slug of ['', 'model/', 'task/', 'project/']) {
       await page.goto(`./docs/${slug}`);
       for (const theme of ['light', 'dark']) {
-        await page.selectOption('#theme', theme);
+        await page.locator(`[data-theme-option=${theme}]`).click();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
         expect(results.violations).toEqual([]);
@@ -74,7 +75,7 @@ test('all tutorials and downloads work without JavaScript', async ({ browser }) 
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   for (const locale of ['', 'en/']) {
-    for (const slug of ['', 'model/', 'task/']) {
+    for (const slug of ['', 'model/', 'task/', 'project/']) {
       await page.goto(`http://127.0.0.1:4322/visionforge-site/${locale}docs/${slug}`);
       await expect(page.locator('article h1')).toBeVisible();
       expect(await page.locator('.guide-section').count()).toBeGreaterThanOrEqual(5);
@@ -83,4 +84,21 @@ test('all tutorials and downloads work without JavaScript', async ({ browser }) 
     }
   }
   await context.close();
+});
+
+test('complete case shows all nine files and keeps the model example available', async ({ page }) => {
+  await page.goto('./docs/model/');
+  await page.locator('.guide-case a').click();
+  await expect(page).toHaveURL(/\/docs\/project\/$/);
+  const files = page.locator('.project-file');
+  await expect(files).toHaveCount(9);
+  const expected = ['prepare_data.py', 'user_models/research_cnn.py', 'configs/digits.yaml', 'inspect_run.py', 'requirements.txt', '.gitignore', 'README.md', 'README.en.md', 'LICENSE'];
+  expect(await files.locator('summary span:first-of-type').allTextContents()).toEqual(expected);
+  for (const file of await files.all()) {
+    if (!(await file.getAttribute('open') !== null)) await file.locator('summary').click();
+    await expect(file.locator('pre')).toBeVisible();
+    expect((await file.locator('pre').textContent())!.length).toBeGreaterThan(20);
+  }
+  await expect(page.locator('article')).toContainText('1.797');
+  await expect(page.locator('a[download]')).toHaveAttribute('href', '/visionforge-site/downloads/visionforge-digits-project.zip');
 });

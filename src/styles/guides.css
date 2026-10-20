@@ -48,6 +48,15 @@
 .guide-download { margin-top:48px; }
 .guide-sources { border-top:1px solid var(--line); margin-top:40px; padding-top:24px; color:var(--muted); font-size:14px; overflow-wrap:anywhere; }
 .guide-next { display:flex; gap:24px; flex-wrap:wrap; margin-top:32px; }
+.guide-case,.project-download { margin-top:28px; }
+.project-files { margin-top:24px; }
+.project-file { border:1px solid var(--line); border-radius:7px; margin-bottom:12px; background:var(--surface); }
+.project-file summary { display:flex; gap:8px 20px; justify-content:space-between; flex-wrap:wrap; cursor:pointer; padding:18px; }
+.project-file summary::before { content:'+'; color:var(--accent); }
+.project-file[open] summary::before { content:'−'; }
+.project-file summary span:first-of-type { font:13px/1.8 var(--font-mono); flex:1; overflow-wrap:anywhere; }
+.project-file summary span:last-of-type { font-size:14px; color:var(--muted); }
+.project-file .terminal { margin:0; border:0; border-top:1px solid var(--line); border-radius:0 0 7px 7px; }
 @media(max-width:1000px) { .docs-layout { grid-template-columns:190px minmax(0,1fr); gap:32px; } .extension-heading { gap:32px; } }
 @media(max-width:768px) { .docs-layout { display:block; padding-top:24px; } .docs-sidebar { position:static; margin-bottom:44px; } .docs-sidebar nav { margin-block:20px; } .docs-sidebar .docs-toc { display:none; } .extension-heading,.extension-detail { grid-template-columns:minmax(0,1fr); gap:20px; } .guide-cards { grid-template-columns:minmax(0,1fr); gap:14px; } .extension-flow > div { padding:18px 12px; } .extension-flow h3 { font-size:21px; } .extension-flow p { font-size:14px; } .guide-lede { font-size:20px; } }
 @media(max-width:420px) { .extension-flow { grid-template-columns:minmax(0,1fr); } .extension-flow > div + div { border-left:0; border-top:1px solid var(--line); } .guide-section h2 { font-size:28px; } }

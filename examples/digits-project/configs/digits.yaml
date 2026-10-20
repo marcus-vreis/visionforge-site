@@ -1,0 +1,45 @@
+schema_version: 1
+name: digits_research_cnn
+task: multiclass
+block: classification
+
+model:
+  custom_model: research_cnn
+  num_classes: 10
+  pretrained: false
+
+training:
+  epochs: 3
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: adam
+  weight_decay: 0.0
+  seed: 42
+  early_stopping_patience: 0
+  deterministic: true
+  mixed_precision: false
+
+data:
+  base_dir: datasets/digits
+  train_dir: train
+  val_dir: val
+  test_dir: test
+  num_workers: 0
+  pin_memory: false
+  transforms:
+    image_size: 32
+    augment: false
+    horizontal_flip: false
+    rotation_degrees: 0
+    color_jitter: false
+    normalize_mean: [0.5, 0.5, 0.5]
+    normalize_std: [0.5, 0.5, 0.5]
+
+device:
+  kind: cpu
+
+output:
+  models_dir: outputs/models
+  graphics_dir: outputs/graphics
+  logs_dir: outputs/logs
+  reports_dir: outputs/reports

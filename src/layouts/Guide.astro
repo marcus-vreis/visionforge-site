@@ -2,6 +2,7 @@
 import Shell from './Shell.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import TaskScreenshot from '../components/TaskScreenshot.astro';
+import ProjectFiles from '../components/ProjectFiles.astro';
 import type { Guide } from '../content/guide-types';
 import { guides } from '../content/guides';
 import { copy as ptCopy } from '../content/pt';
@@ -17,7 +18,7 @@ const home = `${base}${pt ? '' : 'en/'}`;
 const route = `docs/${guide.slug ? `${guide.slug}/` : ''}`;
 const siblings = guides.filter(item => item.lang === guide.lang);
 ---
-<Shell copy={copy} title={`${guide.title} — VisionForge`} description={guide.description} route={route}>
+<Shell copy={copy} title={`${guide.title} | VisionForge`} description={guide.description} route={route}>
   <div class="container docs-layout">
     <aside class="docs-sidebar">
       <a class="docs-home" href={home}>← {pt ? 'Apresentação' : 'Overview'}</a>
@@ -38,6 +39,8 @@ const siblings = guides.filter(item => item.lang === guide.lang);
         <p class="guide-lede">{guide.description}</p>
         <p class="guide-version">v{release.version} · {pt ? 'API e exemplos conferidos em 20/10/2026' : 'API and examples checked on 2026-10-20'}</p>
       </header>
+      {guide.slug === 'model' && <aside class="notice guide-case"><p>{pt ? 'Para executar esta CNN com dados reais, siga o caso de dígitos manuscritos. Ele reúne os nove arquivos do projeto, desde a preparação das imagens até a leitura do run.json.' : 'To run this CNN with real data, follow the handwritten digits case. It includes all nine project files, from image preparation to reading run.json.'}</p><a href={`${home}docs/project/`}>{pt ? 'Abrir o caso completo' : 'Open the complete case'} →</a></aside>}
+      {guide.slug === 'project' && <a class="button button-primary project-download" download href={`${base}downloads/visionforge-digits-project.zip`}>{pt ? 'Baixar projeto completo (.zip)' : 'Download complete project (.zip)'}</a>}
       {guide.slug === 'task' && <TaskScreenshot lang={guide.lang} />}
       {guide.sections.map((section, index) => <section id={section.id} class="guide-section" aria-labelledby={`${section.id}-title`}>
         <h2 id={`${section.id}-title`}><a href={`#${section.id}`}>{section.title}</a></h2>
@@ -45,9 +48,10 @@ const siblings = guides.filter(item => item.lang === guide.lang);
         {section.steps && <ol>{section.steps.map(step => <li>{step}</li>)}</ol>}
         {section.code && <CodeBlock code={section.code} label={section.codeLabel ?? 'Python'} lang={guide.lang} id={`guide-code-${index}`} />}
         {section.note && <aside class="notice">{section.note}</aside>}
+        {guide.slug === 'project' && section.id === 'files' && <ProjectFiles lang={guide.lang} />}
       </section>)}
-      {guide.slug !== '' && <div class="guide-download notice"><p>{pt ? 'Arquivo completo do exemplo, pronto para salvar na pasta indicada no guia:' : 'Complete example file, ready to save in the folder specified in the guide:'}</p><a class="button" download href={`${base}examples/${guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'}`}>{pt ? 'Baixar' : 'Download'} {guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'} ↓</a></div>}
-      <footer class="guide-sources"><p>{pt ? 'Referência do projeto' : 'Project reference'}: <a href={`${release.repository}/blob/v${release.version}/${guide.source}`}>{guide.source} ↗</a></p><p>{pt ? 'O exemplo de tarefa usa dados sintéticos e uma penalização ilustrativa; não representa um método validado para publicação.' : 'The task example uses synthetic data and an illustrative penalty; it does not represent a method validated for publication.'}</p></footer>
+      {(guide.slug === 'model' || guide.slug === 'task') && <div class="guide-download notice"><p>{pt ? 'Arquivo completo do exemplo, pronto para salvar na pasta indicada no guia:' : 'Complete example file, ready to save in the folder specified in the guide:'}</p><a class="button" download href={`${base}examples/${guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'}`}>{pt ? 'Baixar' : 'Download'} {guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'} ↓</a></div>}
+      <footer class="guide-sources"><p>{pt ? 'Referência do projeto' : 'Project reference'}: <a href={`${release.repository}/blob/v${release.version}/${guide.source}`}>{guide.source} ↗</a></p>{guide.references?.map(reference => <p><a href={reference.url}>{reference.label} ↗</a></p>)}{guide.slug === 'task' && <p>{pt ? 'A tarefa usa dados sintéticos e uma penalização ilustrativa. Sua aplicação em pesquisa exige definir e validar o método e o protocolo experimental.' : 'The task uses synthetic data and an illustrative penalty. Research use requires defining and validating the method and experimental protocol.'}</p>}</footer>
       <nav class="guide-next" aria-label={pt ? 'Outros guias' : 'Other guides'}>{siblings.filter(item => item.slug !== guide.slug).map(item => <a href={`${home}docs/${item.slug ? `${item.slug}/` : ''}`}>{item.title} →</a>)}</nav>
     </article>
   </div>

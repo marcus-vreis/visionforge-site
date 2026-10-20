@@ -43,3 +43,25 @@
 **Reason:** Research users need to see how their Python method becomes a training page. A model builder and a full task have different contracts. The custom task's Pydantic field must demonstrably affect its loss, rather than merely decorate a mock form. The current classification panel has no dedicated custom-model selector, so the architecture tutorial uses exported YAML and the CLI.
 
 **Consequences:** Keep example code, PT/EN instructions and captures in agreement with the supported product version. Exercise registry discovery, gradients, validation, loss weighting and a complete CPU epoch against VisionForge before changing examples. The small synthetic run proves integration only. It does not establish research quality or GPU compatibility. No product source changes or visitor-time training are introduced.
+
+## ADR-005 — Complete project distributed from one set of source files
+
+**Date:** 2026-10-20
+**Status:** Accepted
+
+**Decision:** Add a worked classification case using real handwritten digits bundled with scikit-learn. Keep its nine files under `examples/digits-project/`, display their entire contents in native disclosure elements and distribute them in a ZIP. Check the ZIP against source in CI. Preserve the earlier model and task downloads.
+
+**Reason:** A model builder alone leaves data preparation, configuration and result retrieval to the reader. One complete project makes those steps executable. The guide must show the same files visitors download, including setup instructions and configuration.
+
+**Consequences:** Data is materialized locally, without weight or dataset downloads. Verify one CPU epoch on a small real-data subset through the product CLI. Treat the experiment as a teaching case and document the image-level split's limits. Follow the Humanizer editorial workflow recorded in `EDITORIAL.md` while retaining technical scope and references.
+
+## ADR-006 — Theme icon buttons matching the product
+
+**Date:** 2026-10-20
+**Status:** Accepted
+
+**Decision:** Replace the select menu with three native icon buttons for system, light and dark, matching the product's monitor, sun and moon controls. Use a labeled group, individual accessible names and `aria-pressed`; support arrow keys as well as native button activation.
+
+**Reason:** The website should use the same theme control visitors recognize in VisionForge. Icons keep the header compact while labels and pressed state expose the choice to assistive technology.
+
+**Consequences:** Preserve system tracking, stored choice, blocked-storage handling and early theme application. Check all page types at 360, 768 and 1440 pixels in both themes. Hide the controls when JavaScript is unavailable.

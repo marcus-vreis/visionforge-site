@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import type { SiteCopy } from '../content/types';
 import { release } from '../content/release';
+import ThemeSwitch from '../components/ThemeSwitch.astro';
 interface Props { copy: SiteCopy; title?: string; description?: string; route?: string }
 const { copy, title = copy.title, description = copy.description, route = '' } = Astro.props;
 const base = import.meta.env.BASE_URL;
@@ -56,8 +57,7 @@ const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
         </nav>
         <div class="header-controls">
           <a href={`${base}${route}`} lang="pt-BR" aria-label="Português" aria-current={copy.lang === 'pt' ? 'page' : undefined}>PT</a><span aria-hidden="true">/</span><a href={`${base}en/${route}`} lang="en" aria-label="English" aria-current={copy.lang === 'en' ? 'page' : undefined}>EN</a>
-          <label class="sr-only" for="theme">{copy.nav.theme}</label>
-          <select hidden id="theme" class="theme-select"><option value="system">{copy.nav.system}</option><option value="light">{copy.nav.light}</option><option value="dark">{copy.nav.dark}</option></select>
+          <ThemeSwitch labels={copy.nav} />
         </div>
       </div>
     </header>
@@ -68,14 +68,5 @@ const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
       <div class="footer-top"><div><a class="brand" href={home}><span>Vision<b>Forge</b></span></a><p>{copy.footer.description}</p></div><div class="footer-links"><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={release.repository}>GitHub</a><a href={release.pypi}>PyPI</a><a href={release.latest}>{copy.footer.release}</a><a href={`${release.repository}/blob/main/LICENSE`}>MIT</a></div></div>
       <div class="footer-bottom"><p>{copy.footer.made} <a href="https://github.com/marcus-vreis">Marcus Reis</a></p><a href={release.websiteRepository}>{copy.footer.source} ↗</a><p>© {new Date().getFullYear()} VisionForge</p></div>
     </div></footer>
-    <script>
-      const select = document.querySelector<HTMLSelectElement>('#theme')!;
-      select.hidden = false;
-      select.value = document.documentElement.dataset.themeChoice ?? 'system';
-      const media = matchMedia('(prefers-color-scheme: dark)');
-      function applyTheme() { document.documentElement.dataset.theme = select.value === 'system' ? (media.matches ? 'dark' : 'light') : select.value; }
-      select.addEventListener('change',() => { applyTheme(); try { localStorage.setItem('vf-site.theme',select.value); } catch {} });
-      media.addEventListener('change',() => { if (select.value === 'system') applyTheme(); });
-    </script>
   </body>
 </html>

@@ -1,0 +1,11 @@
+---
+import CodeBlock from './CodeBlock.astro';
+import { projectFiles } from '../content/project-files';
+import type { Language } from '../content/types';
+interface Props { lang: Language }
+const { lang } = Astro.props;
+---
+<div class="project-files">{projectFiles.map((file, index) => <details class="project-file">
+  <summary><span>{file.path}</span><span>{lang === 'pt' ? file.pt : file.en}</span></summary>
+  <CodeBlock code={file.source.trimEnd()} label={file.path} lang={lang} id={`project-file-${index}`} />
+</details>)}</div>

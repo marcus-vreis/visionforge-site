@@ -14,9 +14,10 @@ export interface GuideSection {
 /** A localized guide sharing the same slug across languages. */
 export interface Guide {
   lang: Language;
-  slug: '' | 'model' | 'task';
+  slug: '' | 'model' | 'task' | 'project';
   title: string;
   description: string;
   sections: GuideSection[];
   source: string;
+  references?: Array<{ label: string; url: string }>;
 }

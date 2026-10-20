@@ -1,0 +1,48 @@
+---
+import type { SiteCopy } from '../content/types';
+interface Props { labels: SiteCopy['nav'] }
+const { labels } = Astro.props;
+const choices = [
+  { value: 'system', label: labels.system, path: 'M12 17v4m-4 0h8', rect: true },
+  { value: 'light', label: labels.light, path: 'M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42', circle: true },
+  { value: 'dark', label: labels.dark, path: 'M20.9 13a9 9 0 0 1-9.9-9.9A9 9 0 1 0 20.9 13Z' },
+];
+---
+<div hidden class="theme-switch" role="group" aria-label={labels.theme} data-theme-switch>
+  {choices.map(choice => <button type="button" data-theme-option={choice.value} aria-label={choice.label} title={choice.label} aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      {choice.rect && <rect x="3" y="3" width="18" height="14" rx="2" />}
+      {choice.circle && <circle cx="12" cy="12" r="4" />}
+      <path d={choice.path} />
+    </svg>
+  </button>)}
+</div>
+<script>
+  const group = document.querySelector<HTMLElement>('[data-theme-switch]')!;
+  const buttons = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-theme-option]'));
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  let choice = document.documentElement.dataset.themeChoice ?? 'system';
+
+  function applyTheme() {
+    document.documentElement.dataset.themeChoice = choice;
+    document.documentElement.dataset.theme = choice === 'system' ? (media.matches ? 'dark' : 'light') : choice;
+    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeOption === choice)));
+  }
+
+  function choose(button: HTMLButtonElement) {
+    choice = button.dataset.themeOption ?? 'system';
+    applyTheme();
+    try { localStorage.setItem('vf-site.theme', choice); } catch {}
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => choose(button));
+    button.addEventListener('keydown', event => {
+      const next = event.key === 'ArrowRight' ? (index + 1) % buttons.length : event.key === 'ArrowLeft' ? (index + buttons.length - 1) % buttons.length : event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : null;
+      if (next !== null) { event.preventDefault(); buttons[next].focus(); choose(buttons[next]); }
+    });
+  });
+  media.addEventListener('change', () => { if (choice === 'system') applyTheme(); });
+  applyTheme();
+  group.hidden = false;
+</script>

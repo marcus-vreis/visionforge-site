@@ -71,7 +71,7 @@ test('task diagrams render visible marks in every panel', async ({ page }) => {
 test('each task accent remains accessible in light and dark themes', async ({ page }) => {
   await page.goto('./');
   for (const theme of ['dark','light']) {
-    await page.selectOption('#theme',theme);
+    await page.locator(`[data-theme-option=${theme}]`).click();
     for (const tab of await page.locator('[data-task-tabs] [role=tab]').all()) {
       await tab.click();
       const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
@@ -102,11 +102,40 @@ test('theme persists, tracks system changes, and survives blocked storage', asyn
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   await page.emulateMedia({colorScheme:'dark'});
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
-  await page.selectOption('#theme','light'); await page.reload();
+  await page.locator('[data-theme-option=light]').click(); await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   await page.addInitScript(() => { Object.defineProperty(window,'localStorage',{get(){throw new Error('Blocked');}}); });
-  await page.reload(); await page.selectOption('#theme','light');
+  await page.reload(); await page.locator('[data-theme-option=light]').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+});
+
+test('theme uses three icon buttons with keyboard selection', async ({ page }) => {
+  await page.goto('./');
+  const group = page.getByRole('group', { name: 'Tema', exact: true });
+  await expect(group.getByRole('button')).toHaveCount(3);
+  await expect(page.locator('select#theme')).toHaveCount(0);
+  const system = group.locator('[data-theme-option=system]');
+  const light = group.locator('[data-theme-option=light]');
+  const dark = group.locator('[data-theme-option=dark]');
+  await expect(system).toHaveAttribute('aria-pressed', 'true');
+  await expect(group.locator('button svg')).toHaveCount(3);
+  await system.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(light).toBeFocused();
+  await expect(light).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.keyboard.press('End');
+  await expect(dark).toBeFocused();
+  await expect(dark).toHaveAttribute('aria-pressed', 'true');
+  await page.reload();
+  await expect(dark).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await dark.focus();
+  await page.keyboard.press('Home');
+  await expect(system).toBeFocused();
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(group.locator('[aria-pressed=true]')).toHaveCount(1);
 });
 
 for (const width of [360,768,1440]) {
@@ -114,7 +143,7 @@ for (const width of [360,768,1440]) {
     await page.setViewportSize({width,height:1000});
     await page.goto('./');
     for (const theme of ['dark','light']) {
-      await page.selectOption('#theme',theme);
+      await page.locator(`[data-theme-option=${theme}]`).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
       expect(result.violations).toEqual([]);
