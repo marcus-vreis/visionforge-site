@@ -1,0 +1,284 @@
+---
+import type { SiteCopy } from '../content/types';
+import '../styles/showcase.css';
+
+/** Props for the first-viewport hero plus the tasks, workflow and research sections. */
+interface Props { copy: SiteCopy }
+
+const { copy } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const repository = 'https://github.com/marcus-vreis/VisionForge';
+// The English UI screenshots are separate assets; fall back to the shared names for Portuguese.
+const shotPrefix = copy.lang === 'en' ? 'classification-en' : 'classification';
+const shots = {
+  dark: `${base}images/${shotPrefix}-dark.webp`,
+  light: `${base}images/${shotPrefix}-light.webp`,
+};
+const pad = (value: number) => String(value).padStart(2, '0');
+// Copy titles already carry "1." prefixes; the large numeral is rendered separately to avoid duplication.
+const stripNumber = (title: string) => title.replace(/^\s*\d+[.)]\s*/, '');
+// Anomaly illustration: a 5x4 grid of identical "normal" tiles with one deviating tile.
+const tiles = Array.from({ length: 20 }, (_, i) => ({ x: 24 + (i % 5) * 64, y: 28 + Math.floor(i / 5) * 48, odd: i === 7 }));
+// Regression illustration: loose points around a fitted line (decorative, not data).
+const dots: Array<[number, number]> = [[214, 168], [232, 150], [248, 158], [266, 122], [284, 112], [300, 92], [318, 78]];
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container hero-inner">
+    <span class="eyebrow hero-eyebrow">{copy.hero.eyebrow}</span>
+    <h1 id="hero-title" class="hero-title">
+      <span class="hero-line">{copy.hero.title}</span>
+      <span class="hero-line hero-emphasis">{copy.hero.emphasis}</span>
+    </h1>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="hero-lede">{copy.hero.description}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#install">{copy.hero.install}<span aria-hidden="true">↓</span></a>
+          <a class="button" href={repository}>{copy.hero.github}<span aria-hidden="true">↗</span></a>
+        </div>
+        <ul class="hero-facts">
+          <li>{copy.hero.local}</li>
+          <li>{copy.hero.open}</li>
+          <li>{copy.hero.tasks}</li>
+        </ul>
+      </div>
+      <figure class="hero-figure">
+        <div class="hero-frame">
+          <img class="shot shot-dark" src={shots.dark} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" fetchpriority="high" />
+          <img class="shot shot-light" src={shots.light} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" />
+        </div>
+        <figcaption>{copy.hero.caption}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="tasks" class="section tasks" aria-labelledby="tasks-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">01 / {copy.tasks.eyebrow}</span>
+        <h2 id="tasks-title">{copy.tasks.title}</h2>
+      </div>
+      <p class="section-intro">{copy.tasks.intro}</p>
+    </div>
+
+    <div class="task-tabs" data-task-tabs>
+      <!-- Hidden until the script upgrades it; without JS every panel stays readable in sequence. -->
+      <div class="task-tablist" data-tablist aria-label={copy.tasks.title} hidden>
+        {copy.tasks.items.map((task, i) => (
+          <button type="button" class="task-tab" data-tab id={`task-tab-${task.id}`} aria-controls={`task-panel-${task.id}`}>
+            <span class="task-tab-index" aria-hidden="true">{pad(i + 1)}</span>
+            <span class="task-tab-name">{task.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {copy.tasks.items.map((task, i) => (
+        <article class="task-panel" data-panel id={`task-panel-${task.id}`} aria-labelledby={`task-heading-${task.id}`}>
+          <div class="task-body">
+            <span class="task-index" aria-hidden="true">{pad(i + 1)}</span>
+            <h3 id={`task-heading-${task.id}`}>{task.name}</h3>
+            <p class="task-short">{task.short}</p>
+            <p class="task-desc">{task.description}</p>
+            <dl class="task-facts">
+              <div><dt>{copy.tasks.models}</dt><dd>{task.models}</dd></div>
+              <div><dt>{copy.tasks.metrics}</dt><dd>{task.metrics}</dd></div>
+            </dl>
+          </div>
+          <figure class="task-art">
+            <svg viewBox="0 0 360 240" aria-hidden="true" focusable="false">
+              {task.id === 'classification' && (
+                <g>
+                  <rect class="art-soft art-stroke" x="24" y="50" width="120" height="120" rx="6" />
+                  <circle class="art-fill" cx="84" cy="96" r="20" opacity=".85" />
+                  <path class="art-stroke" d="M36 158l34-38 26 26 18-18 18 30" />
+                  <path class="art-accent" d="M158 110h44M194 102l10 8-10 8" />
+                  <rect class="art-stroke" x="218" y="58" width="118" height="34" rx="5" />
+                  <path class="art-stroke art-dim" d="M232 75h52" />
+                  <rect class="art-soft art-accent art-bold" x="218" y="103" width="118" height="34" rx="5" />
+                  <circle class="art-fill" cx="234" cy="120" r="5" />
+                  <path class="art-stroke" d="M248 120h66" />
+                  <rect class="art-stroke" x="218" y="148" width="118" height="34" rx="5" />
+                  <path class="art-stroke art-dim" d="M232 165h40" />
+                </g>
+              )}
+              {task.id === 'detection' && (
+                <g>
+                  <rect class="art-soft art-stroke" x="24" y="28" width="312" height="184" rx="6" />
+                  <path class="art-stroke art-dim" d="M24 172h312" />
+                  <rect class="art-stroke" x="62" y="124" width="90" height="38" rx="10" />
+                  <circle class="art-stroke" cx="86" cy="164" r="9" />
+                  <circle class="art-stroke" cx="130" cy="164" r="9" />
+                  <circle class="art-stroke" cx="250" cy="108" r="12" />
+                  <rect class="art-stroke" x="240" y="122" width="20" height="44" rx="6" />
+                  <rect class="art-accent art-bold" x="50" y="102" width="114" height="76" />
+                  <rect class="art-fill" x="50" y="86" width="46" height="16" />
+                  <rect class="art-accent art-bold" x="222" y="80" width="56" height="96" />
+                  <rect class="art-fill" x="222" y="64" width="36" height="16" />
+                </g>
+              )}
+              {task.id === 'regression' && (
+                <g>
+                  <rect class="art-soft art-stroke" x="24" y="64" width="100" height="100" rx="6" />
+                  <circle class="art-fill" cx="74" cy="104" r="14" opacity=".85" />
+                  <path class="art-stroke" d="M34 152l26-28 20 18 14-12 18 22" />
+                  <path class="art-accent" d="M136 114h40M168 106l10 8-10 8" />
+                  <path class="art-stroke" d="M200 36v156h140" />
+                  <path class="art-accent art-bold" d="M208 176L332 70" />
+                  {dots.map(([cx, cy]) => <circle class="art-stroke art-soft" cx={cx} cy={cy} r="5" />)}
+                  <circle class="art-accent art-bold" cx="284" cy="112" r="10" />
+                </g>
+              )}
+              {task.id === 'segmentation' && (
+                <g>
+                  <defs>
+                    <pattern id="art-pixels" width="12" height="12" patternUnits="userSpaceOnUse"><path class="art-stroke art-dim" d="M12 0H0V12" /></pattern>
+                    <clipPath id="art-clip"><rect x="60" y="28" width="240" height="184" rx="6" /></clipPath>
+                  </defs>
+                  <g clip-path="url(#art-clip)">
+                    <rect class="art-soft" x="60" y="28" width="240" height="184" />
+                    <path class="art-fill" opacity=".22" d="M60 28H300V112C250 92 200 132 150 102S90 92 60 112Z" />
+                    <rect class="art-fill-text" x="60" y="172" width="240" height="40" />
+                    <ellipse class="art-fill" cx="210" cy="148" rx="58" ry="36" opacity=".8" />
+                    <rect style="fill:url(#art-pixels)" x="60" y="28" width="240" height="184" />
+                  </g>
+                  <rect class="art-stroke" x="60" y="28" width="240" height="184" rx="6" />
+                </g>
+              )}
+              {task.id === 'anomaly' && (
+                <g>
+                  {tiles.map((t) => (
+                    <rect class={t.odd ? 'art-soft art-accent art-bold' : 'art-soft art-stroke'} x={t.x} y={t.y} width="56" height="40" rx="4" />
+                  ))}
+                  <circle class="art-fill" cx="180" cy="96" r="16" opacity=".35" />
+                  <path class="art-accent art-bold" d="M166 84l10 8-6 10 14 8" />
+                </g>
+              )}
+            </svg>
+            <figcaption>{copy.tasks.illustration} · {task.name}</figcaption>
+          </figure>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="workflow" class="section workflow" aria-labelledby="workflow-title">
+  <div class="container">
+    <span class="eyebrow">02 / {copy.workflow.eyebrow}</span>
+    <h2 id="workflow-title">{copy.workflow.title}</h2>
+    <ol class="steps">
+      {copy.workflow.steps.map((step, i) => (
+        <li class="step">
+          <span class="step-number" aria-hidden="true">{pad(i + 1)}</span>
+          <h3>{stripNumber(step.title)}</h3>
+          <p>{step.description}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<section id="research" class="section research" aria-labelledby="research-title">
+  <div class="container research-layout">
+    <div class="research-copy">
+      <span class="eyebrow">03 / {copy.research.eyebrow}</span>
+      <h2 id="research-title">{copy.research.title}</h2>
+      <p class="section-intro">{copy.research.intro}</p>
+      <ul class="features">
+        {copy.research.items.map((item, i) => (
+          <li class="feature">
+            <span class="feature-index" aria-hidden="true">{pad(i + 1)}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="research-side">
+      <figure class="provenance">
+        <svg viewBox="0 0 440 320" aria-hidden="true" focusable="false">
+          <g class="prov-inputs">
+            <rect class="art-soft art-stroke" x="12" y="24" width="150" height="48" rx="5" />
+            <rect class="art-soft art-stroke" x="12" y="96" width="150" height="48" rx="5" />
+            <rect class="art-soft art-stroke" x="12" y="168" width="150" height="48" rx="5" />
+            <rect class="art-soft art-stroke" x="12" y="240" width="150" height="48" rx="5" />
+            <text x="26" y="53">hyperparameters</text>
+            <text x="26" y="125">seed</text>
+            <text x="26" y="197">environment</text>
+            <text x="26" y="269">dataset</text>
+          </g>
+          <path class="art-accent" d="M162 48H196M162 120H196M162 192H196M162 264H196M196 48V264" />
+          <path class="art-accent" d="M196 156H230M222 148l10 8-10 8" />
+          <path class="art-soft art-stroke art-bold" d="M240 16h140l48 48v240H240Z" />
+          <path class="art-stroke" d="M380 16v48h48" />
+          <text class="prov-title" x="258" y="52">run.json</text>
+          <g class="prov-rows">
+            <path class="art-stroke art-dim" d="M258 78H410M258 112H410M258 146H410M258 180H410M258 214H410M258 248H410" />
+            <circle class="art-fill" cx="266" cy="95" r="4" />
+            <circle class="art-fill" cx="266" cy="129" r="4" />
+            <circle class="art-fill" cx="266" cy="163" r="4" />
+            <circle class="art-fill" cx="266" cy="197" r="4" />
+            <text x="278" y="100">hyperparameters</text>
+            <text x="278" y="134">seed</text>
+            <text x="278" y="168">environment</text>
+            <text x="278" y="202">dataset_fingerprint</text>
+          </g>
+        </svg>
+        <figcaption>{copy.tasks.illustration} · run.json</figcaption>
+      </figure>
+      <p class="research-note">{copy.research.note}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  /** Upgrades the server-rendered task panels into an accessible tabs widget (arrows, Home, End). */
+  document.querySelectorAll<HTMLElement>('[data-task-tabs]').forEach((root) => {
+    const list = root.querySelector<HTMLElement>('[data-tablist]');
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
+    if (!list || !tabs.length || tabs.length !== panels.length) return;
+
+    list.hidden = false;
+    list.setAttribute('role', 'tablist');
+    root.dataset.enhanced = 'true';
+
+    const select = (index: number, focus = false) => {
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        panels[i].hidden = !active;
+      });
+      if (focus) tabs[index].focus();
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('role', 'tab');
+      panels[i].setAttribute('role', 'tabpanel');
+      // Panels hold no focusable content, so they need to be reachable by keyboard themselves.
+      panels[i].tabIndex = 0;
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (event: KeyboardEvent) => {
+        const last = tabs.length - 1;
+        const next: Record<string, number> = {
+          ArrowRight: i === last ? 0 : i + 1,
+          ArrowDown: i === last ? 0 : i + 1,
+          ArrowLeft: i === 0 ? last : i - 1,
+          ArrowUp: i === 0 ? last : i - 1,
+          Home: 0,
+          End: last,
+        };
+        if (!(event.key in next)) return;
+        event.preventDefault();
+        select(next[event.key], true);
+      });
+    });
+
+    select(0);
+  });
+</script>

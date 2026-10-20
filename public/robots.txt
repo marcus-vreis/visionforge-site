@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://marcus-vreis.github.io/visionforge-site/sitemap-index.xml

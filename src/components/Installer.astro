@@ -1,0 +1,89 @@
+---
+import type { SiteCopy } from '../content/types';
+import { release } from '../content/release';
+interface Props { copy: SiteCopy }
+const { copy } = Astro.props;
+const t = copy.install;
+const pt = copy.lang === 'pt';
+const systems = [
+  { id:'windows', name:'Windows', shell:'PowerShell', prerequisites:pt ? 'Instale Python 3.12 pelo python.org. Os comandos abaixo usam o ambiente virtual diretamente; não é necessário alterar a política do PowerShell.' : 'Install Python 3.12 from python.org. These commands use the virtual environment directly; no PowerShell policy change is needed.', python:'https://www.python.org/downloads/windows/',
+    command:'mkdir visionforge-workspace\ncd visionforge-workspace\npy -3.12 -m venv .venv\n.\\.venv\\Scripts\\python.exe -m pip install visionforge-studio\n.\\.venv\\Scripts\\visionforge.exe doctor',
+    fix:'.\\.venv\\Scripts\\visionforge.exe doctor --fix' },
+  { id:'linux', name:'Linux', shell:'Bash · Ubuntu 24.04', prerequisites:pt ? 'Exemplo para Ubuntu 24.04 (Python 3.12). Em outras distribuições, instale Python 3.12/3.13, venv e Tk com o gerenciador de pacotes do sistema.' : 'Example for Ubuntu 24.04 (Python 3.12). On other distributions, install Python 3.12/3.13, venv and Tk using your system package manager.', python:'https://www.python.org/downloads/source/',
+    command:'sudo apt update\nsudo apt install python3-venv python3-tk\nmkdir visionforge-workspace\ncd visionforge-workspace\npython3 -m venv .venv\nsource .venv/bin/activate\npip install visionforge-studio\nvisionforge doctor', fix:'visionforge doctor --fix' },
+  { id:'macos', name:'macOS', shell:'zsh · Apple Silicon', prerequisites:pt ? 'Instale Python 3.12 pelo python.org e execute Install Certificates.command na pasta criada pelo instalador. Macs Intel não são suportados.' : 'Install Python 3.12 from python.org and run Install Certificates.command in the folder created by the installer. Intel Macs are not supported.', python:'https://www.python.org/downloads/macos/',
+    command:'mkdir visionforge-workspace\ncd visionforge-workspace\npython3.12 -m venv .venv\nsource .venv/bin/activate\npip install visionforge-studio\nvisionforge doctor', fix:null },
+];
+---
+<section id="install" class="section" aria-labelledby="install-title">
+  <div class="container install-layout">
+    <div class="install-aside">
+      <span class="eyebrow">04 / {t.eyebrow}</span>
+      <h2 id="install-title">{t.title}</h2>
+      <p class="section-intro">{t.intro}</p>
+      <div class="requirements">{t.requirements}</div>
+      <a href={release.installGuide}>{t.guide} ↗</a>
+      <div class="downloads">
+        <h3>{t.downloads}</h3>
+        <span class="eyebrow">v{release.version} · {pt ? 'Pacote Python' : 'Python package'}</span>
+        <div class="download-links">
+          <a class="button" href={release.wheel}>{t.wheel} ↙</a>
+          <a class="button" href={release.source}>{t.source} ↙</a>
+          <a class="button" href={release.pypi}>PyPI ↗</a>
+        </div>
+        <p class="install-note">{t.noExecutable}</p>
+        <a href={release.latest}>{t.update} ↗</a>
+      </div>
+    </div>
+    <div>
+      <div class="install-tabs" data-install-tabs aria-label={t.osLabel}>
+        {systems.map(s => <button hidden type="button" id={`tab-${s.id}`} data-os={s.id} aria-controls={`panel-${s.id}`}>{s.name}</button>)}
+      </div>
+      {systems.map(s => <div class="install-panel" id={`panel-${s.id}`} data-install-panel={s.id}>
+        <h3>{s.name}{s.id === 'macos' ? ' · Apple Silicon' : ''}</h3>
+        <p class="install-note">{s.prerequisites} <a href={s.python}>Python ↗</a></p>
+        <div class="terminal">
+          <div class="terminal-bar"><span>{s.shell}</span><button hidden class="copy-button" type="button" data-copy={`code-${s.id}`} data-success={t.copied} data-failure={t.copyFailed}>{t.copy}</button></div>
+          <pre tabindex="0" aria-label={`${t.steps}: ${s.name}`}><code id={`code-${s.id}`}>{s.command}</code></pre>
+        </div>
+        <p class="copy-status" role="status" aria-live="polite"></p>
+        {s.fix ? <div class="notice"><p><strong>NVIDIA GPU</strong> — {t.gpu}</p><div class="terminal"><div class="terminal-bar"><span>{s.shell}</span><button hidden type="button" class="copy-button" data-copy={`fix-${s.id}`} data-success={t.copied} data-failure={t.copyFailed}>{t.copy}</button></div><pre tabindex="0"><code id={`fix-${s.id}`}>{s.fix}</code></pre></div><p>{t.cpu}</p></div> : <div class="notice">{t.mac}</div>}
+        <h3 style="margin-top:28px">{pt ? 'Conferir e abrir' : 'Verify and launch'}</h3>
+        <div class="terminal"><div class="terminal-bar"><span>{s.shell}</span><button hidden type="button" class="copy-button" data-copy={`launch-${s.id}`} data-success={t.copied} data-failure={t.copyFailed}>{t.copy}</button></div><pre tabindex="0"><code id={`launch-${s.id}`}>{s.id === 'windows' ? '.\\.venv\\Scripts\\visionforge.exe selftest --quick\n.\\.venv\\Scripts\\visionforge.exe gui' : 'visionforge selftest --quick\nvisionforge gui'}</code></pre></div>
+      </div>)}
+      <p class="install-note">{t.terminal}</p>
+      <p class="install-note"><a href={release.smokeTest}>{t.verified} ↗</a></p>
+    </div>
+  </div>
+</section>
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-os]'));
+  const panels = document.querySelectorAll<HTMLElement>('[data-install-panel]');
+  document.querySelector('[data-install-tabs]')?.setAttribute('role', 'tablist');
+  function activate(tab: HTMLButtonElement) {
+    tabs.forEach(item => { item.setAttribute('aria-selected', String(item === tab)); item.tabIndex = item === tab ? 0 : -1; });
+    panels.forEach(panel => { panel.hidden = panel.dataset.installPanel !== tab.dataset.os; });
+  }
+  tabs.forEach((tab,index) => {
+    tab.hidden = false;
+    tab.setAttribute('role','tab');
+    const panel = document.getElementById(`panel-${tab.dataset.os}`);
+    panel?.setAttribute('role','tabpanel'); panel?.setAttribute('aria-labelledby',tab.id);
+    tab.addEventListener('click',() => activate(tab));
+    tab.addEventListener('keydown', event => {
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length-1 : event.key === 'ArrowRight' ? (index+1)%tabs.length : event.key === 'ArrowLeft' ? (index+tabs.length-1)%tabs.length : null;
+      if (next !== null) { event.preventDefault(); activate(tabs[next]); tabs[next].focus(); }
+    });
+  });
+  if (tabs[0]) activate(tabs[0]);
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => {
+    button.hidden = false;
+    button.addEventListener('click',async () => {
+      const code = document.getElementById(button.dataset.copy!);
+      const status = button.closest('[data-install-panel]')?.querySelector<HTMLElement>('[role=status]');
+      if (!code || !status) return;
+      try { await navigator.clipboard.writeText(code.textContent ?? ''); status.textContent = button.dataset.success ?? ''; }
+      catch { status.textContent = button.dataset.failure ?? ''; const range = document.createRange(); range.selectNodeContents(code); const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range); code.parentElement?.focus(); }
+    });
+  });
+</script>
