@@ -88,7 +88,7 @@ export const copy: SiteCopy = {
       },
       {
         title: 'Configure the experiment',
-        description: 'Choose standard architectures or timm backbones, set hyperparameters, and select validation schemes.',
+        description: 'Choose standard architectures or timm backbones, set hyperparameters, and select validation schemes. In classification, model comparison can use the suggested learning rate of each architecture.',
       },
       {
         title: 'Train on your machine',
@@ -173,7 +173,7 @@ export const copy: SiteCopy = {
         path: 'CONTRIBUTING.md',
       },
     ],
-    citation: 'If VisionForge is useful in your academic research or paper, include the formal citation.',
+    citation: 'If VisionForge is useful in your academic research or paper, include the formal citation. DOI of version 0.20.1: 10.5281/zenodo.23913246.',
     citeLabel: 'View CITATION.cff',
   },
   footer: {
