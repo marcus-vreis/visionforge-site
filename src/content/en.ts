@@ -23,7 +23,7 @@ export const copy: SiteCopy = {
     description: 'Train and compare computer vision models on your computer. Keep datasets and results in local folders and register your own architectures and tasks.',
     install: 'View install guide',
     github: 'GitHub repository',
-    caption: 'Real VisionForge v0.17.0 interface configuring a classification training run.',
+    caption: 'Real VisionForge v0.20.1 interface at the data step of a classification run.',
     local: 'Local training',
     open: 'Open source (MIT)',
     tasks: '5 task families',
