@@ -88,7 +88,7 @@ export const copy: SiteCopy = {
       },
       {
         title: 'Configure o experimento',
-        description: 'Escolha arquiteturas estabelecidas ou backbones timm, defina hiperparâmetros e esquemas de validação.',
+        description: 'Escolha arquiteturas estabelecidas ou backbones timm, defina hiperparâmetros e esquemas de validação. Na classificação, a comparação de modelos pode usar o learning rate sugerido de cada arquitetura.',
       },
       {
         title: 'Treine na sua máquina',
@@ -173,7 +173,7 @@ export const copy: SiteCopy = {
         path: 'CONTRIBUTING.md',
       },
     ],
-    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto.',
+    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto. DOI da versão 0.20.1: 10.5281/zenodo.23913246.',
     citeLabel: 'Ver arquivo CITATION.cff',
   },
   footer: {
