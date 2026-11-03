@@ -173,7 +173,7 @@ export const copy: SiteCopy = {
         path: 'CONTRIBUTING.md',
       },
     ],
-    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto. DOI da versão 0.20.1: 10.5281/zenodo.23913246.',
+    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto. DOI da versão 0.20.2: 10.5281/zenodo.23926437.',
     citeLabel: 'Ver arquivo CITATION.cff',
   },
   footer: {
