@@ -37,7 +37,7 @@ const siblings = guides.filter(item => item.lang === guide.lang);
         <span class="eyebrow">VisionForge / {pt ? 'Documentação' : 'Documentation'}</span>
         <h1>{guide.title}</h1>
         <p class="guide-lede">{guide.description}</p>
-        <p class="guide-version">v{release.version} · {pt ? 'API e exemplos conferidos na v0.17.0 em 20/10/2026' : 'API and examples checked against v0.17.0 on 2026-10-20'}</p>
+        <p class="guide-version">v{release.version}</p>
       </header>
       {guide.slug === 'model' && <aside class="notice guide-case"><p>{pt ? 'Para executar esta CNN com dados reais, siga o caso de dígitos manuscritos. Ele reúne os nove arquivos do projeto, desde a preparação das imagens até a leitura do run.json.' : 'To run this CNN with real data, follow the handwritten digits case. It includes all nine project files, from image preparation to reading run.json.'}</p><a href={`${home}docs/project/`}>{pt ? 'Abrir o caso completo' : 'Open the complete case'} →</a></aside>}
       {guide.slug === 'project' && <a class="button button-primary project-download" download href={`${base}downloads/visionforge-digits-project.zip`}>{pt ? 'Baixar projeto completo (.zip)' : 'Download complete project (.zip)'}</a>}

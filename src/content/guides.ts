@@ -60,7 +60,7 @@ class ResearchMethodTask(TaskSpec[ResearchMethodConfig]):
     Config = ResearchMethodConfig
     # Keep the four generated hooks; edit them as shown in this guide.`;
 
-/** Tutorials checked against the product source and its v0.17.0 extension API. */
+/** Tutorials checked against the product source and its extension API. */
 export const guides: Guide[] = [
   {
     lang: 'pt', slug: '', title: 'Primeiro treino',

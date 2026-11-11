@@ -23,7 +23,7 @@ export const copy: SiteCopy = {
     description: 'Train and compare computer vision models on your computer. Keep datasets and results in local folders and register your own architectures and tasks.',
     install: 'View install guide',
     github: 'GitHub repository',
-    caption: 'Real VisionForge v0.20.1 interface at the data step of a classification run.',
+    caption: 'Real VisionForge interface at the data step of a classification run.',
     local: 'Local training',
     open: 'Open source (MIT)',
     tasks: '5 task families',
@@ -173,7 +173,7 @@ export const copy: SiteCopy = {
         path: 'CONTRIBUTING.md',
       },
     ],
-    citation: 'If VisionForge is useful in your academic research or paper, include the formal citation. DOI of version 0.20.2: 10.5281/zenodo.23926437.',
+    citation: 'If VisionForge is useful in your academic research or paper, include the formal citation. DOI of version {version}: {doi}.',
     citeLabel: 'View CITATION.cff',
   },
   footer: {

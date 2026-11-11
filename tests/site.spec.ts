@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { release } from '../src/content/release';
 
 for (const language of ['pt','en'] as const) {
   test(`${language}: real content, metadata, assets and navigation`, async ({ page }) => {
@@ -167,4 +171,41 @@ test('reduced motion and skip link', async ({ page }) => {
   expect(await page.locator('html').evaluate(el => getComputedStyle(el).scrollBehavior)).toBe('auto');
   await page.keyboard.press('Tab'); await expect(page.locator('.skip')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page).toHaveURL(/#main$/);
+});
+
+test.describe('version consistency', () => {
+  const root = fileURLToPath(new URL('..', import.meta.url));
+  const staleVersions = /(?<![\d.])0\.(?:17\.0|20\.1|20\.2)(?!\.?\d)/;
+  // Provenance of assets that really come from older versions (screenshots, adapted scaffold).
+  const historicalLines = [/adapted from VisionForge v0\.17\.0/, /v0\.20\.1 GUI.*recaptured on 2026-11-03|recaptured on 2026-11-03.*v0\.20\.1 GUI|v0\.20\.1 GUI recaptured/];
+
+  function filesUnder(directory: string): string[] {
+    return readdirSync(join(root, directory), { withFileTypes: true }).flatMap(entry => {
+      const relative = `${directory}/${entry.name}`;
+      return entry.isDirectory() ? filesUnder(relative) : [relative];
+    });
+  }
+
+  test('no stale release version outside intentional history', () => {
+    const sources = [...filesUnder('src'), ...filesUnder('examples'), 'docs/ASSETS.md'];
+    const offenders = sources
+      .flatMap(file => readFileSync(join(root, file), 'utf8').split('\n')
+        .map((line, index) => ({ where: `${file}:${index + 1}`, line }))
+        .filter(({ line }) => staleVersions.test(line) && !historicalLines.some(pattern => pattern.test(line)))
+        .map(({ where }) => where));
+    expect(offenders).toEqual([]);
+  });
+
+  test('release.ts version drives links, requirements, citation and ZIP', async ({ page }) => {
+    const { version } = release;
+    expect(release.wheel).toContain(`/v${version}/visionforge_studio-${version}-py3-none-any.whl`);
+    expect(release.source).toContain(`/v${version}/visionforge_studio-${version}.tar.gz`);
+    expect(release.url.endsWith(`/tag/v${version}`)).toBe(true);
+    expect(readFileSync(join(root, 'examples/digits-project/requirements.txt'), 'utf8').trim()).toBe(`visionforge-studio==${version}`);
+    for (const path of ['./', './en/']) {
+      await page.goto(path);
+      await expect(page.locator(`a[href="${release.wheel}"]`)).toHaveCount(1);
+      await expect(page.locator('.citation')).toContainText(`${version}: ${release.doi}`);
+    }
+  });
 });
