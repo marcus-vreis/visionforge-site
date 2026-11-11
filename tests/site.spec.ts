@@ -209,3 +209,37 @@ test.describe('version consistency', () => {
     }
   });
 });
+
+test('404 page is built with h1, links to home and English, and passes axe', async ({ page }) => {
+  const root = fileURLToPath(new URL('..', import.meta.url));
+  const html = readFileSync(join(root, 'dist/404.html'), 'utf8');
+  expect(html).toContain('<h1');
+  const response = await page.goto('./pagina-que-nao-existe/');
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('main a[href="/visionforge-site/"]')).toHaveCount(1);
+  await expect(page.locator('main a[href="/visionforge-site/en/"]')).toHaveCount(1);
+  await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'noindex');
+  const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+  expect(result.violations).toEqual([]);
+});
+
+test('JSON-LD SoftwareApplication parses and follows release.ts', async ({ page }) => {
+  for (const [path, lang] of [['./', 'pt-BR'], ['./en/', 'en']] as const) {
+    await page.goto(path);
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    expect(blocks).toHaveLength(1);
+    const data = JSON.parse(blocks[0]);
+    expect(data['@context']).toBe('https://schema.org');
+    expect(data['@type']).toBe('SoftwareApplication');
+    expect(data.softwareVersion).toBe(release.version);
+    expect(data.inLanguage).toBe(lang);
+    expect(data.identifier).toBe(`https://doi.org/${release.doi}`);
+  }
+});
+
+test('twitter title and description mirror the page metadata', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', await page.title());
+  await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', (await page.locator('meta[name=description]').getAttribute('content'))!);
+});

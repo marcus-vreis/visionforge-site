@@ -3,14 +3,28 @@ import '../styles/global.css';
 import type { SiteCopy } from '../content/types';
 import { release } from '../content/release';
 import ThemeSwitch from '../components/ThemeSwitch.astro';
-interface Props { copy: SiteCopy; title?: string; description?: string; route?: string }
-const { copy, title = copy.title, description = copy.description, route = '' } = Astro.props;
+interface Props { copy: SiteCopy; title?: string; description?: string; route?: string; noindex?: boolean }
+const { copy, title = copy.title, description = copy.description, route = '', noindex = false } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const root = new URL(base, Astro.site).href;
 const home = copy.lang === 'pt' ? base : `${base}en/`;
 const ptUrl = `${root}${route}`;
 const enUrl = `${root}en/${route}`;
 const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'VisionForge',
+  description: copy.description,
+  url: canonical,
+  inLanguage: copy.lang === 'pt' ? 'pt-BR' : 'en',
+  applicationCategory: 'DeveloperApplication',
+  softwareVersion: release.version,
+  identifier: `https://doi.org/${release.doi}`,
+  downloadUrl: release.wheel,
+  license: `${release.repository}/blob/main/LICENSE`,
+  sameAs: [release.repository, release.pypi],
+}).replace(/</g, '\\u003c');
 ---
 <!doctype html>
 <html lang={copy.lang === 'pt' ? 'pt-BR' : 'en'}>
@@ -20,10 +34,12 @@ const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
     <meta name="description" content={description} />
     <meta name="theme-color" content="#07080a" />
     <title>{title}</title>
+    {noindex ? <meta name="robots" content="noindex" /> : <>
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="pt-BR" href={ptUrl} />
     <link rel="alternate" hreflang="en" href={enUrl} />
     <link rel="alternate" hreflang="x-default" href={ptUrl} />
+    </>}
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="VisionForge" />
@@ -33,6 +49,9 @@ const canonical = copy.lang === 'pt' ? ptUrl : enUrl;
     <meta property="og:locale" content={copy.lang === 'pt' ? 'pt_BR' : 'en_US'} />
     <meta property="og:image" content={`${root}images/social.png`} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {!noindex && <script type="application/ld+json" set:html={structuredData} />}
     <script is:inline>
       (() => {
         let choice = 'system';
