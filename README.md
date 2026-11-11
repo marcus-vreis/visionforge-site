@@ -53,7 +53,7 @@ Para atualizar uma versão:
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
 
-Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
+Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Eles descrevem recursos que só existem no ramo `development` do produto (marca "a partir da 0.22" em `plannedVersion`, `release.ts`) e citam as páginas `docs/gui/` de lá; ao publicar a 0.22, remova a marca `availability` e aponte `sourceRef` para a tag. Não há capturas de tela deles porque o site ainda não tem capturas reais desses painéis. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
 
 Para verificar exemplos contra o ambiente local do VisionForge, sem baixar datasets ou pesos e usando somente CPU:
 

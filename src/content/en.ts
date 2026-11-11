@@ -80,23 +80,94 @@ export const copy: SiteCopy = {
   },
   workflow: {
     eyebrow: 'Workflow',
-    title: 'From dataset to result in four steps',
+    title: 'From dataset to result in six steps',
     steps: [
       {
         title: 'Prepare your data',
         description: 'Point to a local directory or fetch benchmark datasets like CIFAR-10 directly in the GUI, with one click.',
       },
       {
-        title: 'Configure the experiment',
-        description: 'Choose standard architectures or timm backbones, set hyperparameters, and select validation schemes. In classification, model comparison can use the suggested learning rate of each architecture.',
+        title: 'Choose strategy and model',
+        description: 'A single run or a model comparison, with standard architectures or timm backbones. Available strategies vary by task. In classification, the comparison can use the suggested learning rate of each architecture.',
       },
       {
-        title: 'Train on your machine',
-        description: 'Run training on your own hardware, with real-time TensorBoard scalars and an automatic local job queue.',
+        title: 'Tune training and image',
+        description: 'Set hyperparameters, the validation scheme, preprocessing and data augmentation.',
+      },
+      {
+        title: 'Review and train',
+        description: 'Configuration has six steps: Data, Strategy, Model, Training, Image and augmentation, and Review. The Train button unlocks only on Review, once the dataset is set.',
+      },
+      {
+        title: 'Follow the run',
+        description: 'Train on your own hardware, with an automatic local queue, TensorBoard scalars and a Results tab with curves and the best epoch. In classification, you can also train on a Google Colab machine with your own account.',
       },
       {
         title: 'Compare and export',
         description: 'Inspect run history with config diffs, view Grad-CAM heatmaps, and export checkpoints to ONNX.',
+      },
+    ],
+  },
+  features: {
+    eyebrow: 'Features and availability',
+    title: 'What the published release has and what comes later',
+    intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
+    groups: [
+      {
+        id: 'released',
+        heading: 'In version {version}',
+        items: [
+          {
+            title: 'Training on Google Colab',
+            description: 'In classification, training runs on a Colab machine under your Google account, joins the same queue as local runs and comes back as a History run marked Colab. The VM is released when the job ends.',
+            mark: 'Version {version}',
+            guide: 'docs/colab/',
+          },
+          {
+            title: 'Results tab',
+            description: 'Loss and task-metric curves while training runs, with a best-epoch card that uses the same rule as the saved checkpoint.',
+            mark: 'Version {version}',
+          },
+          {
+            title: 'Data audit and bundles',
+            description: 'Audit images looks for exact duplicates, unreadable files and the same content across splits. A bundle collects the run.json and artifacts of a run with a SHA-256 manifest, and visionforge verify-bundle checks the file.',
+            mark: 'Version {version}',
+          },
+          {
+            title: 'Docker',
+            description: 'The repository ships a Dockerfile and a docker-compose.yml to start the interface in a container, with an NVIDIA GPU or CPU only. Datasets are mounted read-only and outputs/ is written to a host folder.',
+            mark: 'Version {version}',
+          },
+        ],
+      },
+      {
+        id: 'planned',
+        heading: 'From {planned}, in development',
+        items: [
+          {
+            title: 'Code tab',
+            description: 'Shows the real functions that train, validate and test the model, read from the installed package, with notes beside the lines and the path your training settings follow marked. There is one tour per task.',
+            mark: 'From {planned}',
+            guide: 'docs/codigo/',
+          },
+          {
+            title: 'Exporters from History',
+            description: 'A Zenodo draft, DVC versioning, a private Hugging Face Hub repository, a report in a private GitHub repository, and tracking in local MLflow or Weights & Biases. Each upload shows a preview and uses a token saved per profile.',
+            mark: 'From {planned}',
+            guide: 'docs/publicar/',
+          },
+          {
+            title: 'Dataset explorer',
+            description: 'An Explore tab in the Datasets button, for classification and YOLO detection: distribution by class and split, a thumbnail gallery and an integrity scan that can be cancelled. It also creates new datasets by adding images, merging, re-splitting or converting YOLO and COCO, leaving the original untouched.',
+            mark: 'From {planned}',
+          },
+          {
+            title: 'Google Drive dataset on Colab',
+            description: 'A Colab run can read the dataset folder from Google Drive for desktop, with no upload, with permission granted in the interface for each machine. The run bundle can also be saved to the Drive.',
+            mark: 'From {planned}',
+            guide: 'docs/colab/',
+          },
+        ],
       },
     ],
   },

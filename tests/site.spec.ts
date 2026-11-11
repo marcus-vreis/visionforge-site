@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { release } from '../src/content/release';
+import { release, plannedVersion } from '../src/content/release';
 
 for (const language of ['pt','en'] as const) {
   test(`${language}: real content, metadata, assets and navigation`, async ({ page }) => {
@@ -242,4 +242,70 @@ test('twitter title and description mirror the page metadata', async ({ page }) 
   await page.goto('./');
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', await page.title());
   await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', (await page.locator('meta[name=description]').getAttribute('content'))!);
+});
+
+test('landing: six workflow steps, exporters, Colab and planned marks in both languages (issue 219)', async ({ page }) => {
+  const shape: Record<string, { steps: number; cards: number; planned: number }> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    const section = page.locator('#features');
+    await expect(section).toContainText('Colab');
+    for (const name of ['Zenodo', 'DVC', 'Hugging Face', 'MLflow', 'Weights & Biases', 'GitHub', 'Docker']) await expect(section).toContainText(name);
+    const planned = page.locator('#features [data-group=planned] .feature-card');
+    const mark = language === 'pt' ? `A partir da ${plannedVersion}` : `From ${plannedVersion}`;
+    for (const card of await planned.all()) await expect(card.locator('.feature-mark')).toHaveText(mark);
+    await expect(page.locator('#features [data-group=released] .feature-mark').first()).toHaveText(`${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`);
+    shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), planned: await planned.count() };
+    expect(shape[language].steps).toBe(6);
+    for (const theme of ['dark', 'light']) {
+      await page.locator(`[data-theme-option=${theme}]`).click();
+      const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      expect(result.violations).toEqual([]);
+    }
+  }
+  expect(shape.pt).toEqual(shape.en);
+});
+
+test.describe('Colab, publishing and Code guides (issue 222)', () => {
+  const slugs = ['colab', 'publicar', 'codigo'] as const;
+  const site = 'https://marcus-vreis.github.io/visionforge-site/';
+  const urlFor = (language: 'pt' | 'en', slug: string) => `${site}${language === 'en' ? 'en/' : ''}docs/${slug}/`;
+
+  for (const slug of slugs) {
+    test(`/docs/${slug}/ serves both languages with reciprocal hreflang and a version mark`, async ({ page }) => {
+      for (const language of ['pt', 'en'] as const) {
+        const response = await page.goto(`${language === 'en' ? 'en/' : ''}docs/${slug}/`);
+        expect(response?.status()).toBe(200);
+        await expect(page.locator('html')).toHaveAttribute('lang', language === 'pt' ? 'pt-BR' : 'en');
+        await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', urlFor(language, slug));
+        await expect(page.locator('link[hreflang=pt-BR]')).toHaveAttribute('href', urlFor('pt', slug));
+        await expect(page.locator('link[hreflang=en]')).toHaveAttribute('href', urlFor('en', slug));
+        await expect(page.locator('link[hreflang=x-default]')).toHaveAttribute('href', urlFor('pt', slug));
+        // Unreleased features say so; the Colab guide also names the version that already has training.
+        await expect(page.locator('.guide-version')).toContainText(plannedVersion);
+        if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText(release.version);
+        await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
+        for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
+        await expect(page.locator('img')).toHaveCount(0);
+      }
+    });
+  }
+
+  test('the six routes are listed in the sitemap and link to each other in the sidebar', async ({ page, request }) => {
+    const index = await request.get('sitemap-index.xml');
+    expect(index.status()).toBe(200);
+    expect(await index.text()).toContain('sitemap-0.xml');
+    const sitemap = await (await request.get('sitemap-0.xml')).text();
+    for (const language of ['pt', 'en'] as const) for (const slug of slugs) expect(sitemap).toContain(`<loc>${urlFor(language, slug)}</loc>`);
+    await page.goto('docs/colab/');
+    for (const slug of slugs) await expect(page.locator(`.docs-sidebar a[href$="/docs/${slug}/"]`)).toHaveCount(1);
+  });
+
+  test('Colab guide keeps the 0.21.0 and 0.22 boundary, and the Code guide quotes the real tour map', async ({ page }) => {
+    await page.goto('docs/colab/');
+    await expect(page.locator('#drive')).toContainText(`a partir da ${plannedVersion}`);
+    await page.goto('en/docs/codigo/');
+    await expect(page.locator('article')).toContainText('"classification": CLASSIFICATION,');
+    await expect(page.locator('article')).toContainText('nn.BCEWithLogitsLoss()');
+  });
 });

@@ -59,7 +59,7 @@ test('guide code copies exact content and offers a keyboard fallback', async ({ 
 for (const width of [360, 768, 1440]) {
   test(`guides remain accessible at ${width}px in both themes`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
-    for (const slug of ['', 'model/', 'task/', 'project/']) {
+    for (const slug of ['', 'model/', 'task/', 'project/', 'colab/', 'publicar/', 'codigo/']) {
       await page.goto(`./docs/${slug}`);
       for (const theme of ['light', 'dark']) {
         await page.locator(`[data-theme-option=${theme}]`).click();

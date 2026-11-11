@@ -41,7 +41,7 @@
 .guide-section h2 a { text-decoration:none; }
 .guide-section p,.guide-section li { line-height:1.8; }
 .guide-section li { padding-left:6px; margin-bottom:12px; }
-.guide-section ol { padding-left:24px; }
+.guide-section ol,.guide-section ul { padding-left:24px; }
 .guide-code pre { line-height:1.8; overflow-wrap:normal; white-space:pre; }
 .guide-code .copy-status { padding-inline:18px; font-size:13px; }
 .guide-code .terminal-bar { flex-wrap:wrap; overflow-wrap:anywhere; }
