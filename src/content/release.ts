@@ -1,3 +1,6 @@
+/** Next minor release, still in development: only features absent from the published tag carry this mark. */
+export const plannedVersion = '0.22';
+
 /** Release information verified against GitHub and PyPI on 2026-11-10. */
 export const release = {
   version: '0.21.0',

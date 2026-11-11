@@ -1,6 +1,7 @@
 ---
 import Shell from './Shell.astro';
 import Showcase from '../components/Showcase.astro';
+import Features from '../components/Features.astro';
 import Installer from '../components/Installer.astro';
 import ResearchExtension from '../components/ResearchExtension.astro';
 import type { SiteCopy } from '../content/types';
@@ -12,6 +13,7 @@ const resourceUrl = (path: string) => path === 'docs/QUICKSTART.md' ? `${home}do
 ---
 <Shell copy={copy}>
       <Showcase copy={copy} />
+      <Features copy={copy} />
       <ResearchExtension lang={copy.lang} />
       <Installer copy={copy} />
       <section id="resources" class="section" aria-labelledby="resources-title">

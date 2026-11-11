@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { release } from '../src/content/release';
+import { release, plannedVersion } from '../src/content/release';
 
 for (const language of ['pt','en'] as const) {
   test(`${language}: real content, metadata, assets and navigation`, async ({ page }) => {
@@ -242,4 +242,26 @@ test('twitter title and description mirror the page metadata', async ({ page }) 
   await page.goto('./');
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', await page.title());
   await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', (await page.locator('meta[name=description]').getAttribute('content'))!);
+});
+
+test('landing: six workflow steps, exporters, Colab and planned marks in both languages (issue 219)', async ({ page }) => {
+  const shape: Record<string, { steps: number; cards: number; planned: number }> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    const section = page.locator('#features');
+    await expect(section).toContainText('Colab');
+    for (const name of ['Zenodo', 'DVC', 'Hugging Face', 'MLflow', 'Weights & Biases', 'GitHub', 'Docker']) await expect(section).toContainText(name);
+    const planned = page.locator('#features [data-group=planned] .feature-card');
+    const mark = language === 'pt' ? `A partir da ${plannedVersion}` : `From ${plannedVersion}`;
+    for (const card of await planned.all()) await expect(card.locator('.feature-mark')).toHaveText(mark);
+    await expect(page.locator('#features [data-group=released] .feature-mark').first()).toHaveText(`${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`);
+    shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), planned: await planned.count() };
+    expect(shape[language].steps).toBe(6);
+    for (const theme of ['dark', 'light']) {
+      await page.locator(`[data-theme-option=${theme}]`).click();
+      const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      expect(result.violations).toEqual([]);
+    }
+  }
+  expect(shape.pt).toEqual(shape.en);
 });

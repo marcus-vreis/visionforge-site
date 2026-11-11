@@ -80,23 +80,94 @@ export const copy: SiteCopy = {
   },
   workflow: {
     eyebrow: 'Fluxo de trabalho',
-    title: 'Do dataset ao resultado, em quatro etapas',
+    title: 'Do dataset ao resultado, em seis etapas',
     steps: [
       {
         title: 'Prepare os dados',
         description: 'Selecione uma pasta local ou baixe benchmarks como CIFAR-10 diretamente na interface, com um clique.',
       },
       {
-        title: 'Configure o experimento',
-        description: 'Escolha arquiteturas estabelecidas ou backbones timm, defina hiperparâmetros e esquemas de validação. Na classificação, a comparação de modelos pode usar o learning rate sugerido de cada arquitetura.',
+        title: 'Escolha estratégia e modelo',
+        description: 'Treino simples ou comparação de modelos, com arquiteturas estabelecidas ou backbones timm. As estratégias disponíveis variam por tarefa. Na classificação, a comparação pode usar o learning rate sugerido de cada arquitetura.',
       },
       {
-        title: 'Treine na sua máquina',
-        description: 'Execute o treinamento no seu hardware, com métricas escalares do TensorBoard em tempo real e fila local automática.',
+        title: 'Ajuste treino e imagem',
+        description: 'Defina hiperparâmetros, esquema de validação, pré-processamento e aumento de dados.',
+      },
+      {
+        title: 'Revise e treine',
+        description: 'A configuração tem seis etapas: Dados, Estratégia, Modelo, Treinamento, Imagem e aumento, e Revisão. O botão Treinar só é liberado na Revisão, com o dataset definido.',
+      },
+      {
+        title: 'Acompanhe o treino',
+        description: 'Treine no seu hardware, com fila local automática, métricas escalares do TensorBoard e a aba Resultados com curvas e a melhor época. Na classificação, também é possível treinar numa máquina do Google Colab, com a sua conta.',
       },
       {
         title: 'Compare e exporte',
         description: 'Avalie o histórico com diffs de configuração, inspecione heatmaps Grad-CAM e exporte checkpoints para ONNX.',
+      },
+    ],
+  },
+  features: {
+    eyebrow: 'Recursos e disponibilidade',
+    title: 'O que já está na versão publicada e o que chega depois',
+    intro: 'A versão publicada é a {version}. Os recursos marcados com "a partir da {planned}" estão no ramo de desenvolvimento e ainda não foram lançados.',
+    groups: [
+      {
+        id: 'released',
+        heading: 'Na versão {version}',
+        items: [
+          {
+            title: 'Treino no Google Colab',
+            description: 'Na classificação, o treino roda numa máquina do Colab com a sua conta Google, entra na mesma fila dos treinos locais e volta como execução do Histórico, marcada como Colab. A VM é liberada ao fim.',
+            mark: 'Versão {version}',
+            guide: 'docs/colab/',
+          },
+          {
+            title: 'Aba Resultados',
+            description: 'Curvas de loss e da métrica da tarefa durante o treino, com um card da melhor época pela mesma regra que escolhe o checkpoint salvo.',
+            mark: 'Versão {version}',
+          },
+          {
+            title: 'Auditoria de dados e bundles',
+            description: 'Auditar imagens procura duplicatas exatas, arquivos ilegíveis e o mesmo conteúdo em splits diferentes. O bundle reúne o run.json e os artefatos de uma execução com um manifesto SHA-256, e visionforge verify-bundle confere o arquivo.',
+            mark: 'Versão {version}',
+          },
+          {
+            title: 'Docker',
+            description: 'O repositório traz um Dockerfile e um docker-compose.yml para subir a interface em contêiner, com GPU NVIDIA ou só CPU. Datasets entram somente para leitura e outputs/ é gravado na pasta do host.',
+            mark: 'Versão {version}',
+          },
+        ],
+      },
+      {
+        id: 'planned',
+        heading: 'A partir da {planned}, em desenvolvimento',
+        items: [
+          {
+            title: 'Aba Código',
+            description: 'Mostra as funções reais que treinam, validam e testam o modelo, lidas do pacote instalado, com notas ao lado das linhas e o caminho que a configuração do treino segue marcado. Há um roteiro por tarefa.',
+            mark: 'A partir da {planned}',
+            guide: 'docs/codigo/',
+          },
+          {
+            title: 'Exportadores a partir do Histórico',
+            description: 'Rascunho no Zenodo, versionamento com DVC, repositório privado do Hugging Face Hub, relatório num repositório privado do GitHub, e acompanhamento no MLflow local ou no Weights & Biases. Cada envio mostra uma prévia e usa um token salvo por perfil.',
+            mark: 'A partir da {planned}',
+            guide: 'docs/publicar/',
+          },
+          {
+            title: 'Explorador de datasets',
+            description: 'Uma aba Explorar no botão Datasets, em classificação e detecção YOLO: distribuição por classe e split, galeria com miniaturas e varredura de integridade que pode ser cancelada. Também cria datasets novos ao incorporar imagens, juntar, refazer a divisão ou converter YOLO e COCO, sem alterar o original.',
+            mark: 'A partir da {planned}',
+          },
+          {
+            title: 'Dataset do Google Drive no Colab',
+            description: 'Um treino no Colab pode ler a pasta do dataset do Google Drive para desktop, sem upload, com a permissão dada pela interface a cada máquina. O pacote da execução também pode ser gravado no Drive.',
+            mark: 'A partir da {planned}',
+            guide: 'docs/colab/',
+          },
+        ],
       },
     ],
   },
