@@ -23,7 +23,7 @@ export const copy: SiteCopy = {
     description: 'Treine e compare modelos de visão computacional no seu computador. Você mantém os datasets e os resultados em pastas locais e pode registrar suas próprias arquiteturas e tarefas.',
     install: 'Ver guia de instalação',
     github: 'Código no GitHub',
-    caption: 'Interface real do VisionForge v0.20.1 na etapa de dados de um treino de classificação.',
+    caption: 'Interface real do VisionForge na etapa de dados de um treino de classificação.',
     local: 'Treinamento local',
     open: 'Código aberto (MIT)',
     tasks: '5 famílias de tarefas',
@@ -173,7 +173,7 @@ export const copy: SiteCopy = {
         path: 'CONTRIBUTING.md',
       },
     ],
-    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto. DOI da versão 0.20.2: 10.5281/zenodo.23926437.',
+    citation: 'Se o VisionForge for útil na sua pesquisa acadêmica ou artigo, inclua a citação formal do projeto. DOI da versão {version}: {doi}.',
     citeLabel: 'Ver arquivo CITATION.cff',
   },
   footer: {

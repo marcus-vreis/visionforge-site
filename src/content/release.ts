@@ -1,14 +1,15 @@
-/** Release information verified against GitHub and PyPI on 2026-11-03. */
+/** Release information verified against GitHub and PyPI on 2026-11-10. */
 export const release = {
-  version: '0.20.2',
-  verifiedOn: '2026-11-03',
+  version: '0.21.0',
+  doi: '10.5281/zenodo.23992660',
+  verifiedOn: '2026-11-10',
   repository: 'https://github.com/marcus-vreis/VisionForge',
   websiteRepository: 'https://github.com/marcus-vreis/visionforge-site',
   pypi: 'https://pypi.org/project/visionforge-studio/',
-  url: 'https://github.com/marcus-vreis/VisionForge/releases/tag/v0.20.2',
+  url: 'https://github.com/marcus-vreis/VisionForge/releases/tag/v0.21.0',
   latest: 'https://github.com/marcus-vreis/VisionForge/releases/latest',
-  wheel: 'https://github.com/marcus-vreis/VisionForge/releases/download/v0.20.2/visionforge_studio-0.20.2-py3-none-any.whl',
-  source: 'https://github.com/marcus-vreis/VisionForge/releases/download/v0.20.2/visionforge_studio-0.20.2.tar.gz',
+  wheel: 'https://github.com/marcus-vreis/VisionForge/releases/download/v0.21.0/visionforge_studio-0.21.0-py3-none-any.whl',
+  source: 'https://github.com/marcus-vreis/VisionForge/releases/download/v0.21.0/visionforge_studio-0.21.0.tar.gz',
   installGuide: 'https://github.com/marcus-vreis/VisionForge/blob/main/docs/INSTALL.md',
-  smokeTest: 'https://github.com/marcus-vreis/VisionForge/actions/runs/41687347228',
+  smokeTest: 'https://github.com/marcus-vreis/VisionForge/actions/runs/42144412887',
 };
