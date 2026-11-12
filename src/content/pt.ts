@@ -3,7 +3,7 @@ import type { SiteCopy } from './types';
 /** Portuguese website copy verified against repository documentation. */
 export const copy: SiteCopy = {
   lang: 'pt',
-  title: 'VisionForge: visão computacional na sua máquina',
+  title: 'VisionForge: treino local de modelos de visão computacional',
   description: 'Plataforma local-first de experimentação em visão computacional. Treine e compare modelos em cinco tarefas, com datasets e resultados na sua máquina.',
   nav: {
     tasks: 'Tarefas',
@@ -17,16 +17,32 @@ export const copy: SiteCopy = {
     dark: 'Escuro',
   },
   hero: {
-    title: 'Treino de visão computacional na sua máquina,',
-    emphasis: 'com a incerteza junto do resultado.',
-    description: 'Treine e compare modelos de visão computacional no seu computador. Você mantém os datasets e os resultados em pastas locais e pode registrar suas próprias arquiteturas e tarefas.',
+    title: 'Plataforma local para treinar e comparar modelos de visão computacional.',
+    description: 'Classificação, detecção, regressão, segmentação e anomalia na mesma interface. Datasets e resultados ficam em pastas locais, e cada execução grava a configuração, a semente e o ambiente num run.json.',
     install: 'Ver guia de instalação',
     github: 'Código no GitHub',
     caption: 'Interface real do VisionForge na etapa Dados de um treino de classificação, com o dataset de exemplo. Nenhum treino foi iniciado.',
-    pip: 'Instalação pelo pip, dentro de um ambiente virtual',
+    development: '{planned} em desenvolvimento',
+    terminalLabel: 'Terminal · ambiente virtual ativo',
+    terminalCaption: 'Comandos do guia de instalação. As saídas mostradas são o final que o guia documenta para doctor e selftest, e o endereço em que a interface abre.',
+    replay: 'Repetir',
     platforms: 'Windows, Linux e macOS (Apple Silicon)',
   },
   labels: { figure: 'Fig.', table: 'Tabela', section: 'Seção' },
+  tour: {
+    eyebrow: 'A interface',
+    title: 'Uma tela, do dataset ao botão Treinar',
+    intro: 'A captura abaixo é a etapa Dados de uma classificação. Escolha um número para ver o que cada parte faz.',
+    targets: 'Alvos na captura',
+    items: [
+      { title: 'Abas de tarefa', text: 'Cada aba é uma tarefa. Uma tarefa própria, registrada em user_tasks/, ganha a sua aba: é o caso de Research method nesta captura.' },
+      { title: 'Seis etapas', text: 'Dados, Estratégia, Modelo, Treinamento, Imagem e aumento, e Revisão. Cada etapa resume o que está definido e marca o que saiu do padrão.' },
+      { title: 'Pasta do dataset', text: 'Uma pasta local com as subpastas de treino, validação e teste. A interface detecta os splits, e "usar dataset de exemplo" preenche tudo sem escolher pasta.' },
+      { title: 'Distribuição', text: 'A contagem de imagens por classe em cada split aparece antes de qualquer treino.' },
+      { title: 'Histórico e Datasets', text: 'Histórico reúne as execuções anteriores, com diff de configuração. Datasets baixa benchmarks como CIFAR-10 pela interface.' },
+      { title: 'Treinar e dispositivo', text: 'O botão Treinar é liberado na etapa Revisão, com o dataset definido. Ao lado fica a escolha entre GPU e CPU.' },
+    ],
+  },
   tasks: {
     eyebrow: 'Tarefas suportadas',
     title: 'Cinco famílias de visão em uma única interface',
@@ -109,14 +125,17 @@ export const copy: SiteCopy = {
     ],
   },
   features: {
-    eyebrow: 'Recursos e disponibilidade',
-    title: 'O que já está na versão publicada e o que chega depois',
+    eyebrow: 'Atualizações',
+    title: 'O que está sendo feito agora e o que já foi publicado',
+    logTitle: 'Versões anteriores',
+    logLink: 'Changelog completo',
+    published: 'publicada em {date}',
     intro: 'A versão publicada é a {version}. Os recursos marcados com "a partir da {planned}" estão no ramo de desenvolvimento e ainda não foram lançados.',
     figure: 'Aba Código depois de uma época na CPU: a função real de treino lida do pacote instalado, com a nota da linha 622. Captura do ramo de desenvolvimento, interface em português.',
     groups: [
       {
         id: 'released',
-        heading: 'Na versão {version}',
+        heading: 'Versão {version}',
         items: [
           {
             title: 'Treino no Google Colab',
@@ -143,7 +162,7 @@ export const copy: SiteCopy = {
       },
       {
         id: 'planned',
-        heading: 'A partir da {planned}, em desenvolvimento',
+        heading: 'Em desenvolvimento · {planned}',
         items: [
           {
             title: 'Aba Código',
@@ -196,6 +215,11 @@ export const copy: SiteCopy = {
     ],
     note: 'As estratégias disponíveis variam por tarefa. K-fold não está disponível para detecção de objetos e anomalias.',
     figure: 'Etapa Estratégia de uma regressão com Réplicas ligado: a mesma configuração roda com 5 seeds e cada métrica sai como média ± IC 95% (t de Student). Captura da interface em português, tema escuro; nenhum treino foi executado.',
+    replicas: {
+      seed: 'seed',
+      summary: 'média ± IC 95%',
+      caption: 'Ilustração animada, sem dados de experimento: a mesma configuração roda uma vez por seed, e o relatório reúne as execuções em média e intervalo de confiança de 95%.',
+    },
     runJson: {
       title: 'O que o run.json registra',
       field: 'Campo',

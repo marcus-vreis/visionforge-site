@@ -1,7 +1,7 @@
 .extension .task-screenshot { margin-top: 36px; }
 .extension-detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; margin-top: 44px; align-items: start; }
 .extension-detail p { color: var(--muted); }
-.extension-detail h3 { font: 400 26px/1.2 var(--font-display); letter-spacing: -.01em; margin-bottom: 12px; }
+.extension-detail h3 { font: 600 21px/1.25 var(--font-display); letter-spacing: -.01em; margin-bottom: 12px; }
 .extension-detail .terminal { margin-top: 0; }
 .guide-cards { margin-top: 44px; }
 .task-screenshot { margin: 32px 0; }
@@ -16,11 +16,11 @@
 .docs-sidebar .docs-toc a { font-size:14px; padding-block:6px; }
 .guide-article { min-width:0; max-width:850px; }
 .guide-header { padding-bottom:32px; border-bottom:1px solid var(--line); }
-.guide-header h1 { font-size:clamp(38px,5vw,64px); margin-bottom:24px; }
-.guide-lede { font-size:23px; color:var(--muted); }
+.guide-header h1 { font-size:clamp(30px,4vw,44px); margin-bottom:20px; }
+.guide-lede { font-size:20px; color:var(--muted); }
 .guide-version { color:var(--muted); font:11px/1.8 var(--font-mono); margin-bottom:0; }
 .guide-section { padding-top:44px; scroll-margin-top:105px; overflow-wrap:anywhere; }
-.guide-section h2 { font-size:32px; }
+.guide-section h2 { font-size:25px; }
 .guide-section h2 a { text-decoration:none; }
 .guide-section p,.guide-section li { line-height:1.8; }
 .guide-section li { padding-left:6px; margin-bottom:12px; }
@@ -41,5 +41,5 @@
 .project-file summary span:last-of-type { font-size:14px; color:var(--muted); }
 .project-file .terminal { margin:0; border:0; border-top:1px solid var(--line); border-radius:0 0 7px 7px; }
 @media(max-width:1000px) { .docs-layout { grid-template-columns:190px minmax(0,1fr); gap:32px; } }
-@media(max-width:768px) { .docs-layout { display:block; padding-top:24px; } .docs-sidebar { position:static; margin-bottom:44px; } .docs-sidebar nav { margin-block:20px; } .docs-sidebar .docs-toc { display:none; } .extension-detail { grid-template-columns:minmax(0,1fr); gap:20px; } .guide-lede { font-size:20px; } }
-@media(max-width:420px) { .guide-section h2 { font-size:28px; } }
+@media(max-width:768px) { .docs-layout { display:block; padding-top:24px; } .docs-sidebar { position:static; margin-bottom:44px; } .docs-sidebar nav { margin-block:20px; } .docs-sidebar .docs-toc { display:none; } .extension-detail { grid-template-columns:minmax(0,1fr); gap:20px; } .guide-lede { font-size:18px; } }
+@media(max-width:420px) { .guide-section h2 { font-size:22px; } }

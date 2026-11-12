@@ -12,8 +12,8 @@ for (const language of ['pt','en'] as const) {
     page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     await page.goto(language === 'pt' ? './' : './en/');
     await expect(page.locator('html')).toHaveAttribute('lang',language === 'pt' ? 'pt-BR' : 'en');
-    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Treino de visão computacional na sua máquina' : 'Computer-vision training on your machine');
-    await expect(page.locator('.hero-command')).toHaveText('pip install visionforge-studio');
+    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Plataforma local para treinar e comparar modelos' : 'A local platform for training and comparing');
+    for (const line of ['pip install visionforge-studio', 'visionforge doctor', 'visionforge selftest --quick', 'visionforge gui']) await expect(page.locator('.hero-terminal .t-cmd', { hasText: line }).first()).toBeAttached();
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',`https://marcus-vreis.github.io/visionforge-site/${language === 'en' ? 'en/' : ''}`);
     await expect(page.locator('a[href$=".whl"]')).toHaveCount(1);
     await expect(page.locator('a[href$=".tar.gz"]')).toHaveCount(1);
@@ -74,13 +74,70 @@ test('figures are numbered in order and the run.json table matches across langua
   const fields: Record<string, string[]> = {};
   for (const language of ['pt', 'en'] as const) {
     await page.goto(language === 'pt' ? './' : './en/');
-    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4']);
+    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4', 'Fig. 5']);
     expect(await page.locator('main table caption b').allTextContents()).toEqual(language === 'pt' ? ['Tabela 1', 'Tabela 2'] : ['Table 1', 'Table 2']);
     fields[language] = await page.locator('.runjson-table tbody th code').allTextContents();
     expect(fields[language]).toContain('dataset_fingerprint');
   }
   expect(fields.pt).toEqual(fields.en);
   expect(fields.pt).toHaveLength(7);
+});
+
+test('capture targets select their explanation and stay readable without JavaScript', async ({ page, browser }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const path of ['./', './en/']) {
+    await page.goto(path);
+    const markers = page.locator('[data-tour-marker]');
+    const items = page.locator('[data-tour-item]');
+    await expect(markers).toHaveCount(6);
+    await expect(items).toHaveCount(6);
+    await expect(markers.first()).toHaveAttribute('aria-pressed', 'true');
+    await markers.nth(2).click();
+    await expect(markers.nth(2)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-tour-marker][aria-pressed=true]')).toHaveCount(1);
+    await expect(items.nth(2).locator('p')).toBeVisible();
+    await expect(items.first().locator('p')).toBeHidden();
+    // Every target sits inside the capture it annotates.
+    const frame = (await page.locator('.tour-frame').boundingBox())!;
+    for (const marker of await markers.all()) {
+      const box = (await marker.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+    }
+  }
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const plain = await context.newPage();
+  await plain.goto('http://127.0.0.1:4322/visionforge-site/');
+  for (const text of await plain.locator('[data-tour-item] p').all()) await expect(text).toBeVisible();
+  await context.close();
+});
+
+test('terminal session shows every line when motion is reduced and can be replayed otherwise', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  for (const line of await page.locator('.hero-terminal .t-line').all()) await expect(line).toBeVisible();
+  await expect(page.locator('.hero-terminal')).toContainText('5/5 cases passed');
+  await expect(page.locator('[data-replay]')).toBeHidden();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+  await expect(page.locator('[data-replay]')).toBeVisible();
+  await expect(page.locator('.hero-terminal .t-line').last()).toBeVisible({ timeout: 12000 });
+  await page.locator('[data-replay]').click();
+  await expect(page.locator('.hero-terminal .t-line').last()).toBeHidden();
+});
+
+test('updates list the development items first, the release date and the earlier versions', async ({ page }) => {
+  const versions: Record<string, string[]> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    expect(await page.locator('#features [data-group]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.group))).toEqual(['planned', 'released']);
+    await expect(page.locator('#features [data-group=released] .feature-group-title')).toContainText(release.releasedOn);
+    versions[language] = await page.locator('.release-log .release-version').allTextContents();
+    for (const entry of await page.locator('.release-log li p').all()) await expect(entry).not.toBeEmpty();
+    await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
+  }
+  expect(versions.pt).toEqual(versions.en);
+  expect(versions.pt).toEqual(['0.20.2', '0.20.1', '0.20.0', '0.19.0']);
 });
 
 test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
@@ -187,7 +244,8 @@ test.describe('version consistency', () => {
   const root = fileURLToPath(new URL('..', import.meta.url));
   const staleVersions = /(?<![\d.])0\.(?:17\.0|20\.1|20\.2)(?!\.?\d)/;
   // Provenance of assets that really come from older versions (screenshots, adapted scaffold).
-  const historicalLines = [/adapted from VisionForge v0\.17\.0/, /v0\.20\.1 GUI.*recaptured on 2026-11-03|recaptured on 2026-11-03.*v0\.20\.1 GUI|v0\.20\.1 GUI recaptured/];
+  // updates.ts is a changelog: earlier versions are its content.
+  const historicalLines = [/\{ version: '0\.\d+\.\d+', date: '\d{4}-\d{2}-\d{2}'/, /adapted from VisionForge v0\.17\.0/, /v0\.20\.1 GUI.*recaptured on 2026-11-03|recaptured on 2026-11-03.*v0\.20\.1 GUI|v0\.20\.1 GUI recaptured/];
 
   function filesUnder(directory: string): string[] {
     return readdirSync(join(root, directory), { withFileTypes: true }).flatMap(entry => {

@@ -1,6 +1,9 @@
 ---
 import type { SiteCopy } from '../content/types';
 import { release } from '../content/release';
+import Tour from './Tour.astro';
+import Replicas from './Replicas.astro';
+import { plannedVersion } from '../content/release';
 import '../styles/showcase.css';
 
 /** Props for the opening statement plus the tasks, workflow and method sections. */
@@ -8,46 +11,51 @@ interface Props { copy: SiteCopy }
 
 const { copy } = Astro.props;
 const base = import.meta.env.BASE_URL;
-// The English UI screenshots are separate assets; fall back to the shared names for Portuguese.
-const shotPrefix = copy.lang === 'en' ? 'classification-en' : 'classification';
-const shots = {
-  dark: `${base}images/${shotPrefix}-dark.webp`,
-  light: `${base}images/${shotPrefix}-light.webp`,
-};
+// Terminal session from the product's docs/INSTALL.md: its commands, the endings it documents for doctor and
+// selftest, and the address the interface opens at. `at` is when each line appears, in seconds.
+const session = [
+  { text: 'pip install visionforge-studio', at: 0.4 },
+  { text: 'visionforge doctor', at: 2.4 },
+  { text: 'environment looks good', at: 3.7, out: true },
+  { text: 'visionforge selftest --quick', at: 4.5 },
+  { text: '5/5 cases passed', at: 6.4, out: true },
+  { text: 'visionforge gui', at: 7.2 },
+  { text: 'http://127.0.0.1:8000', at: 8.4, out: true },
+];
 // Copy titles may carry "1." prefixes; the list numbers itself.
 const stripNumber = (title: string) => title.replace(/^\s*\d+[.)]\s*/, '');
 const { figure, table } = copy.labels;
 ---
 <section class="hero" aria-labelledby="hero-title">
-  <div class="container">
-    <p class="hero-meta">
-      <a href={release.url}>v{release.version}</a>
-      <span>MIT</span>
-      <span>Python 3.12 / 3.13</span>
-      <span>{copy.hero.platforms}</span>
-      <a href={`https://doi.org/${release.doi}`}>DOI {release.doi}</a>
-    </p>
-    <h1 id="hero-title" class="hero-title">{copy.hero.title} <em>{copy.hero.emphasis}</em></h1>
-    <div class="hero-grid">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="hero-meta">
+        <a href={release.url}>v{release.version}</a>
+        <span>MIT</span>
+        <span>Python 3.12 / 3.13</span>
+        <span>{copy.hero.platforms}</span>
+      </p>
+      <h1 id="hero-title" class="hero-title">{copy.hero.title}</h1>
       <p class="hero-lede">{copy.hero.description}</p>
-      <div class="hero-start">
-        <p class="eyebrow" id="hero-pip">{copy.hero.pip}</p>
-        <pre class="hero-command" tabindex="0" aria-labelledby="hero-pip"><code>pip install visionforge-studio</code></pre>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#install">{copy.hero.install}<span aria-hidden="true">↓</span></a>
-          <a class="button" href={release.repository}>{copy.hero.github}<span aria-hidden="true">↗</span></a>
-        </div>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#install">{copy.hero.install}<span aria-hidden="true">↓</span></a>
+        <a class="button" href={release.repository}>{copy.hero.github}<span aria-hidden="true">↗</span></a>
       </div>
+      <a class="hero-live" href="#features"><span class="pulse" aria-hidden="true"></span>{copy.hero.development.replace('{planned}', plannedVersion)}<span aria-hidden="true"> →</span></a>
     </div>
-    <figure class="figure hero-figure">
-      <div class="figure-frame">
-        <img class="shot-dark" src={shots.dark} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" fetchpriority="high" />
-        <img class="shot-light" src={shots.light} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" />
+    <figure class="hero-session" data-session>
+      <div class="terminal hero-terminal">
+        <div class="terminal-bar"><span>{copy.hero.terminalLabel}</span><button hidden class="copy-button" type="button" data-replay>{copy.hero.replay}</button></div>
+        <pre tabindex="0" role="group" aria-label={copy.hero.terminalLabel}><code>{session.map((line) => (
+          <span class={`t-line ${line.out ? 't-out' : 't-cmd'}`} style={`--d:${line.at}s;--n:${line.text.length}`}><span>{line.text}</span></span>
+        ))}</code></pre>
       </div>
-      <figcaption><b>{figure} 1</b>{copy.hero.caption}</figcaption>
+      <figcaption>{copy.hero.terminalCaption}</figcaption>
     </figure>
   </div>
 </section>
+
+<Tour copy={copy} />
 
 <section id="tasks" class="section" aria-labelledby="tasks-title">
   <div class="container">
@@ -106,11 +114,12 @@ const { figure, table } = copy.labels;
         ))}
       </dl>
       <p class="method-note">{copy.research.note}</p>
+      <Replicas seed={copy.research.replicas.seed} summary={copy.research.replicas.summary} caption={copy.research.replicas.caption} label={`${figure} 2`} />
       <figure class="figure">
         <div class="figure-frame">
           <img src={`${base}images/replicates-pt-dark.webp`} alt={copy.research.figure} width="1440" height="960" loading="lazy" decoding="async" />
         </div>
-        <figcaption><b>{figure} 2</b>{copy.research.figure}</figcaption>
+        <figcaption><b>{figure} 3</b>{copy.research.figure}</figcaption>
       </figure>
       <h3 class="subhead">{copy.research.runJson.title}</h3>
       <table class="data-table stack runjson-table">
@@ -130,3 +139,17 @@ const { figure, table } = copy.labels;
     </div>
   </div>
 </section>
+
+<script>
+  /** Replays the terminal session by restarting its CSS animations. */
+  document.querySelectorAll<HTMLElement>('[data-session]').forEach((root) => {
+    const button = root.querySelector<HTMLButtonElement>('[data-replay]');
+    if (!button || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      root.dataset.session = 'reset';
+      void root.offsetWidth;
+      root.dataset.session = '';
+    });
+  });
+</script>

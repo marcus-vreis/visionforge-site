@@ -26,7 +26,7 @@ npx playwright install chromium
 npm test
 ```
 
-Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
+Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, os alvos da captura, o terminal animado, a lista de atualizações, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
 
 Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` com o caminho do executável. Na CI, o browser correspondente à versão travada do Playwright é instalado automaticamente.
 
@@ -43,12 +43,14 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `src/components/Installer.astro`: comandos por sistema, derivados do guia de instalação do produto.
 - `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
 - `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
+- `src/content/updates.ts`: versões anteriores mostradas em Atualizações, resumidas do `CHANGELOG.md` do produto.
+- `src/components/Tour.astro`: alvos numerados sobre a captura da etapa Dados; as posições são porcentagens da imagem 1440 × 1000.
 
 Para atualizar uma versão:
 
 1. Confira o release público e a mesma versão no PyPI; verifique os nomes dos arquivos de download.
 2. Leia `docs/INSTALL.md` do produto e o resultado do workflow `install-smoke.yml` correspondente. Ajuste comandos e limitações apenas com evidência.
-3. Atualize `release.ts`, incluindo a data de verificação e o link do teste. Mantenha PT/EN consistentes.
+3. Atualize `release.ts`, incluindo `releasedOn`, a data de verificação e o link do teste; mova a versão anterior para `updates.ts`. Mantenha PT/EN consistentes.
 4. Se a interface mudou, capture novamente a GUI em um workspace vazio, sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`.
 5. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
 

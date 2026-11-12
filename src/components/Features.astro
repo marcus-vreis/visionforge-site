@@ -1,6 +1,7 @@
 ---
 import type { SiteCopy } from '../content/types';
 import { release, plannedVersion } from '../content/release';
+import { updates } from '../content/updates';
 import '../styles/showcase.css';
 /** Props for the availability section: released features and those only on the development branch. */
 interface Props { copy: SiteCopy }
@@ -17,9 +18,9 @@ const fill = (text: string) => text.replaceAll('{version}', release.version).rep
     <div class="section-body">
       <h2 id="features-title">{copy.features.title}</h2>
       <p class="section-intro">{fill(copy.features.intro)}</p>
-      {copy.features.groups.map(group => (
+      {[...copy.features.groups].reverse().map(group => (
         <div class="feature-group" data-group={group.id}>
-          <h3 class="feature-group-title">{fill(group.heading)}</h3>
+          <h3 class="feature-group-title">{group.id === 'planned' && <span class="pulse" aria-hidden="true"></span>}{fill(group.heading)}{group.id === 'released' && <span class="feature-group-date">{copy.features.published.replace('{date}', release.releasedOn)}</span>}</h3>
           <ul class="feature-cards">
             {group.items.map(item => (
               <li class="feature-card">
@@ -32,11 +33,18 @@ const fill = (text: string) => text.replaceAll('{version}', release.version).rep
           </ul>
         </div>
       ))}
+      <div class="feature-group release-log">
+        <h3 class="feature-group-title">{copy.features.logTitle}</h3>
+        <ul>
+          {updates.map(update => <li><span class="release-version">{update.version}</span><time datetime={update.date}>{update.date}</time><p>{pt ? update.pt : update.en}</p></li>)}
+        </ul>
+        <p class="install-note"><a href={release.changelog}>{copy.features.logLink} ↗</a></p>
+      </div>
       <figure class="figure figure-narrow">
         <div class="figure-frame">
           <img src={`${base}images/code-tab-pt-dark.webp`} alt={copy.features.figure} width="760" height="792" loading="lazy" decoding="async" />
         </div>
-        <figcaption><b>{copy.labels.figure} 3</b>{copy.features.figure}</figcaption>
+        <figcaption><b>{copy.labels.figure} 4</b>{copy.features.figure}</figcaption>
       </figure>
     </div>
   </div>

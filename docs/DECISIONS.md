@@ -66,13 +66,20 @@
 
 **Consequences:** Preserve system tracking, stored choice, blocked-storage handling and early theme application. Check all page types at 360, 768 and 1440 pixels in both themes. Hide the controls when JavaScript is unavailable.
 
-## ADR-007 — Methods-paper presentation instead of a product landing page
+## ADR-007 — A page that shows the tool working and changing
 
 **Date:** 2026-11-12
 **Status:** Accepted. Supersedes the typography and decoration choices of ADR-003; its rules on real captures, themes and accessibility remain.
 
-**Decision:** Present the landing page as a short methods document. Newsreader sets headings, IBM Plex Sans the text and IBM Plex Mono the data, labels and commands. Each theme has one neutral family (paper in light, graphite in dark) and a single vermilion accent. Sections carry a numbered margin label; screenshots are numbered figures with a caption stating what was captured; tasks and the common `run.json` header are real tables. The task tabs, the per-task accent colours, the conceptual SVG diagrams, the background grid, the glow behind the opening and the outlined numerals were removed. The opening states the version, licence, supported Python and DOI from `release.ts`, then the `pip` command.
+**Decision:** Drop the slogan and describe the product in one plain sentence. Show the tool instead of praising it, with four moving parts that each rest on a source:
 
-**Reason:** The earlier page used the conventions of a generic dark product page: a two-line slogan at display size, card grids with pill marks, and decorative diagrams standing in for content. VisionForge's distinguishing trait is research discipline (seeds, confidence intervals, provenance), and a document that shows its own evidence in figures and tables says that directly. One accent keeps colour meaningful: it marks the current version, links under the pointer and what is still unreleased.
+- a terminal session that types the install-guide commands and shows the endings `docs/INSTALL.md` documents for `doctor` and `selftest`;
+- the real Data-step capture with numbered targets, each opening a short explanation, walked through automatically until the visitor takes over;
+- an animated replicas diagram (one run per seed, then mean and 95% CI), labelled as an illustration and carrying no values;
+- an updates section that lists what is in development first, then the published version with its date, then earlier versions restated from the product's `CHANGELOG.md`.
 
-**Consequences:** A new figure needs a real capture and a provenance entry in `ASSETS.md`; a table row needs a source in the product (the `run.json` fields come from `run_json_header` and `capture_environment` at the published tag and must be rechecked on each release). The replicates and Code-tab captures exist only in Portuguese and dark theme, so both languages and themes show the same image. `social.png` still uses the previous typography and should be redrawn. Section links now stay visible on small screens as a scrolling row. The fonts remain self-hosted under the SIL OFL.
+IBM Plex Sans sets headings and text and IBM Plex Mono the data, labels and commands. Each theme has one neutral family (paper in light, graphite in dark) and a single vermilion accent, which marks the current version, the selected target and whatever is still in development. Tasks and the common `run.json` header are real tables; figures are numbered and captioned with what was captured. The task tabs, per-task accent colours, conceptual SVG diagrams, background grid, glow, outlined numerals and card grids were removed.
+
+**Reason:** The earlier page used the conventions of a generic dark product page: a two-line slogan at display size, card grids with pill marks, and decorative diagrams standing in for content. A first redesign as a static methods paper removed those but read as finished and inert. The product changes every few days and its value is easiest to see in use, so the page should look worked on and explain itself by pointing at the interface.
+
+**Consequences:** Every animation has a complete static state: all terminal lines, all explanations and the full diagram are in the HTML, shown as they are without JavaScript or with reduced motion. A new figure needs a real capture and a provenance entry in `ASSETS.md`. Target positions are percentages of the 1440 × 1000 capture and must be rechecked when it is recaptured. `updates.ts`, `release.releasedOn` and the `run.json` table are reviewed on each release, like the rest of `release.ts`. The replicates and Code-tab captures exist only in Portuguese and dark theme, so both languages and themes show the same image. `social.png` still uses the previous typography and should be redrawn. Section links stay visible on small screens as a scrolling row. The fonts remain self-hosted under the SIL OFL.

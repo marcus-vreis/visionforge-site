@@ -1,21 +1,69 @@
 /* Landing sections: opening statement, tasks, workflow, method and availability. Tokens come from global.css. */
 
 /* ---------- Opening ---------- */
-.hero { padding-block: clamp(40px, 6vw, 72px) clamp(48px, 6vw, 80px); }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 0 0 28px; font: 12px/1.7 var(--font-mono); color: var(--muted); }
+.hero { padding-block: clamp(36px, 5vw, 64px); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 32px clamp(32px, 5vw, 72px); align-items: center; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 0 0 20px; font: 12px/1.7 var(--font-mono); color: var(--muted); }
 .hero-meta > *:not(:last-child)::after { content: '·'; margin-inline: 10px; color: var(--muted); }
 .hero-meta a { text-decoration: none; }
 .hero-meta a:first-child { color: var(--accent); }
-.hero-title { max-width: 21ch; margin: 0 0 clamp(28px, 4vw, 44px); font-size: clamp(34px, 5.4vw, 68px); line-height: 1.04; letter-spacing: -.022em; }
-.hero-title em { font-style: italic; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px clamp(32px, 6vw, 88px); align-items: start; padding-top: 28px; border-top: 2px solid var(--rule); }
-.hero-lede { margin: 0; max-width: 54ch; font-size: clamp(18px, 1.5vw, 20px); }
-.hero-start .eyebrow { margin-bottom: 8px; }
-.hero-command { margin: 0 0 16px; padding: 14px 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); font: 500 15px/1.5 var(--font-mono); }
-.hero-command code { font-size: inherit; }
-.hero-command code::before { content: '$ '; color: var(--muted); user-select: none; }
+.hero-title { max-width: 20ch; margin: 0 0 20px; font-size: clamp(30px, 4vw, 46px); }
+.hero-lede { margin: 0 0 28px; max-width: 52ch; color: var(--muted); font-size: 18px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.hero-figure { margin-top: clamp(40px, 5vw, 64px); }
+.hero-live { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; font: 12px/1.6 var(--font-mono); text-decoration: none; color: var(--muted); }
+.hero-live:hover { color: var(--accent); }
+
+/* A small beacon for whatever is still being worked on. */
+.pulse { position: relative; display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--accent); animation: pulse 2s ease-out infinite; }
+@keyframes pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+
+/* Terminal session: every line is in the HTML; the animation only staggers when each one shows. */
+.hero-session { margin: 0; min-width: 0; }
+.hero-session figcaption { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.hero-terminal { margin: 0; }
+.hero-terminal pre { min-height: 232px; padding: 18px 18px 22px; font-size: 14px; line-height: 1.9; }
+.t-line { display: block; white-space: nowrap; animation: t-show 1ms linear var(--d) both; }
+.t-cmd::before { content: '$ '; color: var(--muted); }
+.t-out { color: var(--muted); }
+.t-out::before { content: '… '; }
+.t-out:last-child { color: var(--accent); }
+.t-out:last-child::before { content: '→ '; }
+.t-cmd > span { display: inline-block; overflow: hidden; vertical-align: bottom; max-width: calc((var(--n) + 2) * 1ch); animation: t-type calc(var(--n) * 40ms) steps(var(--n)) var(--d) both; }
+@keyframes t-show { from { visibility: hidden; } to { visibility: visible; } }
+@keyframes t-type { from { max-width: 0; } }
+[data-session='reset'] .t-line, [data-session='reset'] .t-cmd > span { animation: none; }
+
+/* ---------- Annotated capture ---------- */
+.tour { padding-block: 8px 72px; }
+.tour-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 28px 40px; align-items: start; margin-top: 28px; }
+.tour-figure { margin: 0; }
+.tour-frame { position: relative; }
+.tour-marker { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); }
+.tour-marker:hover { background: var(--surface-2); }
+.tour-marker[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); }
+.tour-marker[aria-pressed='true']::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent); animation: pulse 1.8s ease-out infinite; pointer-events: none; }
+.tour-list { margin: 0; padding: 0; list-style: none; counter-reset: tour; border-top: 2px solid var(--rule); }
+.tour-list li { counter-increment: tour; display: grid; grid-template-columns: 30px minmax(0, 1fr); padding: 12px 0 12px 10px; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; }
+.tour-list li::before { content: counter(tour); grid-row: span 2; font: 500 12px/2 var(--font-mono); color: var(--muted); }
+.tour-list h3 { margin: 0; font-size: 16px; }
+.tour-list p { grid-column: 2; margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+/* Once the script runs, only the selected explanation is open; without it every one stays readable. */
+[data-enhanced] .tour-list li { cursor: pointer; }
+[data-enhanced] .tour-list li:not([data-active]) p { display: none; }
+[data-enhanced] .tour-list li[data-active] { border-left-color: var(--accent); background: var(--surface); }
+[data-enhanced] .tour-list li[data-active]::before { color: var(--accent); }
+
+/* ---------- Replicas illustration ---------- */
+.replicas { max-width: 760px; }
+.replicas svg { display: block; width: 100%; height: auto; }
+.rep-text { fill: var(--muted); font: 12px var(--font-mono); }
+.rep-summary { fill: var(--text); }
+.rep-track { fill: var(--surface-2); }
+.rep-fill { fill: var(--text); }
+.rep-axis { stroke: var(--line); stroke-width: 2; fill: none; }
+.rep-dot { fill: var(--text); }
+.rep-ci, .rep-mean { stroke: var(--accent); stroke-width: 2; fill: none; }
 
 /* ---------- Tasks ---------- */
 .task-table { margin-top: 32px; }
@@ -35,15 +83,21 @@
 .method-list dt { margin-bottom: 6px; font-weight: 600; }
 .method-list dd { margin: 0; color: var(--muted); font-size: 15px; }
 .method-note { max-width: var(--measure); margin: 16px 0 0; color: var(--muted); font-size: 14px; }
-.subhead { margin: 56px 0 16px; font: 400 26px/1.2 var(--font-display); letter-spacing: -.01em; }
+.subhead { margin: 56px 0 16px; font: 600 21px/1.25 var(--font-display); letter-spacing: -.01em; }
 .runjson-table th[scope='row'] { width: 34%; font-weight: 400; }
 .runjson-table code { font-size: 14px; }
 
 /* ---------- Availability ---------- */
 .figure-narrow { max-width: 760px; }
 .feature-group { margin-top: 40px; }
-.feature-group-title { margin-bottom: 0; padding-bottom: 12px; border-bottom: 2px solid var(--rule); font: 500 12px/1.5 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
+.feature-group-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 0; padding-bottom: 12px; border-bottom: 2px solid var(--rule); font: 500 12px/1.5 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
+.feature-group-date { color: var(--muted); }
 .feature-cards { margin: 0; padding: 0; list-style: none; }
+.release-log ul { margin: 0 0 16px; padding: 0; list-style: none; }
+.release-log li { display: grid; grid-template-columns: 64px 104px minmax(0, 1fr); gap: 4px 16px; align-items: baseline; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.release-log li p { margin: 0; color: var(--muted); }
+.release-version, .release-log time { font: 12px/1.9 var(--font-mono); }
+.release-log time { color: var(--muted); }
 .feature-card { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); grid-template-rows: auto 1fr auto; gap: 6px 32px; padding-block: 18px; border-bottom: 1px solid var(--line); }
 .feature-card h4 { grid-column: 1; margin: 0; font-size: 17px; }
 .feature-mark { grid-column: 1; align-self: start; font: 12px/1.5 var(--font-mono); color: var(--muted); }
@@ -52,13 +106,17 @@
 .feature-card a { grid-column: 2; grid-row: 3; font-size: 15px; font-weight: 600; }
 
 @media (max-width: 900px) {
-  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-grid, .tour-grid { grid-template-columns: minmax(0, 1fr); }
+  .tour { padding-bottom: 56px; }
   .steps, .method-list { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
   .hero-actions .button { flex: 1 1 100%; }
+  .hero-terminal pre { min-height: 0; font-size: 12px; }
+  .tour-marker { width: 22px; height: 22px; font-size: 11px; }
+  .release-log li { grid-template-columns: 64px minmax(0, 1fr); }
+  .release-log li p { grid-column: 1 / -1; }
   .task-table th[scope='row'], .task-table td, .runjson-table th[scope='row'] { width: auto; }
   .feature-card { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
   .feature-card p, .feature-card a { grid-column: 1; grid-row: auto; }
-  .subhead { font-size: 23px; }
 }
