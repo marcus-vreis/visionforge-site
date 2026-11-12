@@ -31,7 +31,7 @@ export const copy: SiteCopy = {
   tour: {
     eyebrow: 'The interface',
     title: 'One screen, from the dataset to the Train button',
-    intro: 'The capture below is the Data step of a classification run. Pick a number to see what each part does.',
+    intro: 'Below is a simplified version of the interface. Click the tabs and the steps, or follow the guided tour.',
   },
   tasks: {
     eyebrow: 'Built-in tasks',
@@ -87,6 +87,8 @@ export const copy: SiteCopy = {
   workflow: {
     eyebrow: 'Workflow',
     title: 'From dataset to result in six steps',
+    where: ['Data step', 'Strategy and Model steps', 'Training and Image steps', 'Review step', 'training screen', 'History'],
+    whereLabel: 'Where',
     steps: [
       {
         title: 'Prepare your data',
@@ -120,6 +122,10 @@ export const copy: SiteCopy = {
     logTitle: 'Earlier versions',
     logLink: 'Full changelog',
     published: 'released on {date}',
+    tabPlanned: '{planned} · in development',
+    tabReleased: '{version} · {date}',
+    tabEarlier: '0.20 series',
+    kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
     intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
     figure: 'Code tab after one epoch on CPU: the real training function read from the installed package, with the note for line 622. Captured from the development branch, Portuguese interface.',
     groups: [
@@ -204,7 +210,7 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'Available strategies vary by task. K-fold is not available for object detection or anomaly detection.',
-    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). Captured from the Portuguese interface, dark theme; no training was run.',
+    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). No training was run.',
     replicas: {
       seed: 'seed',
       summary: 'mean ± 95% CI',
@@ -212,18 +218,8 @@ export const copy: SiteCopy = {
     },
     runJson: {
       title: 'What run.json records',
-      field: 'Field',
-      records: 'Records',
-      caption: 'Common run.json header, as built by run_json_header and capture_environment in the published release. Each task adds its own configuration and metrics.',
-      fields: [
-        { key: 'id, experiment, timestamp', records: 'Experiment name, run folder, and the date and time of writing.' },
-        { key: 'status, stopped', records: 'Whether training finished or was stopped early.' },
-        { key: 'device_used', records: 'The device training actually ran on.' },
-        { key: 'environment', records: 'Versions of Python, the platform, torch, torchvision, numpy and the other libraries, of VisionForge itself, and the CUDA, cuDNN and GPU in use.' },
-        { key: 'runtime.loader_workers', records: 'Worker count of each data loader.' },
-        { key: 'dataset_fingerprint', records: 'Hash of the dataset used; resuming a run checks this value.' },
-        { key: 'run_dir', records: 'Local folder with checkpoints, history and reports.' },
-      ],
+      hint: 'click a block to see what it records',
+      caption: 'A real run.json from a verification run: the digits case of the guides, 120 images, 1 epoch, CPU, on 2026-11-12. Objects with … are folded and the start of run_dir is shortened. The metrics of this one-epoch run stay folded because they say nothing about the model.',
     },
   },
   install: {

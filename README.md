@@ -26,7 +26,7 @@ npx playwright install chromium
 npm test
 ```
 
-Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, os alvos da captura, o terminal animado, a lista de atualizações, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
+Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, a réplica da interface e o roteiro guiado, os alvos das capturas nos guias, o arquivo run.json, o terminal animado, as abas de atualizações, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
 
 Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` com o caminho do executável. Na CI, o browser correspondente à versão travada do Playwright é instalado automaticamente.
 
@@ -44,14 +44,16 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
 - `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
 - `src/content/updates.ts`: versões anteriores mostradas em Atualizações, resumidas do `CHANGELOG.md` do produto.
-- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas na apresentação e nos guias. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
+- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas nos guias; a explicação abre sobre a imagem. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
+- `src/content/studio.ts`, `src/scripts/studio-render.ts` e `src/components/Studio.astro`: réplica simplificada e clicável da interface, com o roteiro guiado. Rótulos e padrões vêm do frontend do produto e devem ser conferidos a cada versão.
+- `src/content/runjson.ts`: linhas de um `run.json` real, mostradas como arquivo.
 
 Para atualizar uma versão:
 
 1. Confira o release público e a mesma versão no PyPI; verifique os nomes dos arquivos de download.
 2. Leia `docs/INSTALL.md` do produto e o resultado do workflow `install-smoke.yml` correspondente. Ajuste comandos e limitações apenas com evidência.
 3. Atualize `release.ts`, incluindo `releasedOn`, a data de verificação e o link do teste; mova a versão anterior para `updates.ts`. Mantenha PT/EN consistentes.
-4. Se a interface mudou, capture novamente a GUI em um workspace vazio, sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`.
+4. Se a interface mudou, capture novamente a GUI em um workspace vazio, em 2x (device scale factor 2), sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`, as posições em `figures.ts` e os rótulos e padrões em `studio.ts`.
 5. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.

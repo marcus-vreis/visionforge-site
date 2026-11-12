@@ -1,0 +1,28 @@
+/* run.json shown as a file in an editor window. Tokens come from global.css. */
+.runjson { margin-top: 20px; }
+.rj-window { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.rj-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); font: 12px/1.6 var(--font-mono); }
+.rj-path { overflow-wrap: anywhere; }
+.rj-path::before { content: '{ }'; margin-right: 10px; color: var(--accent); }
+.rj-hint { color: var(--muted); }
+.rj-code { padding-block: 10px; overflow-x: auto; font: 13px/1.75 var(--font-mono); }
+.rj-lines { display: block; width: 100%; min-width: max-content; margin: 0; padding: 0; border: 0; border-left: 2px solid transparent; background: none; color: inherit; font: inherit; text-align: left; }
+button.rj-lines { cursor: pointer; }
+button.rj-lines:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+button.rj-lines:focus-visible { outline-offset: -2px; }
+.rj-line { display: flex; white-space: pre; }
+.rj-n { flex: none; width: 44px; padding-right: 14px; text-align: right; color: var(--muted); user-select: none; }
+.rj-line code { font: inherit; }
+.rj-key { color: var(--text); }
+.rj-str { color: var(--rj-str); }
+.rj-num, .rj-lit { color: var(--accent); }
+.runjson { --rj-str: #86c79b; }
+:root[data-theme='light'] .runjson { --rj-str: #1f6b3d; }
+.rj-note { position: sticky; left: 0; max-width: min(640px, 100vw - 80px); margin: 4px 0 10px 44px; padding: 8px 12px; border-left: 2px solid var(--accent); background: var(--bg); color: var(--text); font: 14px/1.5 var(--font-sans); white-space: normal; }
+[data-enhanced] .rj-group:not([data-open]) .rj-note { display: none; }
+[data-enhanced] .rj-group[data-open] .rj-lines { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+@media (max-width: 640px) {
+  .rj-code { font-size: 12px; }
+  .rj-n { width: 34px; padding-right: 10px; }
+  .rj-note { margin-left: 34px; }
+}

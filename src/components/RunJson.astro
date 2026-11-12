@@ -1,0 +1,61 @@
+---
+import type { Language } from '../content/types';
+import { runJsonLines, runJsonNotes, runJsonPath } from '../content/runjson';
+import '../styles/runjson.css';
+
+/** Props for the run.json viewer: a real file shown as a file, with a note under each explained group of lines. */
+interface Props { lang: Language; caption: string; label: string; hint: string }
+const { lang, caption, label, hint } = Astro.props;
+
+const escape = (value: string) => value.replace(/[&<>]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[char]!);
+/** Colours keys, strings, numbers and literals; the input is escaped first and holds no markup of its own. */
+const highlight = (line: string) => escape(line)
+  .replace(/("(?:[^"\\]|\\.)*")(\s*:)?/g, (_, text, colon) => colon ? `<span class="rj-key">${text}</span>${colon}` : `<span class="rj-str">${text}</span>`)
+  .replace(/\b(true|false|null)\b(?![^<]*<\/span>)/g, '<span class="rj-lit">$1</span>')
+  .replace(/(:\s*)(-?\d+(?:\.\d+)?)(?=,?$)/g, '$1<span class="rj-num">$2</span>');
+
+// Consecutive lines with the same note form one group; the note is printed after the group's last line.
+const groups: Array<{ note?: string; lines: Array<{ n: number; html: string }> }> = [];
+runJsonLines.forEach(([text, note], i) => {
+  const last = groups[groups.length - 1];
+  const line = { n: i + 1, html: highlight(text) };
+  if (last && last.note === note && note) last.lines.push(line); else groups.push({ note, lines: [line] });
+});
+---
+<figure class="figure runjson" data-runjson>
+  <div class="rj-window">
+    <div class="rj-bar"><span class="rj-path">{runJsonPath}</span><span class="rj-hint" data-rj-hint hidden>{hint}</span></div>
+    <div class="rj-code">
+      {groups.map(group => group.note ? (
+        <div class="rj-group" data-rj-group>
+          <button type="button" class="rj-lines" data-rj-toggle aria-expanded="true" aria-controls={`rj-note-${group.note}`}>
+            {group.lines.map(line => <span class="rj-line"><span class="rj-n" aria-hidden="true">{line.n}</span><code set:html={line.html} /></span>)}
+          </button>
+          <p class="rj-note" id={`rj-note-${group.note}`}>{runJsonNotes[group.note][lang]}</p>
+        </div>
+      ) : (
+        <div class="rj-lines">{group.lines.map(line => <span class="rj-line"><span class="rj-n" aria-hidden="true">{line.n}</span><code set:html={line.html} /></span>)}</div>
+      ))}
+    </div>
+  </div>
+  <figcaption><b>{label}</b>{caption}</figcaption>
+</figure>
+<script>
+  /** With the script, one note is open at a time; without it, every note stays printed under its lines. */
+  document.querySelectorAll<HTMLElement>('[data-runjson]').forEach((root) => {
+    const groups = Array.from(root.querySelectorAll<HTMLElement>('[data-rj-group]'));
+    const open = (target: HTMLElement | null) => groups.forEach((group) => {
+      const active = group === target;
+      group.toggleAttribute('data-open', active);
+      group.querySelector('[data-rj-toggle]')?.setAttribute('aria-expanded', String(active));
+    });
+    groups.forEach((group) => {
+      const toggle = group.querySelector<HTMLElement>('[data-rj-toggle]')!;
+      toggle.addEventListener('click', () => open(group.hasAttribute('data-open') ? null : group));
+    });
+    root.dataset.enhanced = 'true';
+    const hint = root.querySelector<HTMLElement>('[data-rj-hint]');
+    if (hint) hint.hidden = false;
+    open(groups.find(group => group.querySelector('#rj-note-fingerprint')) ?? groups[0] ?? null);
+  });
+</script>

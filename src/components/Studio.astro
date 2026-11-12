@@ -1,0 +1,148 @@
+---
+import type { SiteCopy } from '../content/types';
+import { release } from '../content/release';
+import { studioText, studioTour } from '../content/studio';
+import { initialState, renderStudio } from '../scripts/studio-render';
+import '../styles/studio.css';
+
+/** Props for the clickable, simplified replica of the application and its guided tour. */
+interface Props { copy: SiteCopy }
+const { copy } = Astro.props;
+const lang = copy.lang;
+const t = (key: keyof typeof studioText) => studioText[key][lang];
+---
+<section id="tour" class="tour" aria-labelledby="tour-title">
+  <div class="container">
+    <p class="eyebrow">{copy.tour.eyebrow}</p>
+    <h2 id="tour-title">{copy.tour.title}</h2>
+    <p class="section-intro">{copy.tour.intro}</p>
+    <div class="studio" data-studio data-lang={lang} data-version={release.version} data-task="classification">
+      <div class="studio-toolbar">
+        <button hidden type="button" class="button button-primary studio-start" data-tour-start>▶ {t('tourStart')}</button>
+        <div class="studio-caption" data-tour-caption aria-live="polite">
+          <p class="studio-idle" data-tour-idle>{t('tourIdle')}</p>
+          <div hidden class="studio-stop" data-tour-stop>
+            <span class="studio-count" data-tour-count></span>
+            <p><b data-tour-title></b> <span data-tour-text></span></p>
+          </div>
+        </div>
+        <div hidden class="studio-controls" data-tour-controls>
+          <button type="button" class="copy-button" data-tour-prev>{t('tourPrev')}</button>
+          <button type="button" class="copy-button" data-tour-toggle data-pause={t('tourPause')} data-play={t('tourPlay')}>{t('tourPause')}</button>
+          <button type="button" class="copy-button" data-tour-next>{t('tourNext')}</button>
+          <button type="button" class="copy-button" data-tour-exit>{t('tourStop')}</button>
+        </div>
+        <span hidden class="studio-progress" data-tour-progress aria-hidden="true"><i></i></span>
+      </div>
+      <div class="studio-window" data-studio-window set:html={renderStudio(initialState(), lang, release.version)} />
+      <p class="studio-note">{t('demo').replace('{version}', release.version)}</p>
+      <!-- Without JavaScript the replica cannot react, so the tour's explanations are listed instead. -->
+      <noscript>
+        <ol class="studio-fallback">{studioTour.map(stop => <li><b>{stop.title[lang]}.</b> {stop.text[lang]}</li>)}</ol>
+      </noscript>
+    </div>
+  </div>
+</section>
+<script>
+  import type { Language } from '../content/types';
+  import { studioTour } from '../content/studio';
+  import { canTrain, initialState, renderStudio, type StudioState } from '../scripts/studio-render';
+
+  /** Makes the replica react to clicks and runs the guided tour over it. */
+  document.querySelectorAll<HTMLElement>('[data-studio]').forEach((root) => {
+    const view = root.querySelector<HTMLElement>('[data-studio-window]')!;
+    const lang = root.dataset.lang as Language;
+    const version = root.dataset.version ?? '';
+    const state: StudioState = initialState();
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const q = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-tour-${name}]`)!;
+    const start = q<HTMLButtonElement>('start'); const idle = q('idle'); const stopBox = q('stop');
+    const controls = q('controls'); const progress = q('progress'); const toggle = q<HTMLButtonElement>('toggle');
+    let stop = -1; let timer: number | undefined; let playing = false;
+    const STOP_MS = 6500;
+
+    const paint = (focus?: string) => {
+      root.dataset.task = state.task;
+      view.innerHTML = renderStudio(state, lang, version);
+      if (stop >= 0) {
+        const target = view.querySelector<HTMLElement>(`[data-spot="${studioTour[stop].target}"]`);
+        if (target) { target.classList.add('is-spot'); target.dataset.n = String(stop + 1); }
+      }
+      if (focus) view.querySelector<HTMLElement>(focus)?.focus({ preventScroll: true });
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      progress.classList.remove('is-running');
+      if (!playing) return;
+      void progress.offsetWidth;
+      progress.classList.add('is-running');
+      timer = window.setTimeout(() => { if (stop < studioTour.length - 1) show(stop + 1); else pause(); }, STOP_MS);
+    };
+    const pause = () => { playing = false; toggle.textContent = toggle.dataset.play ?? ''; schedule(); };
+    const play = () => { playing = true; toggle.textContent = toggle.dataset.pause ?? ''; schedule(); };
+
+    const show = (index: number) => {
+      stop = (index + studioTour.length) % studioTour.length;
+      const item = studioTour[stop];
+      if (item.task) state.task = item.task;
+      if (item.step) state.step = item.step;
+      if (stop === 4) state.strategy[state.task] = 'replicates';
+      state.trained = false;
+      q('count').textContent = `${stop + 1}/${studioTour.length}`;
+      q('title').textContent = item.title[lang];
+      q('text').textContent = item.text[lang];
+      paint();
+      schedule();
+    };
+
+    const open = () => {
+      idle.hidden = true; stopBox.hidden = false; controls.hidden = false; progress.hidden = reduced; start.hidden = true;
+      root.dataset.touring = 'true';
+      if (reduced) pause(); else play();
+      show(0);
+    };
+    const close = () => {
+      window.clearTimeout(timer); playing = false; stop = -1;
+      idle.hidden = false; stopBox.hidden = true; controls.hidden = true; progress.hidden = true; start.hidden = false;
+      delete root.dataset.touring;
+      paint();
+    };
+
+    start.hidden = false;
+    start.addEventListener('click', open);
+    q('exit').addEventListener('click', close);
+    q('prev').addEventListener('click', () => { pause(); show(stop - 1); });
+    q('next').addEventListener('click', () => { pause(); show(stop + 1); });
+    toggle.addEventListener('click', () => (playing ? pause() : play()));
+
+    view.addEventListener('click', (event) => {
+      const control = (event.target as HTMLElement).closest<HTMLElement>('[data-act]');
+      if (!control) return;
+      const { act, value = '' } = control.dataset;
+      if (act === 'tour') { if (stop < 0) open(); return; }
+      // A click inside the replica means the visitor took over: the tour waits.
+      if (stop >= 0 && playing) pause();
+      let focus = `[data-act="${act}"][data-value="${value}"]`;
+      if (act === 'task') { state.task = value as StudioState['task']; state.trained = false; }
+      else if (act === 'step') { state.step = value as StudioState['step']; state.trained = false; focus = `.vf-rail [data-value="${value}"]`; }
+      else if (act === 'strategy') state.strategy[state.task] = value as StudioState['strategy'][string];
+      else if (act === 'model') state.model[state.task] = value;
+      else if (act === 'sample') { state.dataset[state.task] = true; focus = '[data-act="sample"]'; }
+      else if (act === 'train') { if (!canTrain(state)) return; state.trained = true; focus = '[data-act="train"]'; }
+      paint(focus);
+    });
+
+    // Arrow keys move between task tabs, as in the application.
+    view.addEventListener('keydown', (event) => {
+      const tab = (event.target as HTMLElement).closest<HTMLElement>('[role="tab"]');
+      if (!tab || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+      const tabs = Array.from(view.querySelectorAll<HTMLElement>('[role="tab"]'));
+      const at = tabs.indexOf(tab);
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      event.preventDefault();
+      tabs[next].click();
+    });
+  });
+</script>

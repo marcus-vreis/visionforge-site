@@ -103,31 +103,50 @@ test('complete case shows all nine files and keeps the model example available',
   await expect(page.locator('a[download]')).toHaveAttribute('href', '/visionforge-site/downloads/visionforge-digits-project.zip');
 });
 
-test('guides explain their captures with numbered targets in both languages', async ({ page }) => {
+test('guides explain their captures on the image, without sending the reader elsewhere', async ({ page }) => {
+  test.slow();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const expected: Array<[string, number]> = [['', 6], ['task/', 5], ['colab/', 3], ['codigo/', 5]];
   for (const prefix of ['./', './en/']) {
     for (const [slug, count] of expected) {
       await page.goto(`${prefix}docs/${slug}`);
-      const figure = page.locator('article [data-tour]');
+      const figure = page.locator('article [data-shot]');
       await expect(figure).toHaveCount(1);
-      const markers = figure.locator('[data-tour-marker]');
+      const markers = figure.locator('[data-shot-marker]');
       await expect(markers).toHaveCount(count);
       await expect(figure.locator('figcaption')).not.toBeEmpty();
-      // Under the image every explanation stays open, and the selected one is marked.
-      for (const text of await figure.locator('[data-tour-item] p').all()) await expect(text).toBeVisible();
+      const pop = figure.locator('[data-shot-pop]');
+      await expect(pop).toBeVisible();
+      await expect(pop.locator('[data-shot-count]')).toHaveText(`1/${count}`);
       await markers.last().click();
       await expect(markers.last()).toHaveAttribute('aria-pressed', 'true');
-      await expect(figure.locator('[data-tour-item][data-active]')).toHaveCount(1);
-      await expect(figure.locator('[data-tour-item]').last()).toHaveAttribute('data-active', '');
-      const frame = (await figure.locator('.tour-frame').boundingBox())!;
+      await expect(pop.locator('[data-shot-count]')).toHaveText(`${count}/${count}`);
+      await expect(pop.locator('[data-shot-text]')).not.toBeEmpty();
+      await pop.locator('[data-shot-next]').click();
+      await expect(markers.first()).toHaveAttribute('aria-pressed', 'true');
+      const stage = (await figure.locator('.shot-stage').boundingBox())!;
       for (const marker of await markers.all()) {
         const box = (await marker.boundingBox())!;
-        expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
-        expect(box.x + box.width).toBeLessThanOrEqual(frame.x + frame.width + 1);
-        expect(box.y).toBeGreaterThanOrEqual(frame.y - 1);
-        expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+        expect(box.x).toBeGreaterThanOrEqual(stage.x - 1);
+        expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
+        expect(box.y).toBeGreaterThanOrEqual(stage.y - 1);
+        expect(box.y + box.height).toBeLessThanOrEqual(stage.y + stage.height + 1);
+      }
+      // Every explanation opens over the capture: target and text are on screen together.
+      for (let i = 0; i < count; i++) {
+        // Walk with the pop-up's own Next button: an open explanation may cover a neighbouring target.
+        if (i > 0) await pop.locator('[data-shot-next]').click();
+        await expect(markers.nth(i)).toHaveAttribute('aria-pressed', 'true');
+        // Clicking may scroll the page, so both boxes are read again.
+        const stage = (await figure.locator('.shot-stage').boundingBox())!;
+        const box = (await pop.boundingBox())!;
+        // Over the capture, or right under it when the capture is too short to hold the text.
+        expect(box.y).toBeGreaterThanOrEqual(stage.y - 1);
+        expect(box.y).toBeLessThanOrEqual(stage.y + stage.height + 24);
+        expect(box.x).toBeGreaterThanOrEqual(stage.x - 1);
+        expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
       }
     }
   }
+
 });

@@ -11,9 +11,9 @@ export interface SiteCopy {
   tour: { eyebrow: string; title: string; intro: string };
   labels: { figure: string; table: string; section: string };
   tasks: { eyebrow: string; title: string; intro: string; models: string; metrics: string; task: string; caption: string; items: Array<{ id: string; name: string; short: string; description: string; models: string; metrics: string }> };
-  workflow: { eyebrow: string; title: string; steps: Array<{ title: string; description: string }> };
-  features: { eyebrow: string; title: string; logTitle: string; logLink: string; published: string; intro: string; figure: string; groups: Array<{ id: string; heading: string; items: Array<{ title: string; description: string; mark: string; guide?: string }> }> };
-  research: { eyebrow: string; title: string; intro: string; items: Array<{ title: string; description: string }>; note: string; figure: string; replicas: { seed: string; summary: string; caption: string }; runJson: { title: string; field: string; records: string; caption: string; fields: Array<{ key: string; records: string }> } };
+  workflow: { eyebrow: string; title: string; where: string[]; whereLabel: string; steps: Array<{ title: string; description: string }> };
+  features: { eyebrow: string; title: string; logTitle: string; logLink: string; published: string; tabPlanned: string; tabReleased: string; tabEarlier: string; kinds: Record<'added' | 'changed' | 'fixed', string>; intro: string; figure: string; groups: Array<{ id: string; heading: string; items: Array<{ title: string; description: string; mark: string; guide?: string }> }> };
+  research: { eyebrow: string; title: string; intro: string; items: Array<{ title: string; description: string }>; note: string; figure: string; replicas: { seed: string; summary: string; caption: string }; runJson: { title: string; hint: string; caption: string } };
   install: { eyebrow: string; title: string; intro: string; requirements: string; osLabel: string; copy: string; copied: string; copyFailed: string; prerequisites: string; steps: string; gpu: string; cpu: string; mac: string; terminal: string; verified: string; guide: string; downloads: string; wheel: string; source: string; noExecutable: string; update: string };
   resources: { eyebrow: string; title: string; intro: string; items: Array<{ title: string; description: string; path: string }>; citation: string; citeLabel: string };
   footer: { description: string; source: string; release: string; made: string };

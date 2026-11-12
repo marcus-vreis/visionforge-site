@@ -1,27 +1,34 @@
-/* Captures with numbered targets, shared by the landing page and the guides. Tokens come from global.css. */
-.tour-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 28px 40px; align-items: start; margin-top: 28px; }
-.tour-grid.stacked { grid-template-columns: minmax(0, 1fr); gap: 20px; margin-block: 28px; }
-.tour-figure { margin: 0; }
+/* Captures with numbered targets, used in the guides. Tokens come from global.css. */
+.shot { margin-block: 28px; }
+.shot-figure { margin: 0; }
 /* A capture never renders larger than it was taken. */
-.tour-frame { position: relative; max-width: var(--shot-width); }
-.tour-marker { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); }
-.tour-marker:hover { background: var(--surface-2); }
-.tour-marker[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); }
-.tour-marker[aria-pressed='true']::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent); animation: tour-pulse 1.8s ease-out infinite; pointer-events: none; }
-@keyframes tour-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
-.tour-list { margin: 0; padding: 0; list-style: none; counter-reset: tour; border-top: 2px solid var(--rule); }
-.tour-list li { counter-increment: tour; display: grid; grid-template-columns: 30px minmax(0, 1fr); align-content: start; margin: 0; padding: 12px 0 12px 10px; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; line-height: 1.5; }
-.tour-list li::before { content: counter(tour); grid-row: span 2; font: 500 12px/2 var(--font-mono); color: var(--muted); }
-.tour-list h3 { margin: 0; font-size: 16px; }
-.tour-list p { grid-column: 2; margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-/* Beside the image only the selected explanation is open; stacked under it, or without the script, all stay readable. */
-[data-enhanced] .tour-list li { cursor: pointer; }
-[data-enhanced]:not(.stacked) .tour-list li:not([data-active]) p { display: none; }
-[data-enhanced] .tour-list li[data-active] { border-left-color: var(--accent); background: var(--surface); }
-[data-enhanced] .tour-list li[data-active]::before { color: var(--accent); }
-.stacked .tour-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; padding: 0; }
-@media (max-width: 900px) { .tour-grid { grid-template-columns: minmax(0, 1fr); } }
+.shot-stage { position: relative; max-width: var(--shot-width); }
+.shot-marker { position: absolute; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); }
+.shot-marker:hover { background: var(--surface-2); }
+.shot-marker[aria-pressed='true'] { z-index: 2; background: var(--accent); color: var(--accent-ink); }
+.shot-marker[aria-pressed='true']::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent); animation: tour-pulse 1.8s ease-out infinite; pointer-events: none; }
+@keyframes tour-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3); opacity: 0; } }
+
+/* The explanation opens on the image, beside its target, and flips to stay inside the frame. */
+.shot-pop { position: absolute; z-index: 3; width: min(300px, 80%); padding: 12px 14px; transform: translate(22px, 18px); border: 1px solid var(--accent); border-radius: 8px; background: var(--bg); box-shadow: 0 10px 30px rgb(0 0 0 / .35); font-size: 14px; line-height: 1.5; }
+.shot-pop.flip-x { transform: translate(calc(-100% - 22px), 18px); }
+.shot-pop.flip-y { transform: translate(22px, calc(-100% - 18px)); }
+.shot-pop.flip-x.flip-y { transform: translate(calc(-100% - 22px), calc(-100% - 18px)); }
+.shot-pop p { margin: 0; }
+.shot-pop p + p { margin-top: 4px; color: var(--muted); }
+.shot-count { margin-right: 8px; font: 500 12px/1 var(--font-mono); color: var(--accent); }
+.shot-nav { display: flex; gap: 6px; margin-top: 10px; }
+
+.shot-below .shot-pop, .shot-below .shot-pop.flip-x, .shot-below .shot-pop.flip-y, .shot-below .shot-pop.flip-x.flip-y { position: static; width: auto; margin-top: 10px; transform: none; box-shadow: none; }
+
+.shot-list { margin: 16px 0 0; padding-left: 22px; color: var(--muted); font-size: 15px; }
+.shot-list li { margin-bottom: 6px; padding-left: 4px; line-height: 1.5; }
+.shot-list b { color: var(--text); }
+/* With the script the explanations live in the pop-up; the list stays in the page for assistive technology. */
+[data-enhanced] .shot-list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
 @media (max-width: 640px) {
-  .tour-marker { width: 22px; height: 22px; font-size: 11px; }
-  .stacked .tour-list { grid-template-columns: minmax(0, 1fr); }
+  .shot-marker { width: 22px; height: 22px; font-size: 11px; }
+  /* On a phone the capture is short, so the explanation sits right under it instead of covering it. */
+  .shot-pop, .shot-pop.flip-x, .shot-pop.flip-y, .shot-pop.flip-x.flip-y { position: static; width: auto; margin-top: 10px; transform: none; box-shadow: none; }
 }

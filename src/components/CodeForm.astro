@@ -1,0 +1,136 @@
+---
+import type { Language } from '../content/types';
+import { studioTasks } from '../content/studio';
+import '../styles/studio.css';
+import '../styles/codeform.css';
+
+/**
+ * The tutorial task's real Python beside the form the application builds from it.
+ * Lines are copied from public/examples/research_method.py; the values in the form are its defaults.
+ */
+interface Props { lang: Language }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+
+const code: Array<[text: string, link?: string]> = [
+  ['class ResearchMethodConfig(BaseTaskConfig):'],
+  ['    research_weight: float = Field(', 'weight'],
+  ['        default=0.1, ge=0, le=1, description="Weight of the research penalty"', 'weight'],
+  ['    )', 'weight'],
+  ['    n_samples: int = Field(', 'samples'],
+  ['        default=256, ge=8, description="Size of the synthetic demo dataset"', 'samples'],
+  ['    )', 'samples'],
+  ['    hidden_units: int = Field(default=32, ge=1, description="Demo model width")', 'hidden'],
+  [''],
+  ['@register_task('],
+  ['    key="research_method",'],
+  ['    label="Research method",', 'tab'],
+  ['    accent="#2dd4bf",', 'tab'],
+  ['    description="Synthetic regression with an illustrative research penalty",', 'description'],
+  ['    metrics={"mae": "lower"},'],
+  ['    primary_metric="mae",'],
+  [')'],
+  ['class ResearchMethodTask(TaskSpec[ResearchMethodConfig]): ...'],
+];
+const notes: Record<string, string> = pt ? {
+  tab: 'label vira o nome da aba, e accent vira a cor dela.',
+  description: 'description vira a frase sob o título da tarefa.',
+  weight: 'O Field vira um campo do formulário: valor inicial 0.1, limites de 0 a 1 e a descrição como ajuda.',
+  samples: 'O mínimo declarado (ge=8) é validado antes de o treino começar.',
+  hidden: 'Um Field numa linha só gera o campo do mesmo jeito.',
+} : {
+  tab: 'label becomes the tab name, and accent becomes its colour.',
+  description: 'description becomes the sentence under the task title.',
+  weight: 'The Field becomes a form field: initial value 0.1, limits from 0 to 1 and the description as help.',
+  samples: 'The declared minimum (ge=8) is validated before training starts.',
+  hidden: 'A one-line Field produces its form field the same way.',
+};
+const order = ['tab', 'description', 'weight', 'samples', 'hidden'];
+
+// Consecutive lines with the same link form one clickable block.
+const blocks: Array<{ link?: string; lines: string[] }> = [];
+for (const [text, link] of code) {
+  const last = blocks[blocks.length - 1];
+  if (last && link && last.link === link) last.lines.push(text); else blocks.push({ link, lines: [text] });
+}
+const field = (link: string, label: string, help: string, value: string) => ({ link, label, help, value });
+const fields = [
+  field('weight', 'research weight', 'Weight of the research penalty', '0.1'),
+  field('samples', 'n samples', 'Size of the synthetic demo dataset', '256'),
+  field('hidden', 'hidden units', 'Demo model width', '32'),
+];
+---
+<div class="codeform" data-codeform>
+  <div class="cf-editor">
+    <div class="cf-bar">user_tasks/research_method.py</div>
+    <div class="cf-code">
+      {blocks.map(block => block.link ? (
+        <button type="button" class="cf-block" data-cf-link={block.link}>{block.lines.map(line => <code>{line}</code>)}</button>
+      ) : (
+        <div class="cf-block">{block.lines.map(line => <code>{line || ' '}</code>)}</div>
+      ))}
+    </div>
+  </div>
+  <div class="cf-arrow" aria-hidden="true">→</div>
+  <div class="studio-window cf-form">
+    <div class="vf-tabs" aria-hidden="true">
+      {studioTasks.map(task => <span class="cf-tab" style={`--dot:${task.accent}`}><i></i>{task.label[lang]}</span>)}
+    </div>
+    <button type="button" class="cf-tab cf-own" data-cf-link="tab"><i></i>Research method</button>
+    <div class="vf-hero">
+      <div>
+        <span class="vf-kicker">// task / research_method</span>
+        <p class="vf-title">Research method</p>
+        <button type="button" class="vf-desc cf-plain" data-cf-link="description">Synthetic regression with an illustrative research penalty.</button>
+      </div>
+    </div>
+    <div class="cf-body">
+      <div class="vf-card">
+        <span class="vf-kicker">{pt ? 'parâmetros da tarefa' : 'task parameters'}</span>
+        <div class="vf-grid">
+          {fields.map(item => (
+            <button type="button" class="vf-field cf-field" data-cf-link={item.link}>
+              <span class="vf-label">{item.label}</span>
+              <span class="vf-help">{item.help}</span>
+              <span class="vf-input">{item.value}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <p class="vf-note">{pt ? 'Épocas, batch size, learning rate, otimizador, seed e dispositivo vêm da configuração base: você não escreve esses campos.' : 'Epochs, batch size, learning rate, optimizer, seed and device come from the base configuration: you do not write those fields.'}</p>
+    </div>
+  </div>
+  <p class="cf-note" data-cf-note aria-live="polite">
+    {order.map(link => <span data-cf-text={link}>{notes[link]}</span>)}
+  </p>
+</div>
+<script>
+  /** Links each block of code to the part of the form it produces, and walks through them until the visitor takes over. */
+  document.querySelectorAll<HTMLElement>('[data-codeform]').forEach((root) => {
+    const links = Array.from(new Set(Array.from(root.querySelectorAll<HTMLElement>('[data-cf-text]')).map(node => node.dataset.cfText!)));
+    const controls = Array.from(root.querySelectorAll<HTMLElement>('[data-cf-link]'));
+    let current = 0; let timer: number | undefined;
+    const select = (link: string) => {
+      current = Math.max(0, links.indexOf(link));
+      controls.forEach(control => control.toggleAttribute('data-active', control.dataset.cfLink === link));
+      root.querySelectorAll<HTMLElement>('[data-cf-text]').forEach(text => { text.hidden = text.dataset.cfText !== link; });
+    };
+    const stop = () => { if (timer !== undefined) { clearInterval(timer); timer = undefined; } };
+    controls.forEach((control) => {
+      const take = () => { stop(); select(control.dataset.cfLink!); };
+      control.addEventListener('click', take);
+      control.addEventListener('pointerenter', take);
+      control.addEventListener('focus', take);
+    });
+    root.dataset.enhanced = 'true';
+    select('weight');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    let interacted = false;
+    root.addEventListener('pointerdown', () => { interacted = true; }, { once: true });
+    root.addEventListener('focusin', () => { interacted = true; stop(); }, { once: true });
+    new IntersectionObserver(([entry]) => {
+      stop();
+      if (entry.isIntersecting && !interacted) timer = window.setInterval(() => select(links[(current + 1) % links.length]), 3800);
+    }, { threshold: 0.35 }).observe(root);
+  });
+</script>
