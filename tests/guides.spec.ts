@@ -102,3 +102,32 @@ test('complete case shows all nine files and keeps the model example available',
   await expect(page.locator('article')).toContainText('1.797');
   await expect(page.locator('a[download]')).toHaveAttribute('href', '/visionforge-site/downloads/visionforge-digits-project.zip');
 });
+
+test('guides explain their captures with numbered targets in both languages', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const expected: Array<[string, number]> = [['', 6], ['task/', 5], ['colab/', 3], ['codigo/', 5]];
+  for (const prefix of ['./', './en/']) {
+    for (const [slug, count] of expected) {
+      await page.goto(`${prefix}docs/${slug}`);
+      const figure = page.locator('article [data-tour]');
+      await expect(figure).toHaveCount(1);
+      const markers = figure.locator('[data-tour-marker]');
+      await expect(markers).toHaveCount(count);
+      await expect(figure.locator('figcaption')).not.toBeEmpty();
+      // Under the image every explanation stays open, and the selected one is marked.
+      for (const text of await figure.locator('[data-tour-item] p').all()) await expect(text).toBeVisible();
+      await markers.last().click();
+      await expect(markers.last()).toHaveAttribute('aria-pressed', 'true');
+      await expect(figure.locator('[data-tour-item][data-active]')).toHaveCount(1);
+      await expect(figure.locator('[data-tour-item]').last()).toHaveAttribute('data-active', '');
+      const frame = (await figure.locator('.tour-frame').boundingBox())!;
+      for (const marker of await markers.all()) {
+        const box = (await marker.boundingBox())!;
+        expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
+        expect(box.x + box.width).toBeLessThanOrEqual(frame.x + frame.width + 1);
+        expect(box.y).toBeGreaterThanOrEqual(frame.y - 1);
+        expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+      }
+    }
+  }
+});

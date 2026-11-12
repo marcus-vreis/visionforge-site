@@ -1,7 +1,7 @@
 ---
 import Shell from './Shell.astro';
 import CodeBlock from '../components/CodeBlock.astro';
-import TaskScreenshot from '../components/TaskScreenshot.astro';
+import AnnotatedShot from '../components/AnnotatedShot.astro';
 import ProjectFiles from '../components/ProjectFiles.astro';
 import type { Guide } from '../content/guide-types';
 import { guides } from '../content/guides';
@@ -41,10 +41,10 @@ const siblings = guides.filter(item => item.lang === guide.lang);
       </header>
       {guide.slug === 'model' && <aside class="notice guide-case"><p>{pt ? 'Para executar esta CNN com dados reais, siga o caso de dígitos manuscritos. Ele reúne os nove arquivos do projeto, desde a preparação das imagens até a leitura do run.json.' : 'To run this CNN with real data, follow the handwritten digits case. It includes all nine project files, from image preparation to reading run.json.'}</p><a href={`${home}docs/project/`}>{pt ? 'Abrir o caso completo' : 'Open the complete case'} →</a></aside>}
       {guide.slug === 'project' && <a class="button button-primary project-download" download href={`${base}downloads/visionforge-digits-project.zip`}>{pt ? 'Baixar projeto completo (.zip)' : 'Download complete project (.zip)'}</a>}
-      {guide.slug === 'task' && <TaskScreenshot lang={guide.lang} />}
       {guide.sections.map((section, index) => <section id={section.id} class="guide-section" aria-labelledby={`${section.id}-title`}>
         <h2 id={`${section.id}-title`}><a href={`#${section.id}`}>{section.title}</a></h2>
         {section.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+        {section.figure && <AnnotatedShot figure={section.figure} lang={guide.lang} stacked />}
         {section.steps && <ol>{section.steps.map(step => <li>{step}</li>)}</ol>}
         {section.list && <ul>{section.list.map(item => <li>{item}</li>)}</ul>}
         {section.code && <CodeBlock code={section.code} label={section.codeLabel ?? 'Python'} lang={guide.lang} id={`guide-code-${index}`} />}

@@ -1,0 +1,75 @@
+---
+import type { Language } from '../content/types';
+import { figures, type AnnotatedFigure, type FigureId } from '../content/figures';
+import '../styles/annotated.css';
+
+/**
+ * A real capture with numbered targets, each tied to a short explanation.
+ * `label` adds a figure number; `stacked` puts the explanations under the image (guides) instead of beside it.
+ */
+interface Props { figure: FigureId; lang: Language; label?: string; stacked?: boolean; eager?: boolean }
+const { figure: id, lang, label, stacked = false, eager = false } = Astro.props;
+const figure: AnnotatedFigure = figures[id];
+const base = import.meta.env.BASE_URL;
+const stem = figure.variants && lang === 'en' ? `${figure.image}-en` : figure.image;
+const sources = figure.variants
+  ? [{ src: `${base}images/${stem}-dark.webp`, cls: 'shot-dark' }, { src: `${base}images/${stem}-light.webp`, cls: 'shot-light' }]
+  : [{ src: `${base}images/${stem}.webp`, cls: undefined }];
+const caption = figure.caption[lang];
+const groupLabel = lang === 'pt' ? 'Alvos na captura' : 'Targets on the capture';
+---
+<div class:list={['tour-grid', { stacked }]} data-tour style={`--shot-width:${figure.width}px`}>
+  <figure class="figure tour-figure">
+    <div class="figure-frame tour-frame">
+      {sources.map((source, i) => (
+        <img class={source.cls} src={source.src} alt={caption} width={figure.width} height={figure.height} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager && i === 0 ? 'high' : undefined} />
+      ))}
+      <div class="tour-markers" role="group" aria-label={groupLabel}>
+        {figure.targets.map((target, i) => (
+          <button type="button" class="tour-marker" data-tour-marker aria-pressed="false" aria-label={`${i + 1}: ${target.title[lang]}`} aria-describedby={`${id}-target-${i + 1}`} style={`left:${target.x}%;top:${target.y}%`}>{i + 1}</button>
+        ))}
+      </div>
+    </div>
+    <figcaption>{label && <b>{label}</b>}{caption}</figcaption>
+  </figure>
+  <ol class="tour-list">
+    {figure.targets.map((target, i) => (
+      <li id={`${id}-target-${i + 1}`} data-tour-item>
+        <h3>{target.title[lang]}</h3>
+        <p>{target.text[lang]}</p>
+      </li>
+    ))}
+  </ol>
+</div>
+<script>
+  /** Links the targets to their explanations and walks through them until the visitor takes over. */
+  document.querySelectorAll<HTMLElement>('[data-tour]').forEach((root) => {
+    const markers = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tour-marker]'));
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-tour-item]'));
+    if (!markers.length || markers.length !== items.length) return;
+    let current = 0;
+    let timer: number | undefined;
+    const select = (index: number) => {
+      current = index;
+      markers.forEach((marker, i) => marker.setAttribute('aria-pressed', String(i === index)));
+      items.forEach((item, i) => item.toggleAttribute('data-active', i === index));
+    };
+    const stop = () => { if (timer !== undefined) { clearInterval(timer); timer = undefined; } };
+    markers.forEach((marker, i) => marker.addEventListener('click', () => { stop(); select(i); }));
+    items.forEach((item, i) => {
+      item.addEventListener('click', () => { stop(); select(i); });
+      item.addEventListener('pointerenter', () => { stop(); select(i); });
+    });
+    root.dataset.enhanced = 'true';
+    select(0);
+    // The walk-through is motion: it only runs when motion is welcome and the figure is on screen.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    let interacted = false;
+    root.addEventListener('pointerdown', () => { interacted = true; }, { once: true });
+    root.addEventListener('focusin', () => { interacted = true; stop(); }, { once: true });
+    new IntersectionObserver(([entry]) => {
+      stop();
+      if (entry.isIntersecting && !interacted) timer = window.setInterval(() => select((current + 1) % markers.length), 4000);
+    }, { threshold: 0.4 }).observe(root);
+  });
+</script>

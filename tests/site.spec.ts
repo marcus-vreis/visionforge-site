@@ -12,7 +12,8 @@ for (const language of ['pt','en'] as const) {
     page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     await page.goto(language === 'pt' ? './' : './en/');
     await expect(page.locator('html')).toHaveAttribute('lang',language === 'pt' ? 'pt-BR' : 'en');
-    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Visão computacional.' : 'Computer vision.');
+    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Plataforma local para treinar e comparar modelos' : 'A local platform for training and comparing');
+    for (const line of ['pip install visionforge-studio', 'visionforge doctor', 'visionforge selftest --quick', 'visionforge gui']) await expect(page.locator('.hero-terminal .t-cmd', { hasText: line }).first()).toBeAttached();
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',`https://marcus-vreis.github.io/visionforge-site/${language === 'en' ? 'en/' : ''}`);
     await expect(page.locator('a[href$=".whl"]')).toHaveCount(1);
     await expect(page.locator('a[href$=".tar.gz"]')).toHaveCount(1);
@@ -44,44 +45,110 @@ test('installation tabs select correct platform and support keyboard', async ({ 
   await expect(windows).toBeFocused();
 });
 
-test('all five task panels expose their own models and keyboard navigation', async ({ page }) => {
-  await page.goto('./');
-  const tasks = page.locator('[data-task-tabs]');
-  const tabs = tasks.getByRole('tab');
-  await expect(tabs).toHaveCount(5);
-  await tabs.first().focus();
-  await page.keyboard.press('End');
-  await expect(tabs.last()).toBeFocused();
-  await expect(page.locator('#task-panel-anomaly')).toBeVisible();
-  await expect(page.locator('#task-panel-anomaly')).toContainText('PatchCore');
-  await page.keyboard.press('ArrowRight');
-  await expect(tabs.first()).toBeFocused();
-  for (let index = 0; index < 5; index++) {
-    await tabs.nth(index).click();
-    await expect(tabs.nth(index)).toHaveAttribute('aria-selected','true');
-    await expect(tasks.getByRole('tabpanel')).toHaveCount(1);
+test('task table lists the five tasks with their own models and metrics in both languages', async ({ page }) => {
+  const expected: Record<string, string> = { classification: 'ResNet', detection: 'RT-DETR', regression: 'CSV', segmentation: 'DeepLabV3', anomaly: 'PatchCore' };
+  for (const path of ['./', './en/']) {
+    await page.goto(path);
+    const rows = page.locator('#tasks table tbody tr');
+    await expect(rows).toHaveCount(5);
+    await expect(page.locator('#tasks table thead th')).toHaveCount(3);
+    for (const [id, model] of Object.entries(expected)) {
+      const row = page.locator(`#task-${id}`);
+      await expect(row.locator('th[scope=row]')).toBeVisible();
+      await expect(row.locator('td').first()).toContainText(model);
+      await expect(row.locator('td').last()).not.toBeEmpty();
+    }
   }
 });
 
-test('task diagrams render visible marks in every panel', async ({ page }) => {
-  await page.goto('./');
-  for (const tab of await page.locator('[data-task-tabs] [role=tab]').all()) {
-    await tab.click();
-    const marks = await page.locator('[data-task-tabs] [role=tabpanel]:visible svg').evaluate(svg => Array.from(svg.querySelectorAll('path,rect,circle,ellipse')).filter(el => { const style = getComputedStyle(el); return style.stroke !== 'none' || style.fill !== 'none'; }).length);
-    expect(marks).toBeGreaterThan(0);
-  }
-});
-
-test('each task accent remains accessible in light and dark themes', async ({ page }) => {
+test('tasks section stays accessible in light and dark themes', async ({ page }) => {
   await page.goto('./');
   for (const theme of ['dark','light']) {
     await page.locator(`[data-theme-option=${theme}]`).click();
-    for (const tab of await page.locator('[data-task-tabs] [role=tab]').all()) {
-      await tab.click();
-      const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
-      expect(result.violations).toEqual([]);
+    const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+    expect(result.violations).toEqual([]);
+  }
+});
+
+test('figures are numbered in order and the run.json table matches across languages', async ({ page }) => {
+  const fields: Record<string, string[]> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4', 'Fig. 5']);
+    expect(await page.locator('main table caption b').allTextContents()).toEqual(language === 'pt' ? ['Tabela 1', 'Tabela 2'] : ['Table 1', 'Table 2']);
+    fields[language] = await page.locator('.runjson-table tbody th code').allTextContents();
+    expect(fields[language]).toContain('dataset_fingerprint');
+  }
+  expect(fields.pt).toEqual(fields.en);
+  expect(fields.pt).toHaveLength(7);
+});
+
+test('capture targets select their explanation and stay readable without JavaScript', async ({ page, browser }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const path of ['./', './en/']) {
+    await page.goto(path);
+    const markers = page.locator('[data-tour-marker]');
+    const items = page.locator('[data-tour-item]');
+    await expect(markers).toHaveCount(6);
+    await expect(items).toHaveCount(6);
+    await expect(markers.first()).toHaveAttribute('aria-pressed', 'true');
+    await markers.nth(2).click();
+    await expect(markers.nth(2)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-tour-marker][aria-pressed=true]')).toHaveCount(1);
+    await expect(items.nth(2).locator('p')).toBeVisible();
+    await expect(items.first().locator('p')).toBeHidden();
+    // Every target sits inside the capture it annotates.
+    const frame = (await page.locator('.tour-frame').boundingBox())!;
+    for (const marker of await markers.all()) {
+      const box = (await marker.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
     }
   }
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const plain = await context.newPage();
+  await plain.goto('http://127.0.0.1:4322/visionforge-site/');
+  for (const text of await plain.locator('[data-tour-item] p').all()) await expect(text).toBeVisible();
+  await context.close();
+});
+
+test('terminal session shows every line when motion is reduced and can be replayed otherwise', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  for (const line of await page.locator('.hero-terminal .t-line').all()) await expect(line).toBeVisible();
+  await expect(page.locator('.hero-terminal')).toContainText('5/5 cases passed');
+  await expect(page.locator('[data-replay]')).toBeHidden();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+  await expect(page.locator('[data-replay]')).toBeVisible();
+  await expect(page.locator('.hero-terminal .t-line').last()).toBeVisible({ timeout: 12000 });
+  await page.locator('[data-replay]').click();
+  await expect(page.locator('.hero-terminal .t-line').last()).toBeHidden();
+});
+
+test('updates list the development items first, the release date and the earlier versions', async ({ page }) => {
+  const versions: Record<string, string[]> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    expect(await page.locator('#features [data-group]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.group))).toEqual(['planned', 'released']);
+    await expect(page.locator('#features [data-group=released] .feature-group-title')).toContainText(release.releasedOn);
+    versions[language] = await page.locator('.release-log .release-version').allTextContents();
+    for (const entry of await page.locator('.release-log li p').all()) await expect(entry).not.toBeEmpty();
+    await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
+  }
+  expect(versions.pt).toEqual(versions.en);
+  expect(versions.pt).toEqual(['0.20.2', '0.20.1', '0.20.0', '0.19.0']);
+});
+
+test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 760 });
+  await page.goto('./');
+  const nav = page.getByRole('navigation', { name: 'Navegação principal' });
+  await expect(nav).toBeVisible();
+  await expect(nav.getByRole('link')).toHaveCount(4);
+  await nav.getByRole('link', { name: 'Instalação' }).click();
+  await expect(page).toHaveURL(/#install$/);
+  await expect(page.locator('#install-title')).toBeInViewport();
 });
 
 test('copy succeeds and denied clipboard provides selectable fallback', async ({ page, context }) => {
@@ -160,7 +227,7 @@ test('essential content works without JavaScript', async ({ browser }) => {
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:4322/visionforge-site/');
   for (const platform of ['windows','linux','macos']) await expect(page.locator(`#code-${platform}`)).toBeVisible();
-  for (const task of ['classification','detection','regression','segmentation','anomaly']) await expect(page.locator(`#task-panel-${task}`)).toBeVisible();
+  for (const task of ['classification','detection','regression','segmentation','anomaly']) await expect(page.locator(`#task-${task}`)).toBeVisible();
   await expect(page.locator('h1')).toBeVisible();
   await expect(page.getByRole('link',{name:'English',exact:true})).toBeVisible();
   await context.close();
@@ -177,7 +244,8 @@ test.describe('version consistency', () => {
   const root = fileURLToPath(new URL('..', import.meta.url));
   const staleVersions = /(?<![\d.])0\.(?:17\.0|20\.1|20\.2)(?!\.?\d)/;
   // Provenance of assets that really come from older versions (screenshots, adapted scaffold).
-  const historicalLines = [/adapted from VisionForge v0\.17\.0/, /v0\.20\.1 GUI.*recaptured on 2026-11-03|recaptured on 2026-11-03.*v0\.20\.1 GUI|v0\.20\.1 GUI recaptured/];
+  // updates.ts is a changelog: earlier versions are its content.
+  const historicalLines = [/\{ version: '0\.\d+\.\d+', date: '\d{4}-\d{2}-\d{2}'/, /adapted from VisionForge v0\.17\.0/, /v0\.20\.1 GUI.*recaptured on 2026-11-03|recaptured on 2026-11-03.*v0\.20\.1 GUI|v0\.20\.1 GUI recaptured/];
 
   function filesUnder(directory: string): string[] {
     return readdirSync(join(root, directory), { withFileTypes: true }).flatMap(entry => {
@@ -286,7 +354,8 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText(release.version);
         await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
-        await expect(page.locator('img')).toHaveCount(0);
+        // The exporters still have no real capture; Colab and the Code tab show one annotated capture each.
+        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : 1);
       }
     });
   }

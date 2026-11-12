@@ -76,7 +76,7 @@ export const guides: Guide[] = [
         'Para começar, use duas classes com imagens RGB e pastas separadas para treino, validação e teste. O nome de cada subpasta identifica uma classe. A estrutura abaixo é um formato de entrada, não um dataset incluído no site.',
         'Use exemplos diferentes em cada split. Imagens do mesmo paciente, objeto ou sequência devem ficar no mesmo split quando houver essa dependência; copie esse critério para seu protocolo de pesquisa.',
       ], code: dataset, codeLabel: 'Estrutura de pastas · coloque suas imagens nas subpastas', note: 'O botão de datasets da aplicação também permite obter datasets de provedores integrados. Confira tamanho, licença e destino antes de baixar. As outras tarefas têm formatos próprios, descritos na referência de datasets do projeto.' },
-      { id: 'configure', title: '3. Configure uma execução pequena', paragraphs: ['Na aba Classificação, selecione a pasta datasets/two-classes. Confira os splits e a contagem de classes detectados antes de treinar.'], steps: [
+      { id: 'configure', figure: 'data-step', title: '3. Configure uma execução pequena', paragraphs: ['Na aba Classificação, selecione a pasta datasets/two-classes. Confira os splits e a contagem de classes detectados antes de treinar.'], steps: [
         'Aplique a quantidade de classes detectada: 2 neste exemplo. Escolha um nome que identifique seu experimento.',
         'Selecione uma arquitetura disponível. Para um teste sem baixar pesos, desative o uso de pesos pré-treinados; para transfer learning, os pesos podem precisar de download.',
         'Para conferir o fluxo em CPU, escolha CPU e comece com 1 época e batch size pequeno. Isso verifica a execução; não mede a qualidade final do modelo.',
@@ -135,7 +135,7 @@ export const guides: Guide[] = [
         'Na pasta de pesquisa com o ambiente instalado, execute new-task research_method. O comando cria user_tasks/research_method.py. A opção --package cria user_tasks/research_method/task.py, útil para manter arquivos auxiliares junto da tarefa.',
         'O scaffold já executa uma regressão sintética: entradas com 8 características e um alvo escalar. Não precisa de dataset nem de pesos externos. O nome é apenas uma identificação do tutorial; a demonstração não é um método acadêmico novo.',
       ], code: scaffold, codeLabel: 'Terminal · execute a versão do seu sistema', note: 'Você pode partir do scaffold e aplicar os trechos abaixo, ou baixar research_method.py ao final e salvá-lo em user_tasks/. Use uma das opções para não sobrescrever seu trabalho.' },
-      { id: 'form', title: '2. Faça um campo aparecer na página', paragraphs: [
+      { id: 'form', figure: 'custom-task', title: '2. Faça um campo aparecer na página', paragraphs: [
         'Abra o arquivo gerado e acrescente research_weight à classe ResearchMethodConfig, mantendo n_samples e hidden_units. Field já está importado no scaffold.',
         'O JSON Schema dessa classe gera o formulário: o campo aparece com valor inicial 0.1, descrição e limites de 0 a 1. A validação rejeita valores fora do intervalo antes do treinamento. Campos compartilhados de dados, treino, saída e device vêm de BaseTaskConfig.',
         'No decorador @register_task, label define o nome da aba e accent define sua cor. A chave research_method identifica a tarefa e deve começar com letra minúscula, contendo apenas letras minúsculas, números e _. As chaves das cinco tarefas embutidas são reservadas.',
@@ -182,7 +182,7 @@ export const guides: Guide[] = [
         'Start with two classes of RGB images and separate training, validation and test folders. Each class subfolder names one class. The tree below is an input format, not a dataset bundled with this website.',
         'Keep examples separate across splits. Images from the same patient, object or sequence should stay in one split when they share that dependency; record the rule in your research protocol.',
       ], code: dataset, codeLabel: 'Folder structure · put your images in the subfolders', note: 'The application also has a dataset downloader with integrated providers. Check size, license and destination before downloading. Other tasks have their own formats, described in the project dataset reference.' },
-      { id: 'configure', title: '3. Configure a small run', paragraphs: ['In the Classification tab, select datasets/two-classes. Check detected splits and class counts before training.'], steps: [
+      { id: 'configure', figure: 'data-step', title: '3. Configure a small run', paragraphs: ['In the Classification tab, select datasets/two-classes. Check detected splits and class counts before training.'], steps: [
         'Apply the detected class count: 2 in this example. Give the experiment a recognizable name.',
         'Select an available architecture. Disable pretrained weights for a test without weight downloads; transfer learning may need to download weights.',
         'Choose CPU, 1 epoch and a small batch size to check the workflow. This checks execution rather than final model quality.',
@@ -241,7 +241,7 @@ export const guides: Guide[] = [
         'In your research folder with the environment installed, run new-task research_method. It creates user_tasks/research_method.py. The --package option creates user_tasks/research_method/task.py, useful for keeping supporting files next to the task.',
         'The scaffold already runs synthetic regression with 8 input features and one scalar target. It needs no dataset or external weights. The name identifies this tutorial; the demonstration is not a new academic method.',
       ], code: scaffold, codeLabel: 'Terminal · use the commands for your OS', note: 'Either start with the scaffold and apply the changes below, or download research_method.py at the end and save it in user_tasks/. Choose one path to avoid overwriting your work.' },
-      { id: 'form', title: '2. Make a field appear on the page', paragraphs: [
+      { id: 'form', figure: 'custom-task', title: '2. Make a field appear on the page', paragraphs: [
         'Open the generated file and add research_weight to ResearchMethodConfig, keeping n_samples and hidden_units. The scaffold already imports Field.',
         'The class JSON Schema generates the form: the field appears with initial value 0.1, help text and limits from 0 to 1. Validation rejects out-of-range values before training. Shared data, training, output and device settings come from BaseTaskConfig.',
         'In @register_task, label names the tab and accent sets its color. The key research_method identifies the task and must start with a lowercase letter and contain only lowercase letters, digits and _. The five built-in task keys are reserved.',

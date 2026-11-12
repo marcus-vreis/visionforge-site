@@ -6,13 +6,15 @@ const base = import.meta.env.BASE_URL;
 <Shell copy={copy} title="Página não encontrada · VisionForge" description="O endereço que você abriu não existe neste site." noindex>
   <section class="section">
     <div class="container">
-      <span class="eyebrow">404</span>
+      <p class="section-label"><b>404</b></p>
+      <div class="section-body">
       <h1>Página não encontrada</h1>
       <p class="section-intro">O endereço que você abriu não existe ou mudou de lugar.</p>
       <p>
         <a class="button button-primary" href={base}>Voltar para a página inicial</a>
         <a class="button" href={`${base}en/`} lang="en" hreflang="en">English version</a>
       </p>
+      </div>
     </div>
   </section>
 </Shell>

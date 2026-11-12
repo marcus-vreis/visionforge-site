@@ -1,4 +1,5 @@
 import type { Language } from './types';
+import type { FigureId } from './figures';
 
 /** A static tutorial section, with optional runnable or explicitly partial code. */
 export interface GuideSection {
@@ -10,6 +11,8 @@ export interface GuideSection {
   code?: string;
   codeLabel?: string;
   note?: string;
+  /** An annotated capture from figures.ts, shown after the section's paragraphs. */
+  figure?: FigureId;
 }
 
 /** A localized guide sharing the same slug across languages. */

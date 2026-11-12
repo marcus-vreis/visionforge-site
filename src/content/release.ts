@@ -4,6 +4,9 @@ export const plannedVersion = '0.22';
 /** Release information verified against GitHub and PyPI on 2026-11-10. */
 export const release = {
   version: '0.21.0',
+  /** Date of the version heading in the product's CHANGELOG.md. */
+  releasedOn: '2026-11-05',
+  changelog: 'https://github.com/marcus-vreis/VisionForge/blob/main/CHANGELOG.md',
   doi: '10.5281/zenodo.23992660',
   verifiedOn: '2026-11-10',
   repository: 'https://github.com/marcus-vreis/VisionForge',

@@ -34,7 +34,7 @@ export const featureGuides: Guide[] = [
         'O VisionForge não fala com o Colab diretamente: ele comanda a google-colab-cli, fixada na versão 0.7.5. Ela é instalada num ambiente virtual próprio, em ~/.visionforge/colab-cli/venv, e nunca no ambiente do seu projeto. O treino usa a mesma fila e a mesma aba Resultados de um treino local.',
         'Nada escuta na sua máquina e nenhum túnel é aberto. O Windows roda a CLI sem WSL.',
       ] },
-      { id: 'connect', title: 'Conectar a conta', paragraphs: [
+      { id: 'connect', figure: 'colab', title: 'Conectar a conta', paragraphs: [
         'A conexão fica no canto "colab" do cabeçalho. Cada perfil entra com a sua conta: toda chamada da CLI roda com HOME e USERPROFILE apontando para ~/.visionforge/colab/<perfil>/, e o login fica em .config/colab-cli/token.json dentro dessa pasta. O VisionForge só confere se o arquivo existe. Ele não lê o token, não o grava em log e não o envia a lugar nenhum.',
       ], steps: [
         'Instale a CLI do Colab pelo botão do painel. Leva um ou dois minutos.',
@@ -159,7 +159,7 @@ export const featureGuides: Guide[] = [
     availability: ptPlanned,
     references: [{ label: 'ADR-173 e ADR-181 (decisões)', url: decisions }],
     sections: [
-      { id: 'how', title: 'Como a aba funciona', paragraphs: [
+      { id: 'how', figure: 'code-tab', title: 'Como a aba funciona', paragraphs: [
         'Na tela de treino, a aba Código mostra as funções que o VisionForge executa para treinar, validar e testar o modelo, com notas em português ou inglês ao lado das linhas. Ela vem depois de "Como funciona".',
       ], list: [
         'Não é uma cópia. O servidor lê cada função do pacote instalado com inspect a cada pedido, então o texto que você vê é o que roda. A resposta traz o arquivo como caminho dentro do pacote, nunca o caminho absoluto da instalação.',
@@ -209,7 +209,7 @@ export const featureGuides: Guide[] = [
         'VisionForge does not talk to Colab directly: it drives google-colab-cli, pinned to version 0.7.5. The CLI is installed in its own virtual environment, in ~/.visionforge/colab-cli/venv, and never in your project environment. Training uses the same queue and the same Results tab as a local run.',
         'Nothing listens on your machine and no tunnel is opened. On Windows the CLI runs without WSL.',
       ] },
-      { id: 'connect', title: 'Connecting your account', paragraphs: [
+      { id: 'connect', figure: 'colab', title: 'Connecting your account', paragraphs: [
         'The connection lives in the "colab" corner of the header. Each profile signs in with its own account: every CLI call runs with HOME and USERPROFILE pointing to ~/.visionforge/colab/<profile>/, and the login is kept in .config/colab-cli/token.json inside that folder. VisionForge only checks that the file exists. It does not read the token, write it to a log or send it anywhere.',
       ], steps: [
         'Install the Colab CLI from the panel button. It takes a minute or two.',
@@ -334,7 +334,7 @@ export const featureGuides: Guide[] = [
     availability: enPlanned,
     references: [{ label: 'ADR-173 and ADR-181 (decisions)', url: decisions }],
     sections: [
-      { id: 'how', title: 'How the tab works', paragraphs: [
+      { id: 'how', figure: 'code-tab', title: 'How the tab works', paragraphs: [
         'On the training screen, the Code tab shows the functions VisionForge runs to train, validate and test the model, with notes in Portuguese or English beside the lines. It comes after "How it works".',
       ], list: [
         'It is not a copy. The server reads each function from the installed package with inspect on every request, so the text you see is what runs. The response gives the file as a path inside the package, never the absolute install path.',

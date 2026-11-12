@@ -26,7 +26,7 @@ npx playwright install chromium
 npm test
 ```
 
-Os testes cobrem PT/EN, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
+Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, os alvos da captura, o terminal animado, a lista de atualizações, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
 
 Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` com o caminho do executável. Na CI, o browser correspondente à versão travada do Playwright é instalado automaticamente.
 
@@ -41,19 +41,22 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `public/downloads/visionforge-digits-project.zip`: projeto completo para download.
 - `docs/EDITORIAL.md`: skill Humanizer usada na revisão e fontes do posicionamento local-first.
 - `src/components/Installer.astro`: comandos por sistema, derivados do guia de instalação do produto.
-- `public/images/`: capturas reais da interface e imagem de compartilhamento.
+- `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
+- `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
+- `src/content/updates.ts`: versões anteriores mostradas em Atualizações, resumidas do `CHANGELOG.md` do produto.
+- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas na apresentação e nos guias. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
 
 Para atualizar uma versão:
 
 1. Confira o release público e a mesma versão no PyPI; verifique os nomes dos arquivos de download.
 2. Leia `docs/INSTALL.md` do produto e o resultado do workflow `install-smoke.yml` correspondente. Ajuste comandos e limitações apenas com evidência.
-3. Atualize `release.ts`, incluindo a data de verificação e o link do teste. Mantenha PT/EN consistentes.
+3. Atualize `release.ts`, incluindo `releasedOn`, a data de verificação e o link do teste; mova a versão anterior para `updates.ts`. Mantenha PT/EN consistentes.
 4. Se a interface mudou, capture novamente a GUI em um workspace vazio, sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`.
 5. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
 
-Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Eles descrevem recursos que só existem no ramo `development` do produto (marca "a partir da 0.22" em `plannedVersion`, `release.ts`) e citam as páginas `docs/gui/` de lá; ao publicar a 0.22, remova a marca `availability` e aponte `sourceRef` para a tag. Não há capturas de tela deles porque o site ainda não tem capturas reais desses painéis. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
+Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Eles descrevem recursos que só existem no ramo `development` do produto (marca "a partir da 0.22" em `plannedVersion`, `release.ts`) e citam as páginas `docs/gui/` de lá; ao publicar a 0.22, remova a marca `availability` e aponte `sourceRef` para a tag. Os guias do Colab e da aba Código mostram uma captura real com alvos numerados, vinda das imagens do README do produto; o dos exportadores ainda não tem captura real. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
 
 Para verificar exemplos contra o ambiente local do VisionForge, sem baixar datasets ou pesos e usando somente CPU:
 

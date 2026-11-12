@@ -3,7 +3,7 @@ import type { SiteCopy } from './types';
 /** English website copy verified against repository documentation. */
 export const copy: SiteCopy = {
   lang: 'en',
-  title: 'VisionForge: computer vision on your machine',
+  title: 'VisionForge: local training for computer-vision models',
   description: 'A local-first computer vision experimentation platform. Train and compare models across five tasks, with datasets and results on your machine.',
   nav: {
     tasks: 'Tasks',
@@ -17,16 +17,21 @@ export const copy: SiteCopy = {
     dark: 'Dark',
   },
   hero: {
-    eyebrow: 'Local-first computer vision experimentation',
-    title: 'Computer vision.',
-    emphasis: 'On your machine.',
-    description: 'Train and compare computer vision models on your computer. Keep datasets and results in local folders and register your own architectures and tasks.',
+    title: 'A local platform for training and comparing computer-vision models.',
+    description: 'Classification, detection, regression, segmentation and anomaly detection in one interface. Datasets and results stay in local folders, and every run writes its configuration, seed and environment to a run.json.',
     install: 'View install guide',
     github: 'GitHub repository',
-    caption: 'Real VisionForge interface at the data step of a classification run.',
-    local: 'Local training',
-    open: 'Open source (MIT)',
-    tasks: '5 task families',
+    development: '{planned} in development',
+    terminalLabel: 'Terminal · virtual environment active',
+    terminalCaption: 'Commands from the install guide. The output shown is the ending the guide documents for doctor and selftest, and the address where the interface opens.',
+    replay: 'Replay',
+    platforms: 'Windows, Linux and macOS (Apple Silicon)',
+  },
+  labels: { figure: 'Fig.', table: 'Table', section: 'Section' },
+  tour: {
+    eyebrow: 'The interface',
+    title: 'One screen, from the dataset to the Train button',
+    intro: 'The capture below is the Data step of a classification run. Pick a number to see what each part does.',
   },
   tasks: {
     eyebrow: 'Built-in tasks',
@@ -34,7 +39,8 @@ export const copy: SiteCopy = {
     intro: 'Choose the problem. Configure architectures, datasets, and training in panels organized the same way.',
     models: 'Models and backbones',
     metrics: 'Primary metrics',
-    illustration: 'Conceptual illustrative diagram',
+    task: 'Task',
+    caption: 'Architectures and metrics per task in the published release. Available experiment strategies vary by task.',
     items: [
       {
         id: 'classification',
@@ -109,13 +115,17 @@ export const copy: SiteCopy = {
     ],
   },
   features: {
-    eyebrow: 'Features and availability',
-    title: 'What the published release has and what comes later',
+    eyebrow: 'Updates',
+    title: 'What is being built now and what has been released',
+    logTitle: 'Earlier versions',
+    logLink: 'Full changelog',
+    published: 'released on {date}',
     intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
+    figure: 'Code tab after one epoch on CPU: the real training function read from the installed package, with the note for line 622. Captured from the development branch, Portuguese interface.',
     groups: [
       {
         id: 'released',
-        heading: 'In version {version}',
+        heading: 'Version {version}',
         items: [
           {
             title: 'Training on Google Colab',
@@ -142,7 +152,7 @@ export const copy: SiteCopy = {
       },
       {
         id: 'planned',
-        heading: 'From {planned}, in development',
+        heading: 'In development · {planned}',
         items: [
           {
             title: 'Code tab',
@@ -194,6 +204,27 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'Available strategies vary by task. K-fold is not available for object detection or anomaly detection.',
+    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). Captured from the Portuguese interface, dark theme; no training was run.',
+    replicas: {
+      seed: 'seed',
+      summary: 'mean ± 95% CI',
+      caption: 'Animated illustration, no experiment data: the same configuration runs once per seed, and the report combines the runs into a mean and a 95% confidence interval.',
+    },
+    runJson: {
+      title: 'What run.json records',
+      field: 'Field',
+      records: 'Records',
+      caption: 'Common run.json header, as built by run_json_header and capture_environment in the published release. Each task adds its own configuration and metrics.',
+      fields: [
+        { key: 'id, experiment, timestamp', records: 'Experiment name, run folder, and the date and time of writing.' },
+        { key: 'status, stopped', records: 'Whether training finished or was stopped early.' },
+        { key: 'device_used', records: 'The device training actually ran on.' },
+        { key: 'environment', records: 'Versions of Python, the platform, torch, torchvision, numpy and the other libraries, of VisionForge itself, and the CUDA, cuDNN and GPU in use.' },
+        { key: 'runtime.loader_workers', records: 'Worker count of each data loader.' },
+        { key: 'dataset_fingerprint', records: 'Hash of the dataset used; resuming a run checks this value.' },
+        { key: 'run_dir', records: 'Local folder with checkpoints, history and reports.' },
+      ],
+    },
   },
   install: {
     eyebrow: 'Installation',

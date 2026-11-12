@@ -32,7 +32,7 @@ const structuredData = JSON.stringify({
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#07080a" />
+    <meta name="theme-color" content="#0e0f11" />
     <title>{title}</title>
     {noindex ? <meta name="robots" content="noindex" /> : <>
     <link rel="canonical" href={canonical} />
@@ -68,11 +68,11 @@ const structuredData = JSON.stringify({
     <header class="site-header">
       <div class="container header-inner">
         <a class="brand" href={copy.lang === 'pt' ? base : `${base}en/`} aria-label="VisionForge">
-          <svg aria-hidden="true" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-dasharray="2 4"/><path d="M16 1v7m0 16v7M1 16h7m16 0h7" stroke="currentColor" stroke-width="1.5"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2"/><path d="M16 2v8m0 12v8M2 16h8m12 0h8" stroke="currentColor" stroke-width="2"/></svg>
           <span>Vision<b>Forge</b></span>
         </a>
         <nav class="header-nav" aria-label={copy.lang === 'pt' ? 'Navegação principal' : 'Main navigation'}>
-          <a href={`${home}#tasks`}>{copy.nav.tasks}</a><a href={`${home}#research`}>{copy.nav.research}</a><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={`${home}#install`}>{copy.nav.install} ↗</a>
+          <a href={`${home}#tasks`}>{copy.nav.tasks}</a><a href={`${home}#research`}>{copy.nav.research}</a><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={`${home}#install`}>{copy.nav.install}</a>
         </nav>
         <div class="header-controls">
           <a href={`${base}${route}`} lang="pt-BR" aria-label="Português" aria-current={copy.lang === 'pt' ? 'page' : undefined}>PT</a><span aria-hidden="true">/</span><a href={`${base}en/${route}`} lang="en" aria-label="English" aria-current={copy.lang === 'en' ? 'page' : undefined}>EN</a>
