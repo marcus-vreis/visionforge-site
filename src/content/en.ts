@@ -17,24 +17,24 @@ export const copy: SiteCopy = {
     dark: 'Dark',
   },
   hero: {
-    eyebrow: 'Local-first computer vision experimentation',
-    title: 'Computer vision.',
-    emphasis: 'On your machine.',
+    title: 'Computer-vision training on your machine,',
+    emphasis: 'with the uncertainty next to the result.',
     description: 'Train and compare computer vision models on your computer. Keep datasets and results in local folders and register your own architectures and tasks.',
     install: 'View install guide',
     github: 'GitHub repository',
-    caption: 'Real VisionForge interface at the data step of a classification run.',
-    local: 'Local training',
-    open: 'Open source (MIT)',
-    tasks: '5 task families',
+    caption: 'Real VisionForge interface at the Data step of a classification run, with the example dataset. No training was started.',
+    pip: 'Install with pip, inside a virtual environment',
+    platforms: 'Windows, Linux and macOS (Apple Silicon)',
   },
+  labels: { figure: 'Fig.', table: 'Table', section: 'Section' },
   tasks: {
     eyebrow: 'Built-in tasks',
     title: 'Five vision families in a single interface',
     intro: 'Choose the problem. Configure architectures, datasets, and training in panels organized the same way.',
     models: 'Models and backbones',
     metrics: 'Primary metrics',
-    illustration: 'Conceptual illustrative diagram',
+    task: 'Task',
+    caption: 'Architectures and metrics per task in the published release. Available experiment strategies vary by task.',
     items: [
       {
         id: 'classification',
@@ -112,6 +112,7 @@ export const copy: SiteCopy = {
     eyebrow: 'Features and availability',
     title: 'What the published release has and what comes later',
     intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
+    figure: 'Code tab after one epoch on CPU: the real training function read from the installed package, with the note for line 622. Captured from the development branch, Portuguese interface.',
     groups: [
       {
         id: 'released',
@@ -194,6 +195,22 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'Available strategies vary by task. K-fold is not available for object detection or anomaly detection.',
+    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). Captured from the Portuguese interface, dark theme; no training was run.',
+    runJson: {
+      title: 'What run.json records',
+      field: 'Field',
+      records: 'Records',
+      caption: 'Common run.json header, as built by run_json_header and capture_environment in the published release. Each task adds its own configuration and metrics.',
+      fields: [
+        { key: 'id, experiment, timestamp', records: 'Experiment name, run folder, and the date and time of writing.' },
+        { key: 'status, stopped', records: 'Whether training finished or was stopped early.' },
+        { key: 'device_used', records: 'The device training actually ran on.' },
+        { key: 'environment', records: 'Versions of Python, the platform, torch, torchvision, numpy and the other libraries, of VisionForge itself, and the CUDA, cuDNN and GPU in use.' },
+        { key: 'runtime.loader_workers', records: 'Worker count of each data loader.' },
+        { key: 'dataset_fingerprint', records: 'Hash of the dataset used; resuming a run checks this value.' },
+        { key: 'run_dir', records: 'Local folder with checkpoints, history and reports.' },
+      ],
+    },
   },
   install: {
     eyebrow: 'Installation',

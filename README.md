@@ -26,7 +26,7 @@ npx playwright install chromium
 npm test
 ```
 
-Os testes cobrem PT/EN, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
+Os testes cobrem PT/EN, a tabela de tarefas, a numeração de figuras e tabelas, comandos por sistema, teclado, clipboard (sucesso e recusa), persistência de tema, armazenamento bloqueado, conteúdo sem JavaScript, contraste e layout em 360/768/1440 px. O servidor de preview é iniciado pelo Playwright.
 
 Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` com o caminho do executável. Na CI, o browser correspondente à versão travada do Playwright é instalado automaticamente.
 
@@ -41,7 +41,8 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `public/downloads/visionforge-digits-project.zip`: projeto completo para download.
 - `docs/EDITORIAL.md`: skill Humanizer usada na revisão e fontes do posicionamento local-first.
 - `src/components/Installer.astro`: comandos por sistema, derivados do guia de instalação do produto.
-- `public/images/`: capturas reais da interface e imagem de compartilhamento.
+- `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
+- `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
 
 Para atualizar uma versão:
 

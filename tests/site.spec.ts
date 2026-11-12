@@ -12,7 +12,8 @@ for (const language of ['pt','en'] as const) {
     page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     await page.goto(language === 'pt' ? './' : './en/');
     await expect(page.locator('html')).toHaveAttribute('lang',language === 'pt' ? 'pt-BR' : 'en');
-    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Visão computacional.' : 'Computer vision.');
+    await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Treino de visão computacional na sua máquina' : 'Computer-vision training on your machine');
+    await expect(page.locator('.hero-command')).toHaveText('pip install visionforge-studio');
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',`https://marcus-vreis.github.io/visionforge-site/${language === 'en' ? 'en/' : ''}`);
     await expect(page.locator('a[href$=".whl"]')).toHaveCount(1);
     await expect(page.locator('a[href$=".tar.gz"]')).toHaveCount(1);
@@ -44,44 +45,53 @@ test('installation tabs select correct platform and support keyboard', async ({ 
   await expect(windows).toBeFocused();
 });
 
-test('all five task panels expose their own models and keyboard navigation', async ({ page }) => {
-  await page.goto('./');
-  const tasks = page.locator('[data-task-tabs]');
-  const tabs = tasks.getByRole('tab');
-  await expect(tabs).toHaveCount(5);
-  await tabs.first().focus();
-  await page.keyboard.press('End');
-  await expect(tabs.last()).toBeFocused();
-  await expect(page.locator('#task-panel-anomaly')).toBeVisible();
-  await expect(page.locator('#task-panel-anomaly')).toContainText('PatchCore');
-  await page.keyboard.press('ArrowRight');
-  await expect(tabs.first()).toBeFocused();
-  for (let index = 0; index < 5; index++) {
-    await tabs.nth(index).click();
-    await expect(tabs.nth(index)).toHaveAttribute('aria-selected','true');
-    await expect(tasks.getByRole('tabpanel')).toHaveCount(1);
+test('task table lists the five tasks with their own models and metrics in both languages', async ({ page }) => {
+  const expected: Record<string, string> = { classification: 'ResNet', detection: 'RT-DETR', regression: 'CSV', segmentation: 'DeepLabV3', anomaly: 'PatchCore' };
+  for (const path of ['./', './en/']) {
+    await page.goto(path);
+    const rows = page.locator('#tasks table tbody tr');
+    await expect(rows).toHaveCount(5);
+    await expect(page.locator('#tasks table thead th')).toHaveCount(3);
+    for (const [id, model] of Object.entries(expected)) {
+      const row = page.locator(`#task-${id}`);
+      await expect(row.locator('th[scope=row]')).toBeVisible();
+      await expect(row.locator('td').first()).toContainText(model);
+      await expect(row.locator('td').last()).not.toBeEmpty();
+    }
   }
 });
 
-test('task diagrams render visible marks in every panel', async ({ page }) => {
-  await page.goto('./');
-  for (const tab of await page.locator('[data-task-tabs] [role=tab]').all()) {
-    await tab.click();
-    const marks = await page.locator('[data-task-tabs] [role=tabpanel]:visible svg').evaluate(svg => Array.from(svg.querySelectorAll('path,rect,circle,ellipse')).filter(el => { const style = getComputedStyle(el); return style.stroke !== 'none' || style.fill !== 'none'; }).length);
-    expect(marks).toBeGreaterThan(0);
-  }
-});
-
-test('each task accent remains accessible in light and dark themes', async ({ page }) => {
+test('tasks section stays accessible in light and dark themes', async ({ page }) => {
   await page.goto('./');
   for (const theme of ['dark','light']) {
     await page.locator(`[data-theme-option=${theme}]`).click();
-    for (const tab of await page.locator('[data-task-tabs] [role=tab]').all()) {
-      await tab.click();
-      const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
-      expect(result.violations).toEqual([]);
-    }
+    const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+    expect(result.violations).toEqual([]);
   }
+});
+
+test('figures are numbered in order and the run.json table matches across languages', async ({ page }) => {
+  const fields: Record<string, string[]> = {};
+  for (const language of ['pt', 'en'] as const) {
+    await page.goto(language === 'pt' ? './' : './en/');
+    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4']);
+    expect(await page.locator('main table caption b').allTextContents()).toEqual(language === 'pt' ? ['Tabela 1', 'Tabela 2'] : ['Table 1', 'Table 2']);
+    fields[language] = await page.locator('.runjson-table tbody th code').allTextContents();
+    expect(fields[language]).toContain('dataset_fingerprint');
+  }
+  expect(fields.pt).toEqual(fields.en);
+  expect(fields.pt).toHaveLength(7);
+});
+
+test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 760 });
+  await page.goto('./');
+  const nav = page.getByRole('navigation', { name: 'Navegação principal' });
+  await expect(nav).toBeVisible();
+  await expect(nav.getByRole('link')).toHaveCount(4);
+  await nav.getByRole('link', { name: 'Instalação' }).click();
+  await expect(page).toHaveURL(/#install$/);
+  await expect(page.locator('#install-title')).toBeInViewport();
 });
 
 test('copy succeeds and denied clipboard provides selectable fallback', async ({ page, context }) => {
@@ -160,7 +170,7 @@ test('essential content works without JavaScript', async ({ browser }) => {
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:4322/visionforge-site/');
   for (const platform of ['windows','linux','macos']) await expect(page.locator(`#code-${platform}`)).toBeVisible();
-  for (const task of ['classification','detection','regression','segmentation','anomaly']) await expect(page.locator(`#task-panel-${task}`)).toBeVisible();
+  for (const task of ['classification','detection','regression','segmentation','anomaly']) await expect(page.locator(`#task-${task}`)).toBeVisible();
   await expect(page.locator('h1')).toBeVisible();
   await expect(page.getByRole('link',{name:'English',exact:true})).toBeVisible();
   await context.close();

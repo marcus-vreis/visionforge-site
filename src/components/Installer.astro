@@ -16,26 +16,13 @@ const systems = [
 ];
 ---
 <section id="install" class="section" aria-labelledby="install-title">
-  <div class="container install-layout">
-    <div class="install-aside">
-      <span class="eyebrow">04 / {t.eyebrow}</span>
+  <div class="container">
+    <p class="section-label"><b>§ 6</b>{t.eyebrow}</p>
+    <div class="section-body">
       <h2 id="install-title">{t.title}</h2>
       <p class="section-intro">{t.intro}</p>
       <div class="requirements">{t.requirements}</div>
-      <a href={release.installGuide}>{t.guide} ↗</a>
-      <div class="downloads">
-        <h3>{t.downloads}</h3>
-        <span class="eyebrow">v{release.version} · {pt ? 'Pacote Python' : 'Python package'}</span>
-        <div class="download-links">
-          <a class="button" href={release.wheel}>{t.wheel} ↙</a>
-          <a class="button" href={release.source}>{t.source} ↙</a>
-          <a class="button" href={release.pypi}>PyPI ↗</a>
-        </div>
-        <p class="install-note">{t.noExecutable}</p>
-        <a href={release.latest}>{t.update} ↗</a>
-      </div>
-    </div>
-    <div>
+      <p class="install-note"><a href={release.installGuide}>{t.guide} ↗</a></p>
       <div class="install-tabs" data-install-tabs aria-label={t.osLabel}>
         {systems.map(s => <button hidden type="button" id={`tab-${s.id}`} data-os={s.id} aria-controls={`panel-${s.id}`}>{s.name}</button>)}
       </div>
@@ -48,11 +35,22 @@ const systems = [
         </div>
         <p class="copy-status" role="status" aria-live="polite"></p>
         {s.fix ? <div class="notice"><p><strong>NVIDIA GPU</strong> — {t.gpu}</p><div class="terminal"><div class="terminal-bar"><span>{s.shell}</span><button hidden type="button" class="copy-button" data-copy={`fix-${s.id}`} data-success={t.copied} data-failure={t.copyFailed}>{t.copy}</button></div><pre tabindex="0"><code id={`fix-${s.id}`}>{s.fix}</code></pre></div><p>{t.cpu}</p></div> : <div class="notice">{t.mac}</div>}
-        <h3 style="margin-top:28px">{pt ? 'Conferir e abrir' : 'Verify and launch'}</h3>
+        <h3>{pt ? 'Conferir e abrir' : 'Verify and launch'}</h3>
         <div class="terminal"><div class="terminal-bar"><span>{s.shell}</span><button hidden type="button" class="copy-button" data-copy={`launch-${s.id}`} data-success={t.copied} data-failure={t.copyFailed}>{t.copy}</button></div><pre tabindex="0"><code id={`launch-${s.id}`}>{s.id === 'windows' ? '.\\.venv\\Scripts\\visionforge.exe selftest --quick\n.\\.venv\\Scripts\\visionforge.exe gui' : 'visionforge selftest --quick\nvisionforge gui'}</code></pre></div>
       </div>)}
       <p class="install-note">{t.terminal}</p>
       <p class="install-note"><a href={release.smokeTest}>{t.verified} ↗</a></p>
+      <div class="downloads">
+        <h3>{t.downloads}</h3>
+        <span class="eyebrow">v{release.version} · {pt ? 'Pacote Python' : 'Python package'}</span>
+        <div class="download-links">
+          <a class="button" href={release.wheel}>{t.wheel} ↓</a>
+          <a class="button" href={release.source}>{t.source} ↓</a>
+          <a class="button" href={release.pypi}>PyPI ↗</a>
+        </div>
+        <p class="install-note">{t.noExecutable}</p>
+        <p class="install-note"><a href={release.latest}>{t.update} ↗</a></p>
+      </div>
     </div>
   </div>
 </section>

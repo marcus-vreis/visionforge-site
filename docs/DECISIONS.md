@@ -65,3 +65,14 @@
 **Reason:** The website should use the same theme control visitors recognize in VisionForge. Icons keep the header compact while labels and pressed state expose the choice to assistive technology.
 
 **Consequences:** Preserve system tracking, stored choice, blocked-storage handling and early theme application. Check all page types at 360, 768 and 1440 pixels in both themes. Hide the controls when JavaScript is unavailable.
+
+## ADR-007 — Methods-paper presentation instead of a product landing page
+
+**Date:** 2026-11-12
+**Status:** Accepted. Supersedes the typography and decoration choices of ADR-003; its rules on real captures, themes and accessibility remain.
+
+**Decision:** Present the landing page as a short methods document. Newsreader sets headings, IBM Plex Sans the text and IBM Plex Mono the data, labels and commands. Each theme has one neutral family (paper in light, graphite in dark) and a single vermilion accent. Sections carry a numbered margin label; screenshots are numbered figures with a caption stating what was captured; tasks and the common `run.json` header are real tables. The task tabs, the per-task accent colours, the conceptual SVG diagrams, the background grid, the glow behind the opening and the outlined numerals were removed. The opening states the version, licence, supported Python and DOI from `release.ts`, then the `pip` command.
+
+**Reason:** The earlier page used the conventions of a generic dark product page: a two-line slogan at display size, card grids with pill marks, and decorative diagrams standing in for content. VisionForge's distinguishing trait is research discipline (seeds, confidence intervals, provenance), and a document that shows its own evidence in figures and tables says that directly. One accent keeps colour meaningful: it marks the current version, links under the pointer and what is still unreleased.
+
+**Consequences:** A new figure needs a real capture and a provenance entry in `ASSETS.md`; a table row needs a source in the product (the `run.json` fields come from `run_json_header` and `capture_environment` at the published tag and must be rechecked on each release). The replicates and Code-tab captures exist only in Portuguese and dark theme, so both languages and themes show the same image. `social.png` still uses the previous typography and should be redrawn. Section links now stay visible on small screens as a scrolling row. The fonts remain self-hosted under the SIL OFL.

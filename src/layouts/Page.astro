@@ -18,11 +18,13 @@ const resourceUrl = (path: string) => path === 'docs/QUICKSTART.md' ? `${home}do
       <Installer copy={copy} />
       <section id="resources" class="section" aria-labelledby="resources-title">
         <div class="container">
-          <span class="eyebrow">05 / {copy.resources.eyebrow}</span>
-          <h2 id="resources-title">{copy.resources.title}</h2>
-          <p class="section-intro">{copy.resources.intro}</p>
-          <div class="resource-grid">{copy.resources.items.map(item => <a class="resource" href={resourceUrl(item.path)}><h3>{item.title}<span aria-hidden="true">↗</span></h3><p>{item.description}</p></a>)}</div>
-          <div class="citation"><p>{copy.resources.citation.replace('{version}', release.version).replace('{doi}', release.doi)}</p><a class="button" href={`${release.repository}/blob/main/CITATION.cff`}>{copy.resources.citeLabel} ↗</a></div>
+          <p class="section-label"><b>§ 7</b>{copy.resources.eyebrow}</p>
+          <div class="section-body">
+            <h2 id="resources-title">{copy.resources.title}</h2>
+            <p class="section-intro">{copy.resources.intro}</p>
+            <ul class="link-list">{copy.resources.items.map(item => <li><a href={resourceUrl(item.path)}><h3>{item.title}</h3><p>{item.description}</p><span aria-hidden="true">{resourceUrl(item.path).startsWith('http') ? '↗' : '→'}</span></a></li>)}</ul>
+            <div class="citation"><p>{copy.resources.citation.replace('{version}', release.version).replace('{doi}', release.doi)}</p><a class="button" href={`${release.repository}/blob/main/CITATION.cff`}>{copy.resources.citeLabel} ↗</a></div>
+          </div>
         </div>
       </section>
 
