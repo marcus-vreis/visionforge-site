@@ -36,24 +36,6 @@
 
 /* ---------- Annotated capture ---------- */
 .tour { padding-block: 8px 72px; }
-.tour-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 28px 40px; align-items: start; margin-top: 28px; }
-.tour-figure { margin: 0; }
-.tour-frame { position: relative; }
-.tour-marker { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); }
-.tour-marker:hover { background: var(--surface-2); }
-.tour-marker[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); }
-.tour-marker[aria-pressed='true']::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent); animation: pulse 1.8s ease-out infinite; pointer-events: none; }
-.tour-list { margin: 0; padding: 0; list-style: none; counter-reset: tour; border-top: 2px solid var(--rule); }
-.tour-list li { counter-increment: tour; display: grid; grid-template-columns: 30px minmax(0, 1fr); padding: 12px 0 12px 10px; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; }
-.tour-list li::before { content: counter(tour); grid-row: span 2; font: 500 12px/2 var(--font-mono); color: var(--muted); }
-.tour-list h3 { margin: 0; font-size: 16px; }
-.tour-list p { grid-column: 2; margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-/* Once the script runs, only the selected explanation is open; without it every one stays readable. */
-[data-enhanced] .tour-list li { cursor: pointer; }
-[data-enhanced] .tour-list li:not([data-active]) p { display: none; }
-[data-enhanced] .tour-list li[data-active] { border-left-color: var(--accent); background: var(--surface); }
-[data-enhanced] .tour-list li[data-active]::before { color: var(--accent); }
-
 /* ---------- Replicas illustration ---------- */
 .replicas { max-width: 760px; }
 .replicas svg { display: block; width: 100%; height: auto; }
@@ -106,14 +88,13 @@
 .feature-card a { grid-column: 2; grid-row: 3; font-size: 15px; font-weight: 600; }
 
 @media (max-width: 900px) {
-  .hero-grid, .tour-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
   .tour { padding-bottom: 56px; }
   .steps, .method-list { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
   .hero-actions .button { flex: 1 1 100%; }
   .hero-terminal pre { min-height: 0; font-size: 12px; }
-  .tour-marker { width: 22px; height: 22px; font-size: 11px; }
   .release-log li { grid-template-columns: 64px minmax(0, 1fr); }
   .release-log li p { grid-column: 1 / -1; }
   .task-table th[scope='row'], .task-table td, .runjson-table th[scope='row'] { width: auto; }

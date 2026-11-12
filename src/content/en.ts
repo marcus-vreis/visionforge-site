@@ -21,7 +21,6 @@ export const copy: SiteCopy = {
     description: 'Classification, detection, regression, segmentation and anomaly detection in one interface. Datasets and results stay in local folders, and every run writes its configuration, seed and environment to a run.json.',
     install: 'View install guide',
     github: 'GitHub repository',
-    caption: 'Real VisionForge interface at the Data step of a classification run, with the example dataset. No training was started.',
     development: '{planned} in development',
     terminalLabel: 'Terminal · virtual environment active',
     terminalCaption: 'Commands from the install guide. The output shown is the ending the guide documents for doctor and selftest, and the address where the interface opens.',
@@ -33,15 +32,6 @@ export const copy: SiteCopy = {
     eyebrow: 'The interface',
     title: 'One screen, from the dataset to the Train button',
     intro: 'The capture below is the Data step of a classification run. Pick a number to see what each part does.',
-    targets: 'Targets on the capture',
-    items: [
-      { title: 'Task tabs', text: 'Each tab is a task. A custom task registered in user_tasks/ gets its own tab: that is Research method in this capture.' },
-      { title: 'Six steps', text: 'Data, Strategy, Model, Training, Image and augmentation, and Review. Each step summarises what is set and flags what differs from the default.' },
-      { title: 'Dataset folder', text: 'A local folder with train, validation and test subfolders. The interface detects the splits, and "use example dataset" fills everything in without picking a folder.' },
-      { title: 'Distribution', text: 'The image count per class in each split is shown before any training.' },
-      { title: 'History and Datasets', text: 'History lists earlier runs with a configuration diff. Datasets downloads benchmarks such as CIFAR-10 from the interface.' },
-      { title: 'Train and device', text: 'The Train button unlocks at the Review step, once the dataset is set. The GPU or CPU choice sits next to it.' },
-    ],
   },
   tasks: {
     eyebrow: 'Built-in tasks',

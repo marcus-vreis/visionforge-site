@@ -354,7 +354,8 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText(release.version);
         await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
-        await expect(page.locator('img')).toHaveCount(0);
+        // The exporters still have no real capture; Colab and the Code tab show one annotated capture each.
+        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : 1);
       }
     });
   }

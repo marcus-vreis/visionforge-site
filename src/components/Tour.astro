@@ -1,71 +1,15 @@
 ---
 import type { SiteCopy } from '../content/types';
-/** Props for the annotated capture: numbered targets on the real screenshot, each tied to a short explanation. */
+import AnnotatedShot from './AnnotatedShot.astro';
+/** Props for the landing section that explains the interface through the annotated Data-step capture. */
 interface Props { copy: SiteCopy }
 const { copy } = Astro.props;
-const base = import.meta.env.BASE_URL;
-const prefix = copy.lang === 'en' ? 'classification-en' : 'classification';
-// Target centres as percentages of the 1440 × 1000 capture; the PT/EN and light/dark captures share one layout.
-const positions: Array<[number, number]> = [[7.6, 11.6], [7.4, 31.5], [27.2, 48.5], [27.2, 80.5], [5.6, 93.8], [45.8, 93.8]];
 ---
 <section id="tour" class="tour" aria-labelledby="tour-title">
   <div class="container">
     <p class="eyebrow">{copy.tour.eyebrow}</p>
     <h2 id="tour-title">{copy.tour.title}</h2>
     <p class="section-intro">{copy.tour.intro}</p>
-    <div class="tour-grid" data-tour>
-      <figure class="figure tour-figure">
-        <div class="figure-frame tour-frame">
-          <img class="shot-dark" src={`${base}images/${prefix}-dark.webp`} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" fetchpriority="high" />
-          <img class="shot-light" src={`${base}images/${prefix}-light.webp`} alt={copy.hero.caption} width="1440" height="1000" loading="eager" decoding="async" />
-          <div class="tour-markers" role="group" aria-label={copy.tour.targets}>
-            {copy.tour.items.map((item, i) => (
-              <button type="button" class="tour-marker" data-tour-marker aria-pressed="false" aria-label={`${i + 1}: ${item.title}`} aria-describedby={`tour-item-${i + 1}`} style={`left:${positions[i][0]}%;top:${positions[i][1]}%`}>{i + 1}</button>
-            ))}
-          </div>
-        </div>
-        <figcaption><b>{copy.labels.figure} 1</b>{copy.hero.caption}</figcaption>
-      </figure>
-      <ol class="tour-list">
-        {copy.tour.items.map((item, i) => (
-          <li id={`tour-item-${i + 1}`} data-tour-item>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </li>
-        ))}
-      </ol>
-    </div>
+    <AnnotatedShot figure="data-step" lang={copy.lang} label={`${copy.labels.figure} 1`} eager />
   </div>
 </section>
-<script>
-  /** Links the targets to their explanations and walks through them until the visitor takes over. */
-  document.querySelectorAll<HTMLElement>('[data-tour]').forEach((root) => {
-    const markers = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tour-marker]'));
-    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-tour-item]'));
-    if (!markers.length || markers.length !== items.length) return;
-    let current = 0;
-    let timer: number | undefined;
-    const select = (index: number) => {
-      current = index;
-      markers.forEach((marker, i) => marker.setAttribute('aria-pressed', String(i === index)));
-      items.forEach((item, i) => item.toggleAttribute('data-active', i === index));
-    };
-    const stop = () => { if (timer !== undefined) { clearInterval(timer); timer = undefined; } };
-    markers.forEach((marker, i) => marker.addEventListener('click', () => { stop(); select(i); }));
-    items.forEach((item, i) => {
-      item.addEventListener('click', () => { stop(); select(i); });
-      item.addEventListener('pointerenter', () => { stop(); select(i); });
-    });
-    root.dataset.enhanced = 'true';
-    select(0);
-    // The walk-through is motion: it only runs when motion is welcome and the figure is on screen.
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
-    let interacted = false;
-    root.addEventListener('pointerdown', () => { interacted = true; }, { once: true });
-    root.addEventListener('focusin', () => { interacted = true; stop(); }, { once: true });
-    new IntersectionObserver(([entry]) => {
-      stop();
-      if (entry.isIntersecting && !interacted) timer = window.setInterval(() => select((current + 1) % markers.length), 4000);
-    }, { threshold: 0.4 }).observe(root);
-  });
-</script>

@@ -44,7 +44,7 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
 - `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
 - `src/content/updates.ts`: versões anteriores mostradas em Atualizações, resumidas do `CHANGELOG.md` do produto.
-- `src/components/Tour.astro`: alvos numerados sobre a captura da etapa Dados; as posições são porcentagens da imagem 1440 × 1000.
+- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas na apresentação e nos guias. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
 
 Para atualizar uma versão:
 
@@ -56,7 +56,7 @@ Para atualizar uma versão:
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
 
-Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Eles descrevem recursos que só existem no ramo `development` do produto (marca "a partir da 0.22" em `plannedVersion`, `release.ts`) e citam as páginas `docs/gui/` de lá; ao publicar a 0.22, remova a marca `availability` e aponte `sourceRef` para a tag. Não há capturas de tela deles porque o site ainda não tem capturas reais desses painéis. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
+Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Eles descrevem recursos que só existem no ramo `development` do produto (marca "a partir da 0.22" em `plannedVersion`, `release.ts`) e citam as páginas `docs/gui/` de lá; ao publicar a 0.22, remova a marca `availability` e aponte `sourceRef` para a tag. Os guias do Colab e da aba Código mostram uma captura real com alvos numerados, vinda das imagens do README do produto; o dos exportadores ainda não tem captura real. O último mostra o caso completo com todos os arquivos e um ZIP. Ao trocar a versão, confira também `docs/custom/` do produto, as assinaturas reais e os controles existentes na GUI. A API de `custom_model` não implica que o painel tenha um seletor dedicado; o guia usa YAML completo exportado e CLI.
 
 Para verificar exemplos contra o ambiente local do VisionForge, sem baixar datasets ou pesos e usando somente CPU:
 

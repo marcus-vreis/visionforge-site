@@ -7,8 +7,8 @@ export interface SiteCopy {
   title: string;
   description: string;
   nav: { tasks: string; research: string; install: string; docs: string; skip: string; theme: string; system: string; light: string; dark: string };
-  hero: { title: string; description: string; install: string; github: string; caption: string; platforms: string; development: string; terminalLabel: string; terminalCaption: string; replay: string };
-  tour: { eyebrow: string; title: string; intro: string; targets: string; items: Array<{ title: string; text: string }> };
+  hero: { title: string; description: string; install: string; github: string; platforms: string; development: string; terminalLabel: string; terminalCaption: string; replay: string };
+  tour: { eyebrow: string; title: string; intro: string };
   labels: { figure: string; table: string; section: string };
   tasks: { eyebrow: string; title: string; intro: string; models: string; metrics: string; task: string; caption: string; items: Array<{ id: string; name: string; short: string; description: string; models: string; metrics: string }> };
   workflow: { eyebrow: string; title: string; steps: Array<{ title: string; description: string }> };
