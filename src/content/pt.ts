@@ -31,7 +31,7 @@ export const copy: SiteCopy = {
   tour: {
     eyebrow: 'A interface',
     title: 'Uma tela, do dataset ao botão Treinar',
-    intro: 'Abaixo está uma versão simplificada da interface. Clique nas abas e nas etapas, ou siga o roteiro guiado.',
+    intro: 'Abaixo está uma versão simplificada da interface. O roteiro passa sozinho pelos pontos principais; para explorar por conta própria, clique em qualquer aba ou etapa.',
   },
   tasks: {
     eyebrow: 'Tarefas suportadas',

@@ -15,6 +15,7 @@
 .docs-sidebar nav a:hover { color:var(--text); }
 .docs-sidebar .docs-toc a { font-size:14px; padding-block:6px; }
 .guide-article { min-width:0; max-width:850px; }
+.guide-section > .shot { margin-right:calc(-1 * clamp(0px, (100vw - 1160px) / 2, 280px)); }
 .guide-header { padding-bottom:32px; border-bottom:1px solid var(--line); }
 .guide-header h1 { font-size:clamp(30px,4vw,44px); margin-bottom:20px; }
 .guide-lede { font-size:20px; color:var(--muted); }

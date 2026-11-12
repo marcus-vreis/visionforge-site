@@ -1,9 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { release, plannedVersion } from '../src/content/release';
+
+/** Waits for running CSS transitions (theme change, entrances) to end, so colours are read at rest. */
+const settle = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(item => item instanceof CSSTransition).map(item => item.finished.catch(() => undefined))).then(() => undefined));
 
 for (const language of ['pt','en'] as const) {
   test(`${language}: real content, metadata, assets and navigation`, async ({ page }) => {
@@ -66,6 +69,7 @@ test('tasks section stays accessible in light and dark themes', async ({ page })
   await page.goto('./');
   for (const theme of ['dark','light']) {
     await page.locator(`[data-theme-option=${theme}]`).click();
+    await settle(page);
     const result = await new AxeBuilder({page}).include('#tasks').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     expect(result.violations).toEqual([]);
   }
@@ -124,33 +128,83 @@ test('interface replica: tabs, steps, strategy and the Train lock behave like th
   }
 });
 
-test('guided tour walks the replica and the page explains it without JavaScript', async ({ page, browser }) => {
+test('the tour starts by itself over the replica, glides between stops and steps aside when asked', async ({ page }) => {
+  await page.goto('./');
+  const studio = page.locator('[data-studio]');
+  const stage = studio.locator('[data-studio-stage]');
+  const card = studio.locator('[data-tour-card]');
+  const count = studio.locator('[data-tour-count]');
+  await expect(studio.locator('[data-tour]')).toBeHidden();
+  // Reaching the section is enough: no button has to be found first.
+  await stage.evaluate(el => window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 90, behavior: 'instant' }));
+  await expect(studio).toHaveAttribute('data-touring', 'true');
+  await expect(count).toHaveText('01 / 08');
+  await expect(card).toBeVisible();
+  // Left alone, it moves on to the next stop.
+  await expect(count).toHaveText('02 / 08', { timeout: 12_000 });
+  // The page is never held: the visitor can scroll past, and the tour steps aside on a click in the replica.
+  await page.mouse.wheel(0, 1600);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(1500);
+  await stage.evaluate(el => window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 90, behavior: 'instant' }));
+  await studio.getByRole('tab').nth(2).evaluate((el: HTMLElement) => el.click());
+  await expect(studio).not.toHaveAttribute('data-touring', 'true');
+  await expect(studio.getByRole('tab').nth(2)).toHaveAttribute('aria-selected', 'true');
+});
+
+test('tour stops light the right part, keep the card inside the replica and the page explains it without JavaScript', async ({ page, browser }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('./');
   const studio = page.locator('[data-studio]');
-  await expect(studio.locator('[data-tour-controls]')).toBeHidden();
-  await studio.locator('[data-tour-start]').click();
-  await expect(studio.locator('[data-tour-count]')).toHaveText('1/9');
-  await expect(studio.locator('.is-spot')).toHaveCount(1);
-  await studio.locator('[data-tour-next]').click();
-  await expect(studio.locator('[data-tour-count]')).toHaveText('2/9');
-  await expect(studio.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
-  for (let i = 0; i < 6; i++) await studio.locator('[data-tour-next]').click();
-  await expect(studio.locator('[data-tour-count]')).toHaveText('8/9');
-  await expect(studio.locator('[data-act=train]')).toHaveAttribute('aria-disabled', 'false');
-  await studio.locator('[data-tour-exit]').click();
-  await expect(studio.locator('.is-spot')).toHaveCount(0);
-  await expect(studio.locator('[data-tour-start]')).toBeVisible();
-  // The header's guide button starts the same tour.
+  const stage = studio.locator('[data-studio-stage]');
+  const card = studio.locator('[data-tour-card]');
+  const count = studio.locator('[data-tour-count]');
+  const next = studio.locator('[data-tour-next]');
+  // With reduced motion nothing opens uninvited; the header's guide button starts the same tour.
+  await stage.scrollIntoViewIfNeeded();
+  await expect(studio.locator('[data-tour]')).toBeHidden();
   await studio.locator('[data-act=tour]').click();
-  await expect(studio.locator('[data-tour-count]')).toHaveText('1/9');
+  await expect(count).toHaveText('01 / 08');
+  await expect(studio.locator('[data-tour-prev]')).toBeHidden();
+  const targets = ['tabs', 'dataset', 'rail', 'card', 'card', 'train', 'history', 'device'];
+  for (let i = 0; i < targets.length; i++) {
+    if (i > 0) await next.click();
+    await expect(count).toHaveText(`0${i + 1} / 08`);
+    const frame = (await stage.boundingBox())!;
+    const box = (await card.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(frame.x);
+    expect(box.x + box.width).toBeLessThanOrEqual(frame.x + frame.width + 1);
+    expect(box.y).toBeGreaterThanOrEqual(frame.y);
+    expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+    // The ring sits on the stop's target and the card does not cover it.
+    const target = (await studio.locator(`[data-spot=${targets[i]}]`).boundingBox())!;
+    const ring = (await studio.locator('[data-tour-ring]').boundingBox())!;
+    expect(Math.abs(ring.x - (target.x - 6))).toBeLessThanOrEqual(8);
+    expect(Math.abs(ring.y - (target.y - 6))).toBeLessThanOrEqual(8);
+    const apart = box.x >= target.x + target.width || box.x + box.width <= target.x || box.y >= target.y + target.height || box.y + box.height <= target.y;
+    expect(apart, `card covers the target of stop ${i + 1}`).toBe(true);
+    if (i === 4) {
+      await expect(studio.getByRole('tab').nth(2)).toHaveAttribute('aria-selected', 'true');
+      await expect(studio.locator('[data-act=train]')).toContainText('Rodar réplicas');
+    }
+    if (i === 5) await expect(studio.locator('[data-act=train]')).toHaveAttribute('aria-disabled', 'false');
+  }
+  await expect(next).toHaveText('Concluir');
+  await next.click();
+  await expect(studio).not.toHaveAttribute('data-touring', 'true');
+  await expect(studio.locator('[data-tour]')).toBeHidden();
+  // It can be opened again and skipped.
+  await studio.locator('[data-act=tour]').click();
+  await expect(count).toHaveText('01 / 08');
+  await studio.locator('[data-tour-skip]').click();
+  await expect(studio.locator('[data-tour]')).toBeHidden();
 
   const context = await browser.newContext({ javaScriptEnabled: false });
   const plain = await context.newPage();
   await plain.goto('http://127.0.0.1:4322/visionforge-site/');
   await expect(plain.locator('[data-studio] .vf-title')).toHaveText('Classificação');
-  await expect(plain.locator('.studio-fallback li')).toHaveCount(9);
-  await expect(plain.locator('[data-tour-start]')).toBeHidden();
+  await expect(plain.locator('.studio-fallback li')).toHaveCount(8);
+  await expect(plain.locator('[data-studio-stage]')).toHaveCSS('opacity', '1');
+  await expect(plain.locator('[data-tour]')).toBeHidden();
   for (const note of await plain.locator('.runjson .rj-note').all()) await expect(note).toBeVisible();
   await expect(plain.locator('#features [data-updates-panel]:visible')).toHaveCount(3);
   await context.close();
@@ -284,6 +338,7 @@ for (const width of [360,768,1440]) {
     for (const theme of ['dark','light']) {
       await page.locator(`[data-theme-option=${theme}]`).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await settle(page);
       const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
       expect(result.violations).toEqual([]);
     }
@@ -356,6 +411,7 @@ test('404 page is built with h1, links to home and English, and passes axe', asy
   await expect(page.locator('main a[href="/visionforge-site/"]')).toHaveCount(1);
   await expect(page.locator('main a[href="/visionforge-site/en/"]')).toHaveCount(1);
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'noindex');
+  await settle(page);
   const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
   expect(result.violations).toEqual([]);
 });
@@ -395,6 +451,7 @@ test('landing: six workflow steps, exporters, Colab and planned marks in both la
     expect(shape[language].steps).toBe(6);
     for (const theme of ['dark', 'light']) {
       await page.locator(`[data-theme-option=${theme}]`).click();
+      await settle(page);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
       expect(result.violations).toEqual([]);
     }

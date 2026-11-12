@@ -5,7 +5,7 @@ import { studioText, studioTour } from '../content/studio';
 import { initialState, renderStudio } from '../scripts/studio-render';
 import '../styles/studio.css';
 
-/** Props for the clickable, simplified replica of the application and its guided tour. */
+/** Props for the full-width, simplified replica of the application and the tour that plays over it. */
 interface Props { copy: SiteCopy }
 const { copy } = Astro.props;
 const lang = copy.lang;
@@ -16,31 +16,32 @@ const t = (key: keyof typeof studioText) => studioText[key][lang];
     <p class="eyebrow">{copy.tour.eyebrow}</p>
     <h2 id="tour-title">{copy.tour.title}</h2>
     <p class="section-intro">{copy.tour.intro}</p>
-    <div class="studio" data-studio data-lang={lang} data-version={release.version} data-task="classification">
-      <div class="studio-toolbar">
-        <button hidden type="button" class="button button-primary studio-start" data-tour-start>▶ {t('tourStart')}</button>
-        <div class="studio-caption" data-tour-caption aria-live="polite">
-          <p class="studio-idle" data-tour-idle>{t('tourIdle')}</p>
-          <div hidden class="studio-stop" data-tour-stop>
-            <span class="studio-count" data-tour-count></span>
-            <p><b data-tour-title></b> <span data-tour-text></span></p>
+  </div>
+  <div class="studio" data-studio data-lang={lang} data-version={release.version} data-task="classification">
+    <div class="studio-stage" data-studio-stage>
+      <div class="studio-window" data-studio-window set:html={renderStudio(initialState(), lang, release.version)} />
+      <!-- The tour: a ring whose shadow shades everything but its target, and a card that glides between stops. -->
+      <div hidden class="studio-tour" data-tour>
+        <i class="tour-ring" data-tour-ring></i>
+        <div class="tour-card" data-tour-card role="group" aria-label={t('tourLabel')}>
+          <p class="tour-eyebrow"><span data-tour-count></span><span class="tour-dots" aria-hidden="true">{studioTour.map(() => <i></i>)}</span></p>
+          <div class="tour-copy" data-tour-copy>
+            <p class="tour-title" data-tour-title></p>
+            <p class="tour-text" data-tour-text></p>
+          </div>
+          <div class="tour-actions">
+            <button type="button" class="tour-ghost" data-tour-skip>{t('tourSkip')}</button>
+            <button type="button" class="tour-btn" data-tour-prev>{t('tourPrev')}</button>
+            <button type="button" class="tour-btn tour-primary" data-tour-next data-next={t('tourNext')} data-finish={t('tourFinish')}><span data-tour-next-label>{t('tourNext')}</span><i class="tour-timer" data-tour-timer aria-hidden="true"></i></button>
           </div>
         </div>
-        <div hidden class="studio-controls" data-tour-controls>
-          <button type="button" class="copy-button" data-tour-prev>{t('tourPrev')}</button>
-          <button type="button" class="copy-button" data-tour-toggle data-pause={t('tourPause')} data-play={t('tourPlay')}>{t('tourPause')}</button>
-          <button type="button" class="copy-button" data-tour-next>{t('tourNext')}</button>
-          <button type="button" class="copy-button" data-tour-exit>{t('tourStop')}</button>
-        </div>
-        <span hidden class="studio-progress" data-tour-progress aria-hidden="true"><i></i></span>
       </div>
-      <div class="studio-window" data-studio-window set:html={renderStudio(initialState(), lang, release.version)} />
-      <p class="studio-note">{t('demo').replace('{version}', release.version)}</p>
-      <!-- Without JavaScript the replica cannot react, so the tour's explanations are listed instead. -->
-      <noscript>
-        <ol class="studio-fallback">{studioTour.map(stop => <li><b>{stop.title[lang]}.</b> {stop.text[lang]}</li>)}</ol>
-      </noscript>
     </div>
+    <p class="studio-note">{t('demo').replace('{version}', release.version)}</p>
+    <!-- Without JavaScript the replica cannot react, so the tour's explanations are listed instead. -->
+    <noscript>
+      <ol class="studio-fallback">{studioTour.map(stop => <li><b>{stop.title[lang]}.</b> {stop.text[lang]}</li>)}</ol>
+    </noscript>
   </div>
 </section>
 <script>
@@ -48,82 +49,139 @@ const t = (key: keyof typeof studioText) => studioText[key][lang];
   import { studioTour } from '../content/studio';
   import { canTrain, initialState, renderStudio, type StudioState } from '../scripts/studio-render';
 
-  /** Makes the replica react to clicks and runs the guided tour over it. */
+  const STOP_MS = 7000;
+  const MARGIN = 16;
+  const GAP = 14;
+  const PAD = 6;
+
+  /** Makes the replica react to clicks and plays the tour over it once it scrolls into view. */
   document.querySelectorAll<HTMLElement>('[data-studio]').forEach((root) => {
+    const stage = root.querySelector<HTMLElement>('[data-studio-stage]')!;
     const view = root.querySelector<HTMLElement>('[data-studio-window]')!;
+    const tour = root.querySelector<HTMLElement>('[data-tour]')!;
+    const q = <T extends HTMLElement>(name: string) => tour.querySelector<T>(`[data-tour-${name}]`)!;
+    const ring = q('ring'); const card = q('card'); const copy = q('copy'); const timerBar = q('timer');
+    const prev = q<HTMLButtonElement>('prev'); const next = q<HTMLButtonElement>('next');
+    const dots = Array.from(tour.querySelectorAll<HTMLElement>('.tour-dots i'));
     const lang = root.dataset.lang as Language;
     const version = root.dataset.version ?? '';
-    const state: StudioState = initialState();
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const q = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-tour-${name}]`)!;
-    const start = q<HTMLButtonElement>('start'); const idle = q('idle'); const stopBox = q('stop');
-    const controls = q('controls'); const progress = q('progress'); const toggle = q<HTMLButtonElement>('toggle');
-    let stop = -1; let timer: number | undefined; let playing = false;
-    const STOP_MS = 6500;
+    let state: StudioState = initialState();
+    let shown = { task: state.task, step: state.step };
+    let stop = -1; let timer: number | undefined; let onScreen = false; let held = false; let autoplay = !reduced; let offered = false;
 
     const paint = (focus?: string) => {
+      // Only a change of task or step replays the entrance of the panel; a choice inside a step does not.
+      const enter = state.task !== shown.task ? 'task' : state.step !== shown.step ? 'step' : '';
+      shown = { task: state.task, step: state.step };
       root.dataset.task = state.task;
       view.innerHTML = renderStudio(state, lang, version);
-      if (stop >= 0) {
-        const target = view.querySelector<HTMLElement>(`[data-spot="${studioTour[stop].target}"]`);
-        if (target) { target.classList.add('is-spot'); target.dataset.n = String(stop + 1); }
-      }
+      if (enter) view.dataset.enter = enter; else delete view.dataset.enter;
       if (focus) view.querySelector<HTMLElement>(focus)?.focus({ preventScroll: true });
+    };
+
+    /** Where an element sits inside the replica by layout alone, so an entrance animation in progress does not move the cut-out. */
+    const layoutBox = (el: HTMLElement) => {
+      let left = view.clientLeft; let top = view.clientTop;
+      for (let node: HTMLElement | null = el; node && node !== view; node = node.offsetParent as HTMLElement | null) { left += node.offsetLeft; top += node.offsetTop; }
+      for (let node = el.parentElement; node && node !== view; node = node.parentElement) { left -= node.scrollLeft; top -= node.scrollTop; }
+      return { left, top, right: left + el.offsetWidth, bottom: top + el.offsetHeight };
+    };
+
+    /** Puts the cut-out on the stop's target and the card where it fits: below, above, beside, or over the centre. */
+    const place = (animate: boolean) => {
+      if (stop < 0) return;
+      tour.classList.toggle('is-still', !animate);
+      const target = view.querySelector<HTMLElement>(`[data-spot="${studioTour[stop].target}"]`);
+      const width = stage.clientWidth; const height = stage.clientHeight;
+      const raw = target ? layoutBox(target) : null;
+      const r = raw
+        ? { left: Math.max(0, raw.left - PAD), top: Math.max(0, raw.top - PAD), right: Math.min(width, raw.right + PAD), bottom: Math.min(height, raw.bottom + PAD) }
+        : { left: width / 2, top: height / 2, right: width / 2, bottom: height / 2 };
+      const set = (el: HTMLElement, left: number, top: number, w: number, h: number) => {
+        el.style.left = `${left}px`; el.style.top = `${top}px`; el.style.width = `${Math.max(0, w)}px`; el.style.height = `${Math.max(0, h)}px`;
+      };
+      set(ring, r.left, r.top, r.right - r.left, r.bottom - r.top);
+
+      const cw = card.offsetWidth; const ch = card.offsetHeight;
+      const clampX = (x: number) => Math.min(Math.max(MARGIN, x), Math.max(MARGIN, width - cw - MARGIN));
+      const clampY = (y: number) => Math.min(Math.max(MARGIN, y), Math.max(MARGIN, height - ch - MARGIN));
+      const centreX = clampX((r.left + r.right) / 2 - cw / 2); const centreY = clampY((r.top + r.bottom) / 2 - ch / 2);
+      let left = centreX; let top = clampY((height - ch) / 2);
+      if (r.bottom + GAP + ch + MARGIN <= height) top = r.bottom + GAP;
+      else if (r.top - GAP - ch >= MARGIN) top = r.top - GAP - ch;
+      else if (r.right + GAP + cw + MARGIN <= width) { left = r.right + GAP; top = centreY; }
+      else if (r.left - GAP - cw >= MARGIN) { left = r.left - GAP - cw; top = centreY; }
+      card.style.left = `${left}px`; card.style.top = `${top}px`;
     };
 
     const schedule = () => {
       window.clearTimeout(timer);
-      progress.classList.remove('is-running');
-      if (!playing) return;
-      void progress.offsetWidth;
-      progress.classList.add('is-running');
-      timer = window.setTimeout(() => { if (stop < studioTour.length - 1) show(stop + 1); else pause(); }, STOP_MS);
+      timerBar.classList.remove('is-running');
+      if (stop < 0 || !autoplay || held || !onScreen || document.hidden || stop === studioTour.length - 1) return;
+      void timerBar.offsetWidth;
+      timerBar.classList.add('is-running');
+      timer = window.setTimeout(() => show(stop + 1), STOP_MS);
     };
-    const pause = () => { playing = false; toggle.textContent = toggle.dataset.play ?? ''; schedule(); };
-    const play = () => { playing = true; toggle.textContent = toggle.dataset.pause ?? ''; schedule(); };
 
     const show = (index: number) => {
-      stop = (index + studioTour.length) % studioTour.length;
+      const first = stop < 0;
+      stop = Math.min(Math.max(0, index), studioTour.length - 1);
       const item = studioTour[stop];
-      if (item.task) state.task = item.task;
-      if (item.step) state.step = item.step;
-      if (stop === 4) state.strategy[state.task] = 'replicates';
-      state.trained = false;
-      q('count').textContent = `${stop + 1}/${studioTour.length}`;
+      state.task = item.task; state.step = item.step; state.trained = false;
+      if (item.strategy) state.strategy[item.task] = item.strategy;
+      paint();
+      q('count').textContent = `${String(stop + 1).padStart(2, '0')} / ${String(studioTour.length).padStart(2, '0')}`;
       q('title').textContent = item.title[lang];
       q('text').textContent = item.text[lang];
-      paint();
+      dots.forEach((dot, i) => { dot.classList.toggle('is-done', i < stop); dot.classList.toggle('is-current', i === stop); });
+      prev.hidden = stop === 0;
+      q('next-label').textContent = (stop === studioTour.length - 1 ? next.dataset.finish : next.dataset.next) ?? '';
+      // The words fade in again at every stop while the card glides to its new place.
+      copy.classList.remove('is-in'); void copy.offsetWidth; copy.classList.add('is-in');
+      place(!first);
       schedule();
     };
 
-    const open = () => {
-      idle.hidden = true; stopBox.hidden = false; controls.hidden = false; progress.hidden = reduced; start.hidden = true;
-      root.dataset.touring = 'true';
-      if (reduced) pause(); else play();
+    const open = (auto: boolean) => {
+      if (stop >= 0) return;
+      offered = true; autoplay = auto && !reduced;
+      state = initialState();
+      tour.hidden = false;
       show(0);
+      // One frame with the tour laid out but transparent, so the shade and the card fade in.
+      requestAnimationFrame(() => { root.dataset.touring = 'true'; });
     };
-    const close = () => {
-      window.clearTimeout(timer); playing = false; stop = -1;
-      idle.hidden = false; stopBox.hidden = true; controls.hidden = true; progress.hidden = true; start.hidden = false;
+    const close = (focusGuide = false) => {
+      if (stop < 0) return;
+      window.clearTimeout(timer); stop = -1;
       delete root.dataset.touring;
-      paint();
+      window.setTimeout(() => { if (stop < 0) tour.hidden = true; }, reduced ? 0 : 420);
+      if (focusGuide) view.querySelector<HTMLElement>('[data-act="tour"]')?.focus({ preventScroll: true });
     };
 
-    start.hidden = false;
-    start.addEventListener('click', open);
-    q('exit').addEventListener('click', close);
-    q('prev').addEventListener('click', () => { pause(); show(stop - 1); });
-    q('next').addEventListener('click', () => { pause(); show(stop + 1); });
-    toggle.addEventListener('click', () => (playing ? pause() : play()));
+    next.addEventListener('click', () => { autoplay = false; if (stop === studioTour.length - 1) close(true); else show(stop + 1); });
+    prev.addEventListener('click', () => { autoplay = false; show(stop - 1); });
+    q('skip').addEventListener('click', () => close(true));
+    // Reading or reaching for the card holds the stop; leaving it lets the tour go on.
+    const hold = (value: boolean) => { held = value; schedule(); };
+    card.addEventListener('pointerenter', () => hold(true));
+    card.addEventListener('pointerleave', () => hold(false));
+    card.addEventListener('focusin', () => hold(true));
+    card.addEventListener('focusout', () => hold(false));
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close(true);
+      else if (event.key === 'ArrowRight' && stop < studioTour.length - 1) { autoplay = false; show(stop + 1); }
+      else if (event.key === 'ArrowLeft' && stop > 0) { autoplay = false; show(stop - 1); }
+    });
 
     view.addEventListener('click', (event) => {
       const control = (event.target as HTMLElement).closest<HTMLElement>('[data-act]');
       if (!control) return;
       const { act, value = '' } = control.dataset;
-      if (act === 'tour') { if (stop < 0) open(); return; }
-      // A click inside the replica means the visitor took over: the tour waits.
-      if (stop >= 0 && playing) pause();
+      if (act === 'tour') { if (stop < 0) open(false); else close(); return; }
+      // A click inside the replica means the visitor took over: the tour steps aside.
+      close();
       let focus = `[data-act="${act}"][data-value="${value}"]`;
       if (act === 'task') { state.task = value as StudioState['task']; state.trained = false; }
       else if (act === 'step') { state.step = value as StudioState['step']; state.trained = false; focus = `.vf-rail [data-value="${value}"]`; }
@@ -140,9 +198,23 @@ const t = (key: keyof typeof studioText) => studioText[key][lang];
       if (!tab || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
       const tabs = Array.from(view.querySelectorAll<HTMLElement>('[role="tab"]'));
       const at = tabs.indexOf(tab);
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      const to = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       event.preventDefault();
-      tabs[next].click();
+      tabs[to].click();
     });
+
+    // The cut-out stays glued to its target when the stage changes size.
+    if ('ResizeObserver' in window) new ResizeObserver(() => place(false)).observe(stage);
+    document.addEventListener('visibilitychange', schedule);
+
+    root.dataset.enhanced = 'true';
+    if (!('IntersectionObserver' in window)) { stage.classList.add('is-seen'); return; }
+    // The tour is offered once, when the whole replica is on screen (its bottom bar is part of the tour),
+    // and waits whenever a good part of it is not.
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.intersectionRatio >= 0.75;
+      if (entry.isIntersecting) stage.classList.add('is-seen');
+      if (entry.intersectionRatio >= 0.9 && !offered && !reduced) open(true); else schedule();
+    }, { threshold: [0, 0.15, 0.75, 0.9] }).observe(stage);
   });
 </script>

@@ -16,8 +16,6 @@ export interface AnnotatedFigure {
   height: number;
   /** Largest CSS width the capture is shown at. */
   displayWidth: number;
-  /** Put the explanation under the capture instead of over it, for images too short to hold it. */
-  below?: boolean;
   caption: Record<Language, string>;
   targets: FigureTarget[];
 }
@@ -68,7 +66,7 @@ export const figures = {
     ],
   },
   colab: {
-    image: 'colab', localized: 'infix', themed: true, width: 1800, height: 540, displayWidth: 900, below: true,
+    image: 'colab', localized: 'infix', themed: true, width: 1800, height: 540, displayWidth: 900,
     caption: {
       pt: 'Canto do Colab aberto no cabeçalho, sem a CLI instalada nem conta Google conectada.',
       en: 'The Colab corner open in the header, with no CLI installed and no Google account connected.',

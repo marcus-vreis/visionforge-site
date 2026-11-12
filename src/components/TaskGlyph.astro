@@ -38,9 +38,14 @@ const { task } = Astro.props;
   {task === 'segmentation' && (
     <g>
       <rect class="g-frame" x="4" y="8" width="112" height="56" rx="6" />
-      <path class="g-soft" d="M4 48c20-10 34 4 56-4s34-12 56-2v16a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6z" />
-      <ellipse class="g-mask" cx="62" cy="34" rx="24" ry="15" />
-      <ellipse class="g-outline" cx="62" cy="34" rx="24" ry="15" />
+      <path class="g-line g-dim" d="M5 50h28M87 50h28" />
+      <circle class="g-soft" cx="60" cy="24" r="9" />
+      <path class="g-soft" d="M34 63.2c1-17 11-26 26-26s25 9 26 26z" />
+      <g class="g-person">
+        <circle class="g-mask" cx="60" cy="24" r="9" />
+        <path class="g-mask" d="M34 63.2c1-17 11-26 26-26s25 9 26 26z" />
+      </g>
+      <path class="g-scan" d="M0 12v48" />
     </g>
   )}
   {task === 'anomaly' && (

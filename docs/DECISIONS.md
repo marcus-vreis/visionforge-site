@@ -102,3 +102,20 @@ IBM Plex Sans sets headings and text and IBM Plex Mono the data, labels and comm
 **Reason:** Review of the published page showed that captures looked soft, that a list of explanations under a tall image forced scrolling between target and text, and that static pictures undersold an interface whose value is in using it. A replica is sharp at any size and lets a visitor try the structure before installing; explanations that open on the image remove the scrolling.
 
 **Consequences:** The replica is a second description of the interface and can drift: `src/content/studio.ts` must be rechecked against the frontend on each release, like `release.ts`. It never shows a metric and never claims to train. Task colours appear only in the replica, the task diagrams and the custom-task form; the site's own accent stays single. Captures weigh 100–130 KB each and are lazy-loaded. The Code-tab capture is still the earlier 760 px crop in Portuguese. Without JavaScript the replica shows its initial state with the tour's explanations listed, every `run.json` note is printed, and the update tabs become stacked sections.
+
+## ADR-009 — The tour plays by itself over a full-width replica; guide steps sit beside the capture
+
+**Date:** 2026-11-12
+**Status:** Accepted. Refines ADR-008.
+
+**Decision:**
+
+- The replica leaves the text column: it takes the width of the screen (up to 1480 px) and a height that fits one viewport, with the bottom bar always in view.
+- The tour no longer has a toolbar or a start button. It opens by itself once the whole replica is on screen, as the application's own guide does: a ring whose shadow shades everything but the target, and a card that glides from stop to stop. It advances every seven seconds, holds while the card is hovered or focused, waits while the replica is off screen, and closes on Skip, Esc or any click in the replica. The page is never scrolled or held by it. With reduced motion nothing opens uninvited; the header's "guide" button starts it.
+- The eight stops follow the order of the application's interface tour (`lib/tour.ts` at v0.21.0) and point at specific parts (dataset field, steps, model, strategy, Train, History and Datasets, device) instead of whole panels.
+- In the guides, the steps of a capture are listed to its left and open one at a time; a halo slides between targets. Nothing covers the image. The figure borrows the empty margin to the right of the article, so the capture keeps a readable size.
+- The segmentation diagram is a person turned into a mask by a scan line, instead of an ellipse over a horizon.
+
+**Reason:** Review of ADR-008's page: the tour's caption sat in a bar above the replica, far from what it described, and had to be started by hand; in the guides the explanation opened over the capture and hid part of it; the segmentation diagram was not understood.
+
+**Consequences:** Tests wait for CSS transitions to end before measuring contrast, because colours now cross-fade on theme and task changes. The tour's text is a second copy of the application's tour and must be rechecked with `studio.ts` on each release. On a viewport shorter than about 560 px the replica cannot be nine tenths on screen, so the tour only starts from the "guide" button there.

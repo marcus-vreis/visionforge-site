@@ -9,7 +9,7 @@
 - `favicon.svg`: original simplified crosshair mark based on the product header's circular mark; the frontend starter favicon was not reused.
 - `src/content/runjson.ts`: lines of a real `run.json` written on 2026-11-12 by `visionforge run` for the digits case of the guides (120 images, 1 epoch, CPU, same checkout). Folded objects are shown as `{ … }`, and the start of `run_dir` is replaced by `…`; no value is altered. Its metrics are folded on purpose.
 - Interface replica (`Studio.astro`, `src/content/studio.ts`): original HTML and CSS, not a capture. Labels, colours, steps, strategies, models and defaults were read from the product's frontend and `utils/*config.py` at v0.21.0; it is labelled as a simplified demonstration and does not train.
-- Task diagrams in the tasks table (`TaskGlyph.astro`): original animated inline SVG, decorative, in the application's task colours.
+- Task diagrams in the tasks table (`TaskGlyph.astro`): original animated inline SVG, decorative, in the application's task colours. The segmentation one is a generic person outline drawn for this site, not taken from any image.
 - Code beside the form (`CodeForm.astro`): lines copied from `public/examples/research_method.py`; the form values are that file's defaults.
 - Replicas diagram (`src/components/Replicas.astro`): original animated inline SVG, labelled as an illustration; bar lengths and dot positions are arbitrary and represent no experiment.
 - Terminal session in the opening: commands and output endings quoted from the product's `docs/INSTALL.md` at v0.21.0 (`environment looks good`, `5/5 cases passed`, `http://127.0.0.1:8000`); it is text, not a recording.
