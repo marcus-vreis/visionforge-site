@@ -52,11 +52,12 @@ test('task table lists the five tasks with their own models and metrics in both 
     const rows = page.locator('#tasks table tbody tr');
     await expect(rows).toHaveCount(5);
     await expect(page.locator('#tasks table thead th')).toHaveCount(3);
+    await expect(page.locator('#tasks table svg.glyph')).toHaveCount(5);
     for (const [id, model] of Object.entries(expected)) {
       const row = page.locator(`#task-${id}`);
       await expect(row.locator('th[scope=row]')).toBeVisible();
-      await expect(row.locator('td').first()).toContainText(model);
-      await expect(row.locator('td').last()).not.toBeEmpty();
+      await expect(row.locator('td[data-label]').first()).toContainText(model);
+      await expect(row.locator('td[data-label]').last()).not.toBeEmpty();
     }
   }
 });
@@ -70,46 +71,101 @@ test('tasks section stays accessible in light and dark themes', async ({ page })
   }
 });
 
-test('figures are numbered in order and the run.json table matches across languages', async ({ page }) => {
-  const fields: Record<string, string[]> = {};
+test('figures are numbered in order and the run.json file reads the same in both languages', async ({ page }) => {
+  const lines: Record<string, string[]> = {};
   for (const language of ['pt', 'en'] as const) {
     await page.goto(language === 'pt' ? './' : './en/');
-    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4', 'Fig. 5']);
-    expect(await page.locator('main table caption b').allTextContents()).toEqual(language === 'pt' ? ['Tabela 1', 'Tabela 2'] : ['Table 1', 'Table 2']);
-    fields[language] = await page.locator('.runjson-table tbody th code').allTextContents();
-    expect(fields[language]).toContain('dataset_fingerprint');
+    expect(await page.locator('main figure figcaption b').allTextContents()).toEqual(['Fig. 1', 'Fig. 2', 'Fig. 3', 'Fig. 4']);
+    expect(await page.locator('main table caption b').allTextContents()).toEqual([language === 'pt' ? 'Tabela 1' : 'Table 1']);
+    lines[language] = await page.locator('.runjson .rj-line code').allTextContents();
+    expect(lines[language].join('\n')).toContain('"dataset_fingerprint": {');
+    // One note open at a time; clicking another block moves it, clicking the open one closes it.
+    await expect(page.locator('.runjson .rj-note:visible')).toHaveCount(1);
+    const environment = page.locator('.runjson [data-rj-group]').filter({ has: page.locator('#rj-note-environment') });
+    await environment.locator('[data-rj-toggle]').click();
+    await expect(page.locator('#rj-note-environment')).toBeVisible();
+    await expect(page.locator('.runjson .rj-note:visible')).toHaveCount(1);
+    await environment.locator('[data-rj-toggle]').click();
+    await expect(page.locator('.runjson .rj-note:visible')).toHaveCount(0);
   }
-  expect(fields.pt).toEqual(fields.en);
-  expect(fields.pt).toHaveLength(7);
+  expect(lines.pt).toEqual(lines.en);
+  expect(lines.pt).toHaveLength(47);
+  // The file shown is valid JSON once the folded parts are filled in.
+  expect(() => JSON.parse(lines.pt.join('\n').replaceAll('{ … }', '{}').replaceAll('[ … ]', '[]'))).not.toThrow();
 });
 
-test('capture targets select their explanation and stay readable without JavaScript', async ({ page, browser }) => {
+test('interface replica: tabs, steps, strategy and the Train lock behave like the application', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  for (const path of ['./', './en/']) {
+  for (const [path, labels] of [['./', { reg: 'Regressão', review: 'Revisão', strategy: 'Estratégia', replicates: 'Réplicas', run: 'Rodar réplicas', train: 'Treinar' }], ['./en/', { reg: 'Regression', review: 'Review', strategy: 'Strategy', replicates: 'Replicates', run: 'Run replicates', train: 'Train' }]] as const) {
     await page.goto(path);
-    const markers = page.locator('[data-tour-marker]');
-    const items = page.locator('[data-tour-item]');
-    await expect(markers).toHaveCount(6);
-    await expect(items).toHaveCount(6);
-    await expect(markers.first()).toHaveAttribute('aria-pressed', 'true');
-    await markers.nth(2).click();
-    await expect(markers.nth(2)).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-tour-marker][aria-pressed=true]')).toHaveCount(1);
-    await expect(items.nth(2).locator('p')).toBeVisible();
-    await expect(items.first().locator('p')).toBeHidden();
-    // Every target sits inside the capture it annotates.
-    const frame = (await page.locator('.tour-frame').boundingBox())!;
-    for (const marker of await markers.all()) {
-      const box = (await marker.boundingBox())!;
-      expect(box.x).toBeGreaterThanOrEqual(frame.x - 1);
-      expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
-    }
+    const studio = page.locator('[data-studio] .studio-window');
+    const train = studio.locator('[data-act=train]');
+    await expect(studio.getByRole('tab')).toHaveCount(5);
+    await expect(studio.locator('.vf-rail button')).toHaveCount(6);
+    // Classification starts with the sample dataset, but Train stays locked outside Review.
+    await expect(train).toHaveAttribute('aria-disabled', 'true');
+    await studio.locator('.vf-rail button', { hasText: labels.review }).click();
+    await expect(train).toHaveAttribute('aria-disabled', 'false');
+    await train.click();
+    await expect(studio.getByRole('status')).toBeVisible();
+    // Regression has no dataset: Review cannot unlock Train, and choosing Replicates renames the button.
+    await studio.getByRole('tab', { name: labels.reg }).click();
+    await expect(studio.locator('.vf-hero .vf-title')).toHaveText(labels.reg);
+    await expect(train).toHaveAttribute('aria-disabled', 'true');
+    await studio.locator('.vf-rail button', { hasText: labels.strategy }).click();
+    await studio.locator('[data-act=strategy]', { hasText: labels.replicates }).click();
+    await expect(train).toContainText(labels.run);
+    await expect(studio.locator('.vf-rail button', { hasText: labels.strategy })).toContainText(labels.replicates);
+    // Arrow keys move between task tabs.
+    await studio.getByRole('tab', { name: labels.reg }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(studio.getByRole('tab').nth(3)).toHaveAttribute('aria-selected', 'true');
+    await expect(train).toContainText(labels.train);
   }
+});
+
+test('guided tour walks the replica and the page explains it without JavaScript', async ({ page, browser }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  const studio = page.locator('[data-studio]');
+  await expect(studio.locator('[data-tour-controls]')).toBeHidden();
+  await studio.locator('[data-tour-start]').click();
+  await expect(studio.locator('[data-tour-count]')).toHaveText('1/9');
+  await expect(studio.locator('.is-spot')).toHaveCount(1);
+  await studio.locator('[data-tour-next]').click();
+  await expect(studio.locator('[data-tour-count]')).toHaveText('2/9');
+  await expect(studio.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  for (let i = 0; i < 6; i++) await studio.locator('[data-tour-next]').click();
+  await expect(studio.locator('[data-tour-count]')).toHaveText('8/9');
+  await expect(studio.locator('[data-act=train]')).toHaveAttribute('aria-disabled', 'false');
+  await studio.locator('[data-tour-exit]').click();
+  await expect(studio.locator('.is-spot')).toHaveCount(0);
+  await expect(studio.locator('[data-tour-start]')).toBeVisible();
+  // The header's guide button starts the same tour.
+  await studio.locator('[data-act=tour]').click();
+  await expect(studio.locator('[data-tour-count]')).toHaveText('1/9');
+
   const context = await browser.newContext({ javaScriptEnabled: false });
   const plain = await context.newPage();
   await plain.goto('http://127.0.0.1:4322/visionforge-site/');
-  for (const text of await plain.locator('[data-tour-item] p').all()) await expect(text).toBeVisible();
+  await expect(plain.locator('[data-studio] .vf-title')).toHaveText('Classificação');
+  await expect(plain.locator('.studio-fallback li')).toHaveCount(9);
+  await expect(plain.locator('[data-tour-start]')).toBeHidden();
+  for (const note of await plain.locator('.runjson .rj-note').all()) await expect(note).toBeVisible();
+  await expect(plain.locator('#features [data-updates-panel]:visible')).toHaveCount(3);
   await context.close();
+});
+
+test('custom-task section links each block of code to the form field it produces', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  const form = page.locator('[data-codeform]');
+  await expect(form.locator('.cf-code')).toContainText('research_weight: float = Field(');
+  await form.locator('.cf-field', { hasText: 'n samples' }).click();
+  await expect(form.locator('button.cf-block[data-active]')).toContainText('n_samples: int = Field(');
+  await expect(form.locator('[data-cf-text]:visible')).toHaveCount(1);
+  await form.locator('button.cf-block', { hasText: 'label="Research method"' }).click();
+  await expect(form.locator('.cf-own')).toHaveAttribute('data-active', '');
 });
 
 test('terminal session shows every line when motion is reduced and can be replayed otherwise', async ({ page }) => {
@@ -126,18 +182,30 @@ test('terminal session shows every line when motion is reduced and can be replay
   await expect(page.locator('.hero-terminal .t-line').last()).toBeHidden();
 });
 
-test('updates list the development items first, the release date and the earlier versions', async ({ page }) => {
+test('updates are tabs: development first, the release with its date, then the earlier series', async ({ page }) => {
   const versions: Record<string, string[]> = {};
   for (const language of ['pt', 'en'] as const) {
     await page.goto(language === 'pt' ? './' : './en/');
-    expect(await page.locator('#features [data-group]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.group))).toEqual(['planned', 'released']);
-    await expect(page.locator('#features [data-group=released] .feature-group-title')).toContainText(release.releasedOn);
+    const tabs = page.locator('#features [data-updates-tab]');
+    await expect(tabs).toHaveCount(3);
+    await expect(tabs.nth(0)).toContainText(plannedVersion);
+    await expect(tabs.nth(1)).toContainText(`${release.version} · ${release.releasedOn}`);
+    await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#features [role=tabpanel]:visible')).toHaveCount(1);
+    await expect(page.locator('#updates-planned')).toBeVisible();
+    await tabs.nth(1).click();
+    await expect(page.locator('#updates-released')).toBeVisible();
+    await expect(page.locator('#updates-planned')).toBeHidden();
+    await tabs.nth(1).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(tabs.nth(2)).toBeFocused();
+    await expect(page.locator('#updates-earlier')).toBeVisible();
     versions[language] = await page.locator('.release-log .release-version').allTextContents();
     for (const entry of await page.locator('.release-log li p').all()) await expect(entry).not.toBeEmpty();
     await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
   }
   expect(versions.pt).toEqual(versions.en);
-  expect(versions.pt).toEqual(['0.20.2', '0.20.1', '0.20.0', '0.19.0']);
+  expect(versions.pt).toEqual(['0.20.2', '0.20.1', '0.20.0']);
 });
 
 test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
@@ -355,7 +423,7 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
         // The exporters still have no real capture; Colab and the Code tab show one annotated capture each.
-        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : 1);
+        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : slug === 'colab' ? 2 : 1);
       }
     });
   }

@@ -186,7 +186,7 @@ code, kbd { font-family: var(--font-mono); font-size: .92em; }
   .data-table.stack tbody tr + tr > * { border-top: 0; }
   .data-table.stack th, .data-table.stack td { padding: 0; }
   .data-table.stack td { margin-top: 10px; }
-  .data-table.stack td:not([data-label]) { margin-top: 4px; color: var(--muted); }
+  .data-table.stack td:not([data-label]) { margin-top: 0; }
   .data-table.stack td[data-label]::before { content: attr(data-label); display: block; font: 500 11px/1.6 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }

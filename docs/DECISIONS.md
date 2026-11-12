@@ -83,3 +83,22 @@ IBM Plex Sans sets headings and text and IBM Plex Mono the data, labels and comm
 **Reason:** The earlier page used the conventions of a generic dark product page: a two-line slogan at display size, card grids with pill marks, and decorative diagrams standing in for content. A first redesign as a static methods paper removed those but read as finished and inert. The product changes every few days and its value is easiest to see in use, so the page should look worked on and explain itself by pointing at the interface.
 
 **Consequences:** Every animation has a complete static state: all terminal lines, all explanations and the full diagram are in the HTML, shown as they are without JavaScript or with reduced motion. A new figure needs a real capture and a provenance entry in `ASSETS.md`. The same annotated captures explain the screens inside the guides (first run, custom task, Colab, Code tab), from one content file. Target positions are percentages of each image and must be rechecked when it is recaptured. `updates.ts`, `release.releasedOn` and the `run.json` table are reviewed on each release, like the rest of `release.ts`. The replicates and Code-tab captures exist only in Portuguese and dark theme, so both languages and themes show the same image. `social.png` still uses the previous typography and should be redrawn. Section links stay visible on small screens as a scrolling row. The fonts remain self-hosted under the SIL OFL.
+
+## ADR-008 — A clickable replica instead of a static capture, and explanations that stay with their target
+
+**Date:** 2026-11-12
+**Status:** Accepted. Refines ADR-007.
+
+**Decision:** Replace the annotated capture on the landing page with a simplified HTML replica of the application: the five task tabs, the six steps, the bottom bar and the Train lock behave as in the product, and a guided tour walks through nine stops. The replica states that it is a demonstration, uses only labels and defaults read from the product, and stops where training would begin. Around it:
+
+- real captures are taken at twice the pixel density, in both languages and themes, by a script that also measures where the targets go;
+- in the guides, the explanation of a target opens on the capture, beside the target, with its own Back and Next;
+- the tasks table carries a small animated diagram per task, in the application's task colours;
+- the six workflow steps are drawn as connected stations, each naming where it happens in the application;
+- `run.json` is shown as a real file, with a note under each group of lines;
+- updates are tabs (in development, the published version, the previous series), each a changelog list;
+- the custom-task section puts the tutorial's Python beside the form it generates.
+
+**Reason:** Review of the published page showed that captures looked soft, that a list of explanations under a tall image forced scrolling between target and text, and that static pictures undersold an interface whose value is in using it. A replica is sharp at any size and lets a visitor try the structure before installing; explanations that open on the image remove the scrolling.
+
+**Consequences:** The replica is a second description of the interface and can drift: `src/content/studio.ts` must be rechecked against the frontend on each release, like `release.ts`. It never shows a metric and never claims to train. Task colours appear only in the replica, the task diagrams and the custom-task form; the site's own accent stays single. Captures weigh 100–130 KB each and are lazy-loaded. The Code-tab capture is still the earlier 760 px crop in Portuguese. Without JavaScript the replica shows its initial state with the tour's explanations listed, every `run.json` note is printed, and the update tabs become stacked sections.

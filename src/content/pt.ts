@@ -31,7 +31,7 @@ export const copy: SiteCopy = {
   tour: {
     eyebrow: 'A interface',
     title: 'Uma tela, do dataset ao botão Treinar',
-    intro: 'A captura abaixo é a etapa Dados de uma classificação. Escolha um número para ver o que cada parte faz.',
+    intro: 'Abaixo está uma versão simplificada da interface. Clique nas abas e nas etapas, ou siga o roteiro guiado.',
   },
   tasks: {
     eyebrow: 'Tarefas suportadas',
@@ -87,6 +87,8 @@ export const copy: SiteCopy = {
   workflow: {
     eyebrow: 'Fluxo de trabalho',
     title: 'Do dataset ao resultado, em seis etapas',
+    where: ['etapa Dados', 'etapas Estratégia e Modelo', 'etapas Treinamento e Imagem', 'etapa Revisão', 'tela de treino', 'Histórico'],
+    whereLabel: 'Onde',
     steps: [
       {
         title: 'Prepare os dados',
@@ -120,6 +122,10 @@ export const copy: SiteCopy = {
     logTitle: 'Versões anteriores',
     logLink: 'Changelog completo',
     published: 'publicada em {date}',
+    tabPlanned: '{planned} · em desenvolvimento',
+    tabReleased: '{version} · {date}',
+    tabEarlier: 'Série 0.20',
+    kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
     intro: 'A versão publicada é a {version}. Os recursos marcados com "a partir da {planned}" estão no ramo de desenvolvimento e ainda não foram lançados.',
     figure: 'Aba Código depois de uma época na CPU: a função real de treino lida do pacote instalado, com a nota da linha 622. Captura do ramo de desenvolvimento, interface em português.',
     groups: [
@@ -204,7 +210,7 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'As estratégias disponíveis variam por tarefa. K-fold não está disponível para detecção de objetos e anomalias.',
-    figure: 'Etapa Estratégia de uma regressão com Réplicas ligado: a mesma configuração roda com 5 seeds e cada métrica sai como média ± IC 95% (t de Student). Captura da interface em português, tema escuro; nenhum treino foi executado.',
+    figure: 'Etapa Estratégia de uma regressão com Réplicas ligado: a mesma configuração roda com 5 seeds e cada métrica sai como média ± IC 95% (t de Student). Nenhum treino foi executado.',
     replicas: {
       seed: 'seed',
       summary: 'média ± IC 95%',
@@ -212,18 +218,8 @@ export const copy: SiteCopy = {
     },
     runJson: {
       title: 'O que o run.json registra',
-      field: 'Campo',
-      records: 'Registra',
-      caption: 'Cabeçalho comum do run.json, conforme run_json_header e capture_environment no código da versão publicada. Cada tarefa acrescenta a própria configuração e as métricas.',
-      fields: [
-        { key: 'id, experiment, timestamp', records: 'Nome do experimento, pasta da execução e data e hora de gravação.' },
-        { key: 'status, stopped', records: 'Se o treino terminou ou foi interrompido antes do fim.' },
-        { key: 'device_used', records: 'Dispositivo em que o treino rodou de fato.' },
-        { key: 'environment', records: 'Versões de Python, sistema, torch, torchvision, numpy e demais bibliotecas, do próprio VisionForge, e o CUDA, cuDNN e GPU em uso.' },
-        { key: 'runtime.loader_workers', records: 'Número de workers de cada data loader.' },
-        { key: 'dataset_fingerprint', records: 'Hash do dataset usado; a retomada de um treino confere esse valor.' },
-        { key: 'run_dir', records: 'Pasta local com checkpoints, histórico e relatórios.' },
-      ],
+      hint: 'clique num trecho para ver o que ele registra',
+      caption: 'run.json real de um treino de verificação: o caso de dígitos dos guias, 120 imagens, 1 época, CPU, em 2026-11-12. Objetos com … estão recolhidos e o início de run_dir foi encurtado. As métricas desse treino de uma época ficam recolhidas porque não dizem nada sobre o modelo.',
     },
   },
   install: {

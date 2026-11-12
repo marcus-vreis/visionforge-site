@@ -1,0 +1,40 @@
+/* The tutorial task's Python beside the form built from it. Uses the replica's tokens from studio.css. */
+.codeform { display: grid; grid-template-columns: minmax(0, 12fr) auto minmax(0, 9fr); gap: 14px; align-items: stretch; margin-top: 32px; --vfa: #2dd4bf; --vfa-l: #0b5f59; }
+.cf-editor { min-width: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.cf-bar { padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); font: 12px/1.6 var(--font-mono); }
+.cf-code { padding-block: 10px; overflow-x: auto; font: 12.5px/1.75 var(--font-mono); }
+.cf-block { display: block; width: 100%; margin: 0; padding: 0 14px; border: 0; border-left: 2px solid transparent; background: none; color: var(--muted); font: inherit; text-align: left; }
+.cf-block code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+button.cf-block { color: var(--text); cursor: pointer; }
+button.cf-block:hover, button.cf-block[data-active] { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+button.cf-block:focus-visible { outline-offset: -2px; }
+.cf-arrow { align-self: center; font: 20px var(--font-mono); color: var(--muted); }
+
+.cf-form { --vf-accent: var(--vfa); min-width: 0; }
+:root[data-theme='light'] .cf-form { --vf-accent: var(--vfa-l); }
+.cf-form .vf-tabs { opacity: .55; }
+.cf-tab { display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 12px 12px; font: 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--vf-dim); }
+.cf-tab i { width: 6px; height: 6px; border-radius: 50%; background: var(--dot); }
+.cf-own { margin: 10px 0 0 14px; border: 1px solid var(--vf-stroke); border-radius: 10px; background: var(--vf-panel); color: var(--vf-text) !important; cursor: pointer; }
+.cf-own i { background: var(--vf-accent); }
+.cf-plain { display: block; padding: 2px 6px; margin-left: -6px; border: 1px solid transparent; border-radius: 6px; background: none; text-align: left; cursor: pointer; }
+.cf-form .vf-hero { padding-top: 14px; }
+.cf-form .vf-title { font-size: 28px; }
+.cf-body { padding: 0 22px 20px; }
+.cf-body .vf-card { margin-top: 0; }
+.cf-field { padding: 8px; margin: -8px; border: 1px solid transparent; border-radius: 12px; background: none; text-align: left; cursor: pointer; }
+.cf-own[data-active], .cf-plain[data-active], .cf-field[data-active] { border-color: var(--vf-accent); background: color-mix(in srgb, var(--vf-accent) 12%, transparent); }
+.cf-note { grid-column: 1 / -1; min-height: 44px; margin: 0; padding: 10px 14px; border-left: 2px solid var(--accent); background: var(--surface); font-size: 15px; }
+.cf-note span { display: block; }
+.cf-note span + span { margin-top: 6px; }
+[data-enhanced] .cf-note span + span { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .codeform { grid-template-columns: minmax(0, 1fr); }
+  .cf-arrow { justify-self: center; transform: rotate(90deg); }
+  .cf-note { position: sticky; bottom: 8px; z-index: 2; border: 1px solid var(--line); border-left: 2px solid var(--accent); }
+}
+@media (max-width: 640px) {
+  .cf-body { padding: 0 14px 14px; }
+  .cf-code { font-size: 11.5px; }
+}

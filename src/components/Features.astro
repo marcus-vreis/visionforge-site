@@ -3,14 +3,18 @@ import type { SiteCopy } from '../content/types';
 import { release, plannedVersion } from '../content/release';
 import { updates } from '../content/updates';
 import '../styles/showcase.css';
-/** Props for the availability section: released features and those only on the development branch. */
+/** Props for the updates section: one tab per version, each a list of entries. */
 interface Props { copy: SiteCopy }
 const { copy } = Astro.props;
 const pt = copy.lang === 'pt';
 const base = import.meta.env.BASE_URL;
 const home = `${base}${pt ? '' : 'en/'}`;
-/** Fill the {version} and {planned} placeholders shared by both languages. */
-const fill = (text: string) => text.replaceAll('{version}', release.version).replaceAll('{planned}', plannedVersion);
+/** Fill the {version}, {planned} and {date} placeholders shared by both languages. */
+const fill = (text: string) => text.replaceAll('{version}', release.version).replaceAll('{planned}', plannedVersion).replaceAll('{date}', release.releasedOn);
+// Development first: it is what is moving.
+const groups = [...copy.features.groups].reverse();
+const tabLabel = (id: string) => fill(id === 'planned' ? copy.features.tabPlanned : copy.features.tabReleased);
+const kinds = copy.features.kinds;
 ---
 <section id="features" class="section" aria-labelledby="features-title">
   <div class="container">
@@ -18,34 +22,74 @@ const fill = (text: string) => text.replaceAll('{version}', release.version).rep
     <div class="section-body">
       <h2 id="features-title">{copy.features.title}</h2>
       <p class="section-intro">{fill(copy.features.intro)}</p>
-      {[...copy.features.groups].reverse().map(group => (
-        <div class="feature-group" data-group={group.id}>
-          <h3 class="feature-group-title">{group.id === 'planned' && <span class="pulse" aria-hidden="true"></span>}{fill(group.heading)}{group.id === 'released' && <span class="feature-group-date">{copy.features.published.replace('{date}', release.releasedOn)}</span>}</h3>
-          <ul class="feature-cards">
-            {group.items.map(item => (
-              <li class="feature-card">
-                <h4>{item.title}</h4>
-                <span class={`feature-mark ${group.id}`}>{fill(item.mark)}</span>
-                <p>{item.description}</p>
-                {item.guide && <a href={`${home}${item.guide}`}>{pt ? 'Ler o guia' : 'Read the guide'} →</a>}
+      <div class="updates" data-updates>
+        <div hidden class="updates-tabs" data-updates-tabs aria-label={copy.features.eyebrow}>
+          {groups.map(group => <button type="button" id={`updates-tab-${group.id}`} data-updates-tab={group.id} aria-controls={`updates-${group.id}`}>{group.id === 'planned' && <span class="pulse" aria-hidden="true"></span>}{tabLabel(group.id)}</button>)}
+          <button type="button" id="updates-tab-earlier" data-updates-tab="earlier" aria-controls="updates-earlier">{copy.features.tabEarlier}</button>
+        </div>
+        {groups.map(group => (
+          <div class="updates-panel feature-group" id={`updates-${group.id}`} data-group={group.id} data-updates-panel>
+            <h3 class="feature-group-title">{group.id === 'planned' && <span class="pulse" aria-hidden="true"></span>}{fill(group.heading)}{group.id === 'released' && <span class="feature-group-date">{fill(copy.features.published)}</span>}</h3>
+            <ul class="update-list feature-cards">
+              {group.items.map(item => (
+                <li class="update feature-card">
+                  <span class={`update-kind feature-mark ${group.id}`}>{fill(item.mark)}</span>
+                  <h4>{item.title}</h4>
+                  <p>{item.description}</p>
+                  {item.guide && <a href={`${home}${item.guide}`}>{pt ? 'Ler o guia' : 'Read the guide'} →</a>}
+                </li>
+              ))}
+            </ul>
+            {group.id === 'planned' && (
+              <figure class="figure figure-narrow">
+                <div class="figure-frame">
+                  <img src={`${base}images/code-tab-pt-dark.webp`} alt={copy.features.figure} width="760" height="792" loading="lazy" decoding="async" />
+                </div>
+                <figcaption><b>{copy.labels.figure} 4</b>{copy.features.figure}</figcaption>
+              </figure>
+            )}
+          </div>
+        ))}
+        <div class="updates-panel feature-group release-log" id="updates-earlier" data-updates-panel>
+          <h3 class="feature-group-title">{copy.features.logTitle}</h3>
+          <ul class="update-list">
+            {updates.map(update => (
+              <li class="update">
+                <span class="update-kind"><span class="release-version">{update.version}</span> · <time datetime={update.date}>{update.date}</time> · {kinds[update.kind]}</span>
+                <p>{pt ? update.pt : update.en}</p>
               </li>
             ))}
           </ul>
+          <p class="install-note"><a href={release.changelog}>{copy.features.logLink} ↗</a></p>
         </div>
-      ))}
-      <div class="feature-group release-log">
-        <h3 class="feature-group-title">{copy.features.logTitle}</h3>
-        <ul>
-          {updates.map(update => <li><span class="release-version">{update.version}</span><time datetime={update.date}>{update.date}</time><p>{pt ? update.pt : update.en}</p></li>)}
-        </ul>
-        <p class="install-note"><a href={release.changelog}>{copy.features.logLink} ↗</a></p>
       </div>
-      <figure class="figure figure-narrow">
-        <div class="figure-frame">
-          <img src={`${base}images/code-tab-pt-dark.webp`} alt={copy.features.figure} width="760" height="792" loading="lazy" decoding="async" />
-        </div>
-        <figcaption><b>{copy.labels.figure} 4</b>{copy.features.figure}</figcaption>
-      </figure>
     </div>
   </div>
 </section>
+<script>
+  /** Turns the version blocks into tabs; without the script they stay stacked and all readable. */
+  document.querySelectorAll<HTMLElement>('[data-updates]').forEach((root) => {
+    const list = root.querySelector<HTMLElement>('[data-updates-tabs]');
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-updates-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-updates-panel]'));
+    if (!list || tabs.length !== panels.length) return;
+    list.hidden = false;
+    list.setAttribute('role', 'tablist');
+    root.dataset.enhanced = 'true';
+    const select = (index: number, focus = false) => {
+      tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; panels[i].hidden = i !== index; });
+      if (focus) tabs[index].focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('role', 'tab');
+      panels[i].setAttribute('role', 'tabpanel');
+      panels[i].setAttribute('aria-labelledby', tab.id);
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (event) => {
+        const next = event.key === 'ArrowRight' ? (i + 1) % tabs.length : event.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null;
+        if (next !== null) { event.preventDefault(); select(next, true); }
+      });
+    });
+    select(0);
+  });
+</script>

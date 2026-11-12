@@ -1,0 +1,52 @@
+---
+/** Props for the small animated diagram that shows what a task does to an image. Decorative: the row names the task. */
+interface Props { task: string }
+const { task } = Astro.props;
+---
+<svg class={`glyph glyph-${task}`} viewBox="0 0 120 72" aria-hidden="true" focusable="false">
+  {task === 'classification' && (
+    <g>
+      <rect class="g-frame" x="4" y="10" width="52" height="52" rx="6" />
+      <circle class="g-soft" cx="22" cy="28" r="7" />
+      <path class="g-line" d="M10 54l14-16 10 9 8-7 10 14" />
+      <path class="g-line g-dim" d="M60 36h8" />
+      <rect class="g-chip" x="72" y="12" width="44" height="13" rx="4" />
+      <rect class="g-chip g-pick" x="72" y="29.5" width="44" height="13" rx="4" />
+      <rect class="g-chip" x="72" y="47" width="44" height="13" rx="4" />
+    </g>
+  )}
+  {task === 'detection' && (
+    <g>
+      <rect class="g-frame" x="4" y="8" width="112" height="56" rx="6" />
+      <rect class="g-soft" x="18" y="34" width="34" height="18" rx="5" />
+      <circle class="g-soft" cx="84" cy="26" r="6" />
+      <rect class="g-soft" x="79" y="33" width="10" height="20" rx="3" />
+      <rect class="g-box g-box-1" x="13" y="28" width="44" height="29" pathLength="100" />
+      <rect class="g-box g-box-2" x="72" y="15" width="24" height="43" pathLength="100" />
+    </g>
+  )}
+  {task === 'regression' && (
+    <g>
+      <rect class="g-frame" x="4" y="10" width="52" height="52" rx="6" />
+      <circle class="g-soft" cx="22" cy="28" r="7" />
+      <path class="g-line" d="M10 54l14-16 10 9 8-7 10 14" />
+      <path class="g-line g-dim" d="M60 36h8" />
+      <path class="g-line" d="M74 46h42M74 42v8M95 42v8M116 42v8" />
+      <path class="g-accent g-needle" d="M0 28l4 9h-8z" />
+    </g>
+  )}
+  {task === 'segmentation' && (
+    <g>
+      <rect class="g-frame" x="4" y="8" width="112" height="56" rx="6" />
+      <path class="g-soft" d="M4 48c20-10 34 4 56-4s34-12 56-2v16a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6z" />
+      <ellipse class="g-mask" cx="62" cy="34" rx="24" ry="15" />
+      <ellipse class="g-outline" cx="62" cy="34" rx="24" ry="15" />
+    </g>
+  )}
+  {task === 'anomaly' && (
+    <g>
+      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => <rect class={i === 5 ? 'g-tile g-odd' : 'g-tile'} x={6 + (i % 4) * 28} y={10 + Math.floor(i / 4) * 28} width="24" height="24" rx="4" />)}
+      <path class="g-accent g-crack" d="M40 44l5 4-3 5 6 4" />
+    </g>
+  )}
+</svg>

@@ -4,63 +4,76 @@ import { figures, type AnnotatedFigure, type FigureId } from '../content/figures
 import '../styles/annotated.css';
 
 /**
- * A real capture with numbered targets, each tied to a short explanation.
- * `label` adds a figure number; `stacked` puts the explanations under the image (guides) instead of beside it.
+ * A real capture with numbered targets. The explanation of the selected target opens beside it, on the image,
+ * so reading never means scrolling away from the capture. Without JavaScript the explanations are listed below.
  */
-interface Props { figure: FigureId; lang: Language; label?: string; stacked?: boolean; eager?: boolean }
-const { figure: id, lang, label, stacked = false, eager = false } = Astro.props;
+interface Props { figure: FigureId; lang: Language }
+const { figure: id, lang } = Astro.props;
 const figure: AnnotatedFigure = figures[id];
 const base = import.meta.env.BASE_URL;
-const stem = figure.variants && lang === 'en' ? `${figure.image}-en` : figure.image;
-const sources = figure.variants
+const pt = lang === 'pt';
+const stem = figure.localized ? `${figure.image}${figure.localized === 'suffix' ? (pt ? '' : '-en') : `-${lang}`}` : figure.image;
+const sources = figure.themed
   ? [{ src: `${base}images/${stem}-dark.webp`, cls: 'shot-dark' }, { src: `${base}images/${stem}-light.webp`, cls: 'shot-light' }]
   : [{ src: `${base}images/${stem}.webp`, cls: undefined }];
 const caption = figure.caption[lang];
-const groupLabel = lang === 'pt' ? 'Alvos na captura' : 'Targets on the capture';
 ---
-<div class:list={['tour-grid', { stacked }]} data-tour style={`--shot-width:${figure.width}px`}>
-  <figure class="figure tour-figure">
-    <div class="figure-frame tour-frame">
-      {sources.map((source, i) => (
-        <img class={source.cls} src={source.src} alt={caption} width={figure.width} height={figure.height} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager && i === 0 ? 'high' : undefined} />
-      ))}
-      <div class="tour-markers" role="group" aria-label={groupLabel}>
+<div class:list={['shot', { 'shot-below': figure.below }]} data-shot style={`--shot-width:${figure.displayWidth}px`}>
+  <figure class="figure shot-figure">
+    <div class="shot-stage">
+      <div class="figure-frame shot-frame">
+        {sources.map(source => <img class={source.cls} src={source.src} alt={caption} width={figure.width} height={figure.height} loading="lazy" decoding="async" />)}
+      </div>
+      <div class="shot-markers" role="group" aria-label={pt ? 'Alvos na captura' : 'Targets on the capture'}>
         {figure.targets.map((target, i) => (
-          <button type="button" class="tour-marker" data-tour-marker aria-pressed="false" aria-label={`${i + 1}: ${target.title[lang]}`} aria-describedby={`${id}-target-${i + 1}`} style={`left:${target.x}%;top:${target.y}%`}>{i + 1}</button>
+          <button type="button" class="shot-marker" data-shot-marker data-x={target.x} data-y={target.y} aria-pressed="false" aria-label={`${i + 1}: ${target.title[lang]}`} aria-describedby={`${id}-target-${i + 1}`} style={`left:${target.x}%;top:${target.y}%`}>{i + 1}</button>
         ))}
       </div>
+      <div hidden class="shot-pop" data-shot-pop>
+        <p><span class="shot-count" data-shot-count></span><b data-shot-title></b></p>
+        <p data-shot-text></p>
+        <div class="shot-nav">
+          <button type="button" class="copy-button" data-shot-prev>{pt ? 'Anterior' : 'Back'}</button>
+          <button type="button" class="copy-button" data-shot-next>{pt ? 'Próximo' : 'Next'}</button>
+        </div>
+      </div>
     </div>
-    <figcaption>{label && <b>{label}</b>}{caption}</figcaption>
+    <figcaption>{caption}</figcaption>
   </figure>
-  <ol class="tour-list">
+  <ol class="shot-list">
     {figure.targets.map((target, i) => (
-      <li id={`${id}-target-${i + 1}`} data-tour-item>
-        <h3>{target.title[lang]}</h3>
-        <p>{target.text[lang]}</p>
-      </li>
+      <li id={`${id}-target-${i + 1}`} data-shot-item><b>{target.title[lang]}.</b> {target.text[lang]}</li>
     ))}
   </ol>
 </div>
 <script>
-  /** Links the targets to their explanations and walks through them until the visitor takes over. */
-  document.querySelectorAll<HTMLElement>('[data-tour]').forEach((root) => {
-    const markers = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tour-marker]'));
-    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-tour-item]'));
-    if (!markers.length || markers.length !== items.length) return;
-    let current = 0;
-    let timer: number | undefined;
+  /** Opens the selected target's explanation beside it and walks through the targets until the visitor takes over. */
+  document.querySelectorAll<HTMLElement>('[data-shot]').forEach((root) => {
+    const markers = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-shot-marker]'));
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-shot-item]'));
+    const pop = root.querySelector<HTMLElement>('[data-shot-pop]');
+    if (!pop || !markers.length || markers.length !== items.length) return;
+    const part = (name: string) => pop.querySelector<HTMLElement>(`[data-shot-${name}]`)!;
+    let current = 0; let timer: number | undefined;
     const select = (index: number) => {
-      current = index;
-      markers.forEach((marker, i) => marker.setAttribute('aria-pressed', String(i === index)));
-      items.forEach((item, i) => item.toggleAttribute('data-active', i === index));
+      current = (index + markers.length) % markers.length;
+      const marker = markers[current];
+      const x = Number(marker.dataset.x); const y = Number(marker.dataset.y);
+      markers.forEach((item, i) => item.setAttribute('aria-pressed', String(i === current)));
+      const heading = items[current].querySelector('b')?.textContent ?? '';
+      part('count').textContent = `${current + 1}/${markers.length}`;
+      part('title').textContent = heading.replace(/.$/, '');
+      part('text').textContent = (items[current].textContent ?? '').slice(heading.length).trim();
+      pop.style.left = `${x}%`; pop.style.top = `${y}%`;
+      pop.classList.toggle('flip-x', x > 52);
+      pop.classList.toggle('flip-y', y > 58);
     };
     const stop = () => { if (timer !== undefined) { clearInterval(timer); timer = undefined; } };
     markers.forEach((marker, i) => marker.addEventListener('click', () => { stop(); select(i); }));
-    items.forEach((item, i) => {
-      item.addEventListener('click', () => { stop(); select(i); });
-      item.addEventListener('pointerenter', () => { stop(); select(i); });
-    });
+    part('prev').addEventListener('click', () => { stop(); select(current - 1); });
+    part('next').addEventListener('click', () => { stop(); select(current + 1); });
     root.dataset.enhanced = 'true';
+    pop.hidden = false;
     select(0);
     // The walk-through is motion: it only runs when motion is welcome and the figure is on screen.
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
@@ -69,7 +82,7 @@ const groupLabel = lang === 'pt' ? 'Alvos na captura' : 'Targets on the capture'
     root.addEventListener('focusin', () => { interacted = true; stop(); }, { once: true });
     new IntersectionObserver(([entry]) => {
       stop();
-      if (entry.isIntersecting && !interacted) timer = window.setInterval(() => select((current + 1) % markers.length), 4000);
+      if (entry.isIntersecting && !interacted) timer = window.setInterval(() => select(current + 1), 4500);
     }, { threshold: 0.4 }).observe(root);
   });
 </script>

@@ -44,7 +44,7 @@ const siblings = guides.filter(item => item.lang === guide.lang);
       {guide.sections.map((section, index) => <section id={section.id} class="guide-section" aria-labelledby={`${section.id}-title`}>
         <h2 id={`${section.id}-title`}><a href={`#${section.id}`}>{section.title}</a></h2>
         {section.paragraphs.map(paragraph => <p>{paragraph}</p>)}
-        {section.figure && <AnnotatedShot figure={section.figure} lang={guide.lang} stacked />}
+        {section.figure && <AnnotatedShot figure={section.figure} lang={guide.lang} />}
         {section.steps && <ol>{section.steps.map(step => <li>{step}</li>)}</ol>}
         {section.list && <ul>{section.list.map(item => <li>{item}</li>)}</ul>}
         {section.code && <CodeBlock code={section.code} label={section.codeLabel ?? 'Python'} lang={guide.lang} id={`guide-code-${index}`} />}

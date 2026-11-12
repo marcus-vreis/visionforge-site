@@ -1,8 +1,11 @@
 ---
 import type { SiteCopy } from '../content/types';
 import { release } from '../content/release';
-import Tour from './Tour.astro';
+import Studio from './Studio.astro';
 import Replicas from './Replicas.astro';
+import TaskGlyph from './TaskGlyph.astro';
+import RunJson from './RunJson.astro';
+import { studioTasks } from '../content/studio';
 import { plannedVersion } from '../content/release';
 import '../styles/showcase.css';
 
@@ -55,7 +58,7 @@ const { figure, table } = copy.labels;
   </div>
 </section>
 
-<Tour copy={copy} />
+<Studio copy={copy} />
 
 <section id="tasks" class="section" aria-labelledby="tasks-title">
   <div class="container">
@@ -66,16 +69,20 @@ const { figure, table } = copy.labels;
       <table class="data-table stack task-table">
         <caption class="table-caption"><b>{table} 1</b>{copy.tasks.caption}</caption>
         <thead>
-          <tr><th scope="col">{copy.tasks.task}</th><th scope="col">{copy.tasks.models}</th><th scope="col">{copy.tasks.metrics}</th></tr>
+          <tr><th scope="col" colspan="2">{copy.tasks.task}</th><th scope="col">{copy.tasks.models}</th><th scope="col">{copy.tasks.metrics}</th></tr>
         </thead>
         <tbody>
-          {copy.tasks.items.map((task) => (
-            <tr id={`task-${task.id}`}>
-              <th scope="row">{task.name}<span class="cell-note">{task.description}</span></th>
-              <td data-label={copy.tasks.models}>{task.models}</td>
-              <td data-label={copy.tasks.metrics}>{task.metrics}</td>
-            </tr>
-          ))}
+          {copy.tasks.items.map((task) => {
+            const accent = studioTasks.find(item => item.id === task.id);
+            return (
+              <tr id={`task-${task.id}`} style={`--task:${accent?.accent};--task-light:${accent?.accentLight}`}>
+                <td class="task-glyph"><TaskGlyph task={task.id} /></td>
+                <th scope="row">{task.name}<span class="cell-note">{task.description}</span></th>
+                <td data-label={copy.tasks.models}>{task.models}</td>
+                <td data-label={copy.tasks.metrics}>{task.metrics}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -88,10 +95,12 @@ const { figure, table } = copy.labels;
     <div class="section-body">
       <h2 id="workflow-title">{copy.workflow.title}</h2>
       <ol class="steps">
-        {copy.workflow.steps.map((step) => (
-          <li class="step">
+        {copy.workflow.steps.map((step, i) => (
+          <li class="step" style={`--i:${i}`}>
+            <span class="step-num" aria-hidden="true">0{i + 1}</span>
             <h3>{stripNumber(step.title)}</h3>
             <p>{step.description}</p>
+            <span class="step-where"><span class="sr-only">{copy.workflow.whereLabel}: </span>{copy.workflow.where[i]}</span>
           </li>
         ))}
       </ol>
@@ -114,28 +123,16 @@ const { figure, table } = copy.labels;
         ))}
       </dl>
       <p class="method-note">{copy.research.note}</p>
-      <Replicas seed={copy.research.replicas.seed} summary={copy.research.replicas.summary} caption={copy.research.replicas.caption} label={`${figure} 2`} />
+      <Replicas seed={copy.research.replicas.seed} summary={copy.research.replicas.summary} caption={copy.research.replicas.caption} label={`${figure} 1`} />
       <figure class="figure">
         <div class="figure-frame">
-          <img src={`${base}images/replicates-pt-dark.webp`} alt={copy.research.figure} width="1440" height="960" loading="lazy" decoding="async" />
+          <img class="shot-dark" src={`${base}images/replicates-${copy.lang}-dark.webp`} alt={copy.research.figure} width="2560" height="1840" loading="lazy" decoding="async" />
+          <img class="shot-light" src={`${base}images/replicates-${copy.lang}-light.webp`} alt={copy.research.figure} width="2560" height="1840" loading="lazy" decoding="async" />
         </div>
-        <figcaption><b>{figure} 3</b>{copy.research.figure}</figcaption>
+        <figcaption><b>{figure} 2</b>{copy.research.figure}</figcaption>
       </figure>
       <h3 class="subhead">{copy.research.runJson.title}</h3>
-      <table class="data-table stack runjson-table">
-        <caption class="table-caption"><b>{table} 2</b>{copy.research.runJson.caption}</caption>
-        <thead>
-          <tr><th scope="col">{copy.research.runJson.field}</th><th scope="col">{copy.research.runJson.records}</th></tr>
-        </thead>
-        <tbody>
-          {copy.research.runJson.fields.map((field) => (
-            <tr>
-              <th scope="row"><code>{field.key}</code></th>
-              <td>{field.records}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <RunJson lang={copy.lang} caption={copy.research.runJson.caption} hint={copy.research.runJson.hint} label={`${figure} 3`} />
     </div>
   </div>
 </section>
