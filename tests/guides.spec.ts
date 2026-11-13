@@ -1,5 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+/** Waits for running CSS transitions (theme change, entrances) to end, so colours are read at rest. */
+const settle = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(item => item instanceof CSSTransition).map(item => item.finished.catch(() => undefined))).then(() => undefined));
 
 for (const lang of ['pt', 'en'] as const) {
   test(`${lang}: guides navigate, retain locale and serve example files`, async ({ page, request }) => {
@@ -64,6 +67,7 @@ for (const width of [360, 768, 1440]) {
       for (const theme of ['light', 'dark']) {
         await page.locator(`[data-theme-option=${theme}]`).click();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await settle(page);
         const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
         expect(results.violations).toEqual([]);
       }
@@ -103,7 +107,7 @@ test('complete case shows all nine files and keeps the model example available',
   await expect(page.locator('a[download]')).toHaveAttribute('href', '/visionforge-site/downloads/visionforge-digits-project.zip');
 });
 
-test('guides explain their captures on the image, without sending the reader elsewhere', async ({ page }) => {
+test('guides list the steps of a capture to its left and open one at a time', async ({ page, browser }) => {
   test.slow();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const expected: Array<[string, number]> = [['', 6], ['task/', 5], ['colab/', 3], ['codigo/', 5]];
@@ -113,17 +117,11 @@ test('guides explain their captures on the image, without sending the reader els
       const figure = page.locator('article [data-shot]');
       await expect(figure).toHaveCount(1);
       const markers = figure.locator('[data-shot-marker]');
+      const steps = figure.locator('[data-shot-step]');
       await expect(markers).toHaveCount(count);
+      await expect(steps).toHaveCount(count);
       await expect(figure.locator('figcaption')).not.toBeEmpty();
-      const pop = figure.locator('[data-shot-pop]');
-      await expect(pop).toBeVisible();
-      await expect(pop.locator('[data-shot-count]')).toHaveText(`1/${count}`);
-      await markers.last().click();
-      await expect(markers.last()).toHaveAttribute('aria-pressed', 'true');
-      await expect(pop.locator('[data-shot-count]')).toHaveText(`${count}/${count}`);
-      await expect(pop.locator('[data-shot-text]')).not.toBeEmpty();
-      await pop.locator('[data-shot-next]').click();
-      await expect(markers.first()).toHaveAttribute('aria-pressed', 'true');
+      await expect(steps.first()).toHaveClass(/is-open/);
       const stage = (await figure.locator('.shot-stage').boundingBox())!;
       for (const marker of await markers.all()) {
         const box = (await marker.boundingBox())!;
@@ -132,21 +130,33 @@ test('guides explain their captures on the image, without sending the reader els
         expect(box.y).toBeGreaterThanOrEqual(stage.y - 1);
         expect(box.y + box.height).toBeLessThanOrEqual(stage.y + stage.height + 1);
       }
-      // Every explanation opens over the capture: target and text are on screen together.
-      for (let i = 0; i < count; i++) {
-        // Walk with the pop-up's own Next button: an open explanation may cover a neighbouring target.
-        if (i > 0) await pop.locator('[data-shot-next]').click();
+      // A target on the capture and a step in the list select the same thing; only that step is open.
+      for (let i = count - 1; i >= 0; i--) {
+        if (i % 2) await markers.nth(i).click(); else await steps.nth(i).locator('[data-shot-head]').click();
         await expect(markers.nth(i)).toHaveAttribute('aria-pressed', 'true');
-        // Clicking may scroll the page, so both boxes are read again.
-        const stage = (await figure.locator('.shot-stage').boundingBox())!;
-        const box = (await pop.boundingBox())!;
-        // Over the capture, or right under it when the capture is too short to hold the text.
-        expect(box.y).toBeGreaterThanOrEqual(stage.y - 1);
-        expect(box.y).toBeLessThanOrEqual(stage.y + stage.height + 24);
-        expect(box.x).toBeGreaterThanOrEqual(stage.x - 1);
-        expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
+        await expect(steps.nth(i).locator('[data-shot-head]')).toHaveAttribute('aria-expanded', 'true');
+        await expect(figure.locator('[data-shot-step].is-open')).toHaveCount(1);
+        await expect(steps.nth(i).locator('.shot-step-body p')).not.toBeEmpty();
+        // The open step and its target are on screen together, and the step is beside the capture, not over it.
+        await expect(steps.nth(i).locator('.shot-step-body p')).toBeInViewport();
+        await expect(markers.nth(i)).toBeInViewport();
+        const frame = (await figure.locator('.shot-stage').boundingBox())!;
+        const step = (await steps.nth(i).boundingBox())!;
+        expect(step.x + step.width).toBeLessThanOrEqual(frame.x + 1);
       }
     }
   }
-
+  // On a phone the steps come right under the capture; without JavaScript every step is open.
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto('./docs/');
+  const narrow = page.locator('article [data-shot]');
+  const image = (await narrow.locator('.shot-stage').boundingBox())!;
+  const list = (await narrow.locator('.shot-steps').boundingBox())!;
+  expect(list.y).toBeGreaterThanOrEqual(image.y + image.height);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const plain = await context.newPage();
+  await plain.goto('http://127.0.0.1:4322/visionforge-site/docs/');
+  for (const body of await plain.locator('[data-shot] .shot-step-body p').all()) await expect(body).toBeVisible();
+  await context.close();
 });

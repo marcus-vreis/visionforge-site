@@ -31,7 +31,7 @@ export const copy: SiteCopy = {
   tour: {
     eyebrow: 'The interface',
     title: 'One screen, from the dataset to the Train button',
-    intro: 'Below is a simplified version of the interface. Click the tabs and the steps, or follow the guided tour.',
+    intro: 'Below is a simplified version of the interface. The tour walks through the main points by itself; to explore on your own, click any tab or step.',
   },
   tasks: {
     eyebrow: 'Built-in tasks',

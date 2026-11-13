@@ -1,34 +1,43 @@
 /* Captures with numbered targets, used in the guides. Tokens come from global.css. */
-.shot { margin-block: 28px; }
+.shot { --ease: cubic-bezier(.16, .84, .24, 1); margin-block: 28px; container-type: inline-size; }
 .shot-figure { margin: 0; }
-/* A capture never renders larger than it was taken. */
-.shot-stage { position: relative; max-width: var(--shot-width); }
-.shot-marker { position: absolute; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); }
+/* The steps sit to the left of the capture; a capture never renders larger than it was taken. */
+.shot-grid { display: grid; grid-template-columns: minmax(220px, 280px) minmax(0, var(--shot-width)); gap: 24px; align-items: start; }
+.shot-stage { position: relative; min-width: 0; }
+
+.shot .shot-steps { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.shot .shot-step { margin: 0; padding: 0; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; transition: border-color .35s ease, background .35s ease; }
+.shot-step-head { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: center; width: 100%; padding: 10px 10px 10px 12px; border: 0; background: none; color: var(--muted); font: inherit; font-size: 15px; line-height: 1.4; text-align: left; cursor: pointer; transition: color .25s ease; }
+.shot-step-head:hover { color: var(--text); }
+.shot-step-head b { font-weight: 500; }
+.shot-num { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; font: 500 12px/1 var(--font-mono); transition: background .35s ease, border-color .35s ease, color .35s ease; }
+.shot-step-body { display: grid; grid-template-rows: 1fr; }
+.shot-step-body > p { min-height: 0; overflow: hidden; margin: 0; padding: 0 12px 12px 48px; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+/* With the script only the selected step is open; the others fold away with the same easing as the halo. */
+[data-enhanced] .shot-step-body { grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
+[data-enhanced] .shot-step-body > p { padding-bottom: 0; opacity: 0; transition: opacity .3s ease, padding-bottom .45s var(--ease); }
+[data-enhanced] .shot-step.is-open { border-left-color: var(--accent); background: var(--surface); }
+[data-enhanced] .shot-step.is-open .shot-step-head { color: var(--text); cursor: default; }
+[data-enhanced] .shot-step.is-open .shot-num { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+[data-enhanced] .shot-step.is-open .shot-step-body { grid-template-rows: 1fr; }
+[data-enhanced] .shot-step.is-open .shot-step-body > p { padding-bottom: 12px; opacity: 1; }
+
+.shot-marker { position: absolute; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 1px solid var(--accent); border-radius: 50%; background: var(--bg); color: var(--text); font: 500 12px/1 var(--font-mono); cursor: pointer; transition: background .3s ease, color .3s ease, transform .3s var(--ease); }
 .shot-marker:hover { background: var(--surface-2); }
-.shot-marker[aria-pressed='true'] { z-index: 2; background: var(--accent); color: var(--accent-ink); }
-.shot-marker[aria-pressed='true']::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent); animation: tour-pulse 1.8s ease-out infinite; pointer-events: none; }
-@keyframes tour-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3); opacity: 0; } }
+.shot-marker[aria-pressed='true'] { z-index: 2; background: var(--accent); color: var(--accent-ink); transform: translate(-50%, -50%) scale(1.15); }
+.shot-halo { position: absolute; z-index: 0; display: none; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; pointer-events: none; transition: left .6s var(--ease), top .6s var(--ease); }
+[data-enhanced] .shot-halo { display: block; }
+.shot-halo::before, .shot-halo::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--accent); animation: tour-pulse 2.2s ease-out infinite; }
+.shot-halo::after { animation-delay: 1.1s; }
+@keyframes tour-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
 
-/* The explanation opens on the image, beside its target, and flips to stay inside the frame. */
-.shot-pop { position: absolute; z-index: 3; width: min(300px, 80%); padding: 12px 14px; transform: translate(22px, 18px); border: 1px solid var(--accent); border-radius: 8px; background: var(--bg); box-shadow: 0 10px 30px rgb(0 0 0 / .35); font-size: 14px; line-height: 1.5; }
-.shot-pop.flip-x { transform: translate(calc(-100% - 22px), 18px); }
-.shot-pop.flip-y { transform: translate(22px, calc(-100% - 18px)); }
-.shot-pop.flip-x.flip-y { transform: translate(calc(-100% - 22px), calc(-100% - 18px)); }
-.shot-pop p { margin: 0; }
-.shot-pop p + p { margin-top: 4px; color: var(--muted); }
-.shot-count { margin-right: 8px; font: 500 12px/1 var(--font-mono); color: var(--accent); }
-.shot-nav { display: flex; gap: 6px; margin-top: 10px; }
-
-.shot-below .shot-pop, .shot-below .shot-pop.flip-x, .shot-below .shot-pop.flip-y, .shot-below .shot-pop.flip-x.flip-y { position: static; width: auto; margin-top: 10px; transform: none; box-shadow: none; }
-
-.shot-list { margin: 16px 0 0; padding-left: 22px; color: var(--muted); font-size: 15px; }
-.shot-list li { margin-bottom: 6px; padding-left: 4px; line-height: 1.5; }
-.shot-list b { color: var(--text); }
-/* With the script the explanations live in the pop-up; the list stays in the page for assistive technology. */
-[data-enhanced] .shot-list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
-
-@media (max-width: 640px) {
+/* In a narrow column the capture comes first and the steps follow right under it. */
+@container (max-width: 720px) {
+  .shot-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .shot-steps { order: 2; }
   .shot-marker { width: 22px; height: 22px; font-size: 11px; }
-  /* On a phone the capture is short, so the explanation sits right under it instead of covering it. */
-  .shot-pop, .shot-pop.flip-x, .shot-pop.flip-y, .shot-pop.flip-x.flip-y { position: static; width: auto; margin-top: 10px; transform: none; box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shot-halo::before, .shot-halo::after { animation: none; opacity: .5; transform: scale(1.5); }
+  .shot-halo::after { display: none; }
 }
