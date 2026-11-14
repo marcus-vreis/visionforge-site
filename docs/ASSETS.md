@@ -5,7 +5,7 @@
   - `custom-task-{dark,light}.webp` and `custom-task-en-*`: the downloadable `research_method.py` in `user_tasks/`, Training step. Synthetic task, no result shown.
   - `replicates-{pt,en}-{dark,light}.webp`: regression, Strategy step with Replicates selected. No dataset, no training.
   - `colab-{pt,en}-{dark,light}.webp`: the Colab corner open, no CLI installed and no Google account; cropped to the header and the pop-over (CSS box 60, 0, 960, 270 → 1800 × 540 px).
-- `social.png`: website-specific typographic composition derived from its branding; not a product screenshot or experiment result.
+- `social.png` and `social-en.png`: link-preview images, 1200 × 630 px, rendered on 2026-11-14 by `scripts/social-image.mjs` from the hero title in `src/content/{pt,en}.ts`, the site's IBM Plex fonts and the dark-theme tokens. The terminal lines are the commands and the address of the installation guide. Typographic compositions, not product screenshots or experiment results.
 - `favicon.svg`: original simplified crosshair mark based on the product header's circular mark; the frontend starter favicon was not reused.
 - `src/content/runjson.ts`: lines of a real `run.json` written on 2026-11-12 by `visionforge run` for the digits case of the guides (120 images, 1 epoch, CPU, same checkout). Folded objects are shown as `{ … }`, and the start of `run_dir` is replaced by `…`; no value is altered. Its metrics are folded on purpose.
 - Interface replica (`Studio.astro`, `src/content/studio.ts`): original HTML and CSS, not a capture. Labels, colours, steps, strategies, models and defaults were read from the product's frontend and `utils/*config.py` at v0.21.0; it is labelled as a simplified demonstration and does not train.

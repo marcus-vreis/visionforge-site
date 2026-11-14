@@ -53,8 +53,9 @@ Para atualizar uma versão:
 1. Confira o release público e a mesma versão no PyPI; verifique os nomes dos arquivos de download.
 2. Leia `docs/INSTALL.md` do produto e o resultado do workflow `install-smoke.yml` correspondente. Ajuste comandos e limitações apenas com evidência.
 3. Atualize `release.ts`, incluindo `releasedOn`, a data de verificação e o link do teste; mova a versão anterior para `updates.ts`. Mantenha PT/EN consistentes.
-4. Se a interface mudou, capture novamente a GUI em um workspace vazio, em 2x (device scale factor 2), sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`, as posições em `figures.ts` e os rótulos e padrões em `studio.ts`.
-5. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
+4. Se o título da apresentação ou a direção visual mudou, gere de novo as imagens de link com `node scripts/social-image.mjs`.
+5. Se a interface mudou, capture novamente a GUI em um workspace vazio, em 2x (device scale factor 2), sem nomes/caminhos pessoais ou resultados inventados; atualize `docs/ASSETS.md`, as posições em `figures.ts` e os rótulos e padrões em `studio.ts`.
+6. Execute as verificações, revise o diff e faça o merge. O site preserva a versão anterior se o build ou os testes falharem.
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
 
