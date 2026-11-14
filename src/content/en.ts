@@ -108,7 +108,7 @@ export const copy: SiteCopy = {
       },
       {
         title: 'Follow the run',
-        description: 'Train on your own hardware, with an automatic local queue, TensorBoard scalars and a Results tab with curves and the best epoch. In classification, you can also train on a Google Colab machine with your own account.',
+        description: 'Train on your own hardware, with an automatic local queue, TensorBoard scalars and a Results tab with curves and the best epoch. When it ends, View results opens the run in History, with the metrics, the per-epoch curves and the "What next?" block, which suggests up to two next steps from what the run recorded. In classification, you can also train on a Google Colab machine with your own account.',
       },
       {
         title: 'Compare and export',
@@ -210,7 +210,7 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'Available strategies vary by task. K-fold is not available for object detection or anomaly detection.',
-    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). No training was run.',
+    figure: 'Strategy step of a regression run with Replicates on: the same configuration runs with 5 seeds and each metric is reported as mean ± 95% CI (Student t). The "When to use" line says when to pick the strategy. No training was run.',
     replicas: {
       seed: 'seed',
       summary: 'mean ± 95% CI',
