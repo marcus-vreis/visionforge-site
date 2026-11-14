@@ -210,5 +210,7 @@ button.vf-btn:hover, .vf-btn.is-accent { border-color: var(--vf-accent); color: 
   .studio-window[data-enter] :is(.vf-panel, .vf-hero) > * { animation: none; }
 }
 /* Profile chip of the header: the name is shown as typed, after the greeting. */
+.vf-when { margin-top: 12px !important; font-size: 13px; line-height: 1.5; color: var(--vf-dim); }
+.vf-when span { margin-right: 8px; font: 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .14em; color: var(--vf-accent); }
 .vf-profile i { width: 6px; height: 6px; border-radius: 50%; background: var(--vf-accent); }
 .vf-profile b { color: var(--vf-text); text-transform: none; }

@@ -33,6 +33,21 @@ export const strategies = {
   compare: { label: { pt: 'Comparar arquiteturas', en: 'Compare architectures' }, hint: { pt: 'uma run por arquitetura, mesma config → tabela comparativa', en: 'one run per architecture, same config → comparison table' }, run: { pt: 'Comparar arquiteturas', en: 'Compare architectures' } },
 } satisfies Record<string, { label: Text; hint: Text; run: Text }>;
 
+/** The "when to use" sentence under the strategy selector, copied from the application (`whenToUse` in `frontend/src/i18n`). */
+export const whenToUse: { label: Text; strategies: Record<keyof typeof strategies, Text> } = {
+  label: { pt: 'Quando usar', en: 'When to use' },
+  strategies: {
+    simple: { pt: 'No primeiro treino de um dataset, ou para acertar a config antes de gastar mais tempo.', en: 'For the first training on a dataset, or to get the config right before spending more time.' },
+    cv: { pt: 'Com dataset pequeno, em que uma única divisão de validação daria um número instável.', en: 'With a small dataset, where a single validation split would give an unstable number.' },
+    grid: { pt: 'Quando há poucos valores a testar e você quer ver todas as combinações.', en: 'When there are few values to try and you want to see every combination.' },
+    random: { pt: 'Quando o espaço é grande demais para testar tudo: sorteia um número fixo de configurações.', en: 'When the space is too large to try everything: it draws a fixed number of configurations.' },
+    sweep: { pt: 'Quando você ainda não sabe quais hiperparâmetros usar e quer que a busca teste por você.', en: 'When you do not know yet which hyperparameters to use and want the search to try them for you.' },
+    replicates: { pt: 'Quando o número vai para um relatório ou artigo: dá média e intervalo, não um treino só.', en: 'When the number goes into a report or a paper: it gives a mean and an interval, not a single run.' },
+    replicatedComparison: { pt: 'Quando você quer afirmar, com um teste estatístico, que uma variante é melhor que outra.', en: 'When you want to state, with a statistical test, that one variant is better than another.' },
+    compare: { pt: 'Quando a dúvida é qual arquitetura serve melhor a este dataset.', en: 'When the question is which architecture suits this dataset best.' },
+  },
+};
+
 export const studioTasks: StudioTask[] = [
   { id: 'classification', short: 'class', accent: '#f16363', accentLight: 'oklch(0.48 0.18 22)',
     label: { pt: 'Classificação', en: 'Classification' }, description: { pt: 'Categorize imagens em rótulos discretos.', en: 'Sort images into discrete classes.' },

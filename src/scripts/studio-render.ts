@@ -1,5 +1,5 @@
 import type { Language } from '../content/types';
-import { strategies, studioSteps, studioTasks, studioText, type StudioTask } from '../content/studio';
+import { strategies, whenToUse, studioSteps, studioTasks, studioText, type StudioTask } from '../content/studio';
 
 /** What the replica is showing: the task, the step and the choices made in each task. */
 export interface StudioState {
@@ -70,6 +70,7 @@ export function renderStudio(state: StudioState, lang: Language, version: string
         <span class="vf-kicker">${t('strategy')}</span>
         <div class="vf-seg" role="group" aria-label="${t('mode')}">${task.strategies.map(id => `<button type="button" data-act="strategy" data-value="${id}" aria-pressed="${state.strategy[task.id] === id}">${escape(strategies[id].label[lang])}</button>`).join('')}</div>
         ${strategy.hint[lang] ? `<p class="vf-note">${escape(strategy.hint[lang])}</p>` : ''}
+        <p class="vf-when"><span>${escape(whenToUse.label[lang])}</span>${escape(whenToUse.strategies[state.strategy[task.id]][lang])}</p>
       </div>`,
     model: () => `
       <div class="vf-card" data-spot="card">

@@ -108,7 +108,7 @@ export const copy: SiteCopy = {
       },
       {
         title: 'Acompanhe o treino',
-        description: 'Treine no seu hardware, com fila local automática, métricas escalares do TensorBoard e a aba Resultados com curvas e a melhor época. Ao fim, Ver resultados abre a execução no Histórico, com as métricas e as curvas por época. Na classificação, também é possível treinar numa máquina do Google Colab, com a sua conta.',
+        description: 'Treine no seu hardware, com fila local automática, métricas escalares do TensorBoard e a aba Resultados com curvas e a melhor época. Ao fim, Ver resultados abre a execução no Histórico, com as métricas, as curvas por época e o bloco "E agora?", que sugere até dois próximos passos a partir do que a execução registrou. Na classificação, também é possível treinar numa máquina do Google Colab, com a sua conta.',
       },
       {
         title: 'Compare e exporte',
@@ -210,7 +210,7 @@ export const copy: SiteCopy = {
       },
     ],
     note: 'As estratégias disponíveis variam por tarefa. K-fold não está disponível para detecção de objetos e anomalias.',
-    figure: 'Etapa Estratégia de uma regressão com Réplicas ligado: a mesma configuração roda com 5 seeds e cada métrica sai como média ± IC 95% (t de Student). Nenhum treino foi executado.',
+    figure: 'Etapa Estratégia de uma regressão com Réplicas ligado: a mesma configuração roda com 5 seeds e cada métrica sai como média ± IC 95% (t de Student). A linha "Quando usar" diz em que caso escolher a estratégia. Nenhum treino foi executado.',
     replicas: {
       seed: 'seed',
       summary: 'média ± IC 95%',

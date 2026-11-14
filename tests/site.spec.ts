@@ -129,6 +129,8 @@ test('interface replica: tabs, steps, strategy and the Train lock behave like th
     await studio.locator('[data-act=strategy]', { hasText: labels.replicates }).click();
     await expect(train).toContainText(labels.run);
     await expect(studio.locator('.vf-rail button', { hasText: labels.strategy })).toContainText(labels.replicates);
+    // The line under the selector says when the chosen strategy is the right one.
+    await expect(studio.locator('.vf-when')).toHaveText(path === './' ? /^Quando usar\s*Quando o número vai para um relatório ou artigo/ : /^When to use\s*When the number goes into a report or a paper/);
     // Every task offers the replicated comparison, which renames the button too.
     await studio.locator('[data-act=strategy][data-value=replicatedComparison]').click();
     await expect(train).toContainText(path === './' ? 'Rodar comparação' : 'Run comparison');
