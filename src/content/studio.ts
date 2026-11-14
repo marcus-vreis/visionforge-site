@@ -2,7 +2,7 @@ import type { Language } from './types';
 
 type Text = Record<Language, string>;
 
-/** One task of the simplified interface: labels, colours and defaults read from the product's frontend at v0.21.0. */
+/** One task of the simplified interface: labels, colours and defaults read from the product's frontend on the development branch (commit b5ae08a, 2026-11-14). */
 export interface StudioTask {
   id: 'classification' | 'detection' | 'regression' | 'segmentation' | 'anomaly';
   /** Chip and breadcrumb value shown by the application. */
@@ -29,33 +29,34 @@ export const strategies = {
   random: { label: { pt: 'Random search', en: 'Random search' }, hint: { pt: '', en: '' }, run: { pt: 'Treinar', en: 'Train' } },
   sweep: { label: { pt: 'Sweep', en: 'Sweep' }, hint: { pt: 'grid / random / optuna sobre a config abaixo', en: 'grid / random / optuna over the config below' }, run: { pt: 'Rodar sweep', en: 'Run sweep' } },
   replicates: { label: { pt: 'Réplicas', en: 'Replicates' }, hint: { pt: 'mesma config, N seeds → média ± IC 95%', en: 'same config, N seeds → mean ± 95% CI' }, run: { pt: 'Rodar réplicas', en: 'Run replicates' } },
+  replicatedComparison: { label: { pt: 'Comparação replicada', en: 'Replicated comparison' }, hint: { pt: '2 a 4 variantes de um campo, mesmas seeds → teste pareado', en: '2 to 4 variants of one field, same seeds → paired test' }, run: { pt: 'Rodar comparação', en: 'Run comparison' } },
   compare: { label: { pt: 'Comparar arquiteturas', en: 'Compare architectures' }, hint: { pt: 'uma run por arquitetura, mesma config → tabela comparativa', en: 'one run per architecture, same config → comparison table' }, run: { pt: 'Comparar arquiteturas', en: 'Compare architectures' } },
 } satisfies Record<string, { label: Text; hint: Text; run: Text }>;
 
 export const studioTasks: StudioTask[] = [
   { id: 'classification', short: 'class', accent: '#f16363', accentLight: 'oklch(0.48 0.18 22)',
     label: { pt: 'Classificação', en: 'Classification' }, description: { pt: 'Categorize imagens em rótulos discretos.', en: 'Sort images into discrete classes.' },
-    strategies: ['simple', 'cv', 'grid', 'random'], model: 'resnet18',
+    strategies: ['simple', 'cv', 'grid', 'random', 'replicates', 'replicatedComparison'], model: 'resnet18',
     models: ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'efficientnet_b1', 'efficientnet_b7', 'vgg16', 'vgg19', 'alexnet', 'vit_b_16', 'swin_t', 'convnext_tiny'],
     epochs: 20, learningRate: 0.001, batchSize: 32, imageSize: 224 },
   { id: 'detection', short: 'detect', accent: '#48cf8e', accentLight: 'oklch(0.42 0.13 150)',
     label: { pt: 'Detecção de Objeto', en: 'Object detection' }, description: { pt: 'Localize e classifique objetos com bounding boxes.', en: 'Locate and classify objects with bounding boxes.' },
-    strategies: ['simple', 'sweep', 'replicates'], model: 'yolo11n',
+    strategies: ['simple', 'sweep', 'replicates', 'replicatedComparison'], model: 'yolo11n',
     models: ['yolo26n', 'yolo11n', 'yolo12n', 'Faster R-CNN (R50-FPN)', 'RetinaNet', 'SSD300', 'SSDLite320'],
     epochs: 100, learningRate: 0.01, batchSize: 16, imageSize: 640 },
   { id: 'regression', short: 'reg', accent: '#5b9fff', accentLight: 'oklch(0.45 0.16 240)',
     label: { pt: 'Regressão', en: 'Regression' }, description: { pt: 'Estime valores contínuos a partir das entradas.', en: 'Estimate continuous values from the inputs.' },
-    strategies: ['simple', 'cv', 'sweep', 'replicates'], model: 'resnet18',
+    strategies: ['simple', 'cv', 'sweep', 'replicates', 'replicatedComparison'], model: 'resnet18',
     models: ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'efficientnet_b1', 'efficientnet_b7', 'vgg16', 'vgg19', 'alexnet', 'vit_b_16', 'swin_t', 'convnext_tiny'],
     epochs: 20, learningRate: 0.001, batchSize: 32, imageSize: 224 },
   { id: 'segmentation', short: 'seg', accent: '#b079ff', accentLight: 'oklch(0.45 0.18 305)',
     label: { pt: 'Segmentação', en: 'Segmentation' }, description: { pt: 'Máscaras a nível de pixel para cada categoria.', en: 'Pixel-level masks for each category.' },
-    strategies: ['simple', 'cv', 'sweep', 'replicates'], model: 'unet',
+    strategies: ['simple', 'cv', 'sweep', 'replicates', 'replicatedComparison'], model: 'unet',
     models: ['unet', 'DeepLabV3 · R50', 'DeepLabV3 · R101', 'FCN · R50', 'FCN · R101', 'LRASPP MobileNetV3-L'],
     epochs: 20, learningRate: 0.001, batchSize: 32, imageSize: 512 },
   { id: 'anomaly', short: 'anom', accent: '#f5a524', accentLight: 'oklch(0.43 0.11 75)',
     label: { pt: 'Anomalia', en: 'Anomaly' }, description: { pt: 'Detecte defeitos treinando só com imagens normais.', en: 'Detect defects by training on normal images only.' },
-    strategies: ['simple', 'compare', 'replicates'], model: 'autoencoder',
+    strategies: ['simple', 'compare', 'replicates', 'replicatedComparison'], model: 'autoencoder',
     models: ['autoencoder', 'patchcore'],
     epochs: 30, learningRate: 0.001, batchSize: 32, imageSize: 256 },
 ];
@@ -75,6 +76,7 @@ export const studioText = {
   subtitle: { pt: 'local ai studio', en: 'local ai studio' },
   colab: { pt: 'colab · desligado', en: 'colab · off' },
   guide: { pt: 'guia', en: 'guide' },
+  greeting: { pt: 'boas-vindas,', en: 'welcome,' },
   stepOf: { pt: 'etapa {i} de 6', en: 'step {i} of 6' },
   chipDefault: { pt: 'padrão', en: 'default' },
   chipMissing: { pt: 'falta', en: 'missing' },
@@ -114,8 +116,8 @@ export const studioText = {
   lockedStep: { pt: 'Abra a etapa Revisão para liberar o Treinar', en: 'Open the Review step to enable Train' },
   lockedData: { pt: 'Escolha o dataset na etapa Dados para liberar o Treinar', en: 'Choose the dataset in the Data step to enable Train' },
   // Words of the replica itself, not of the application.
-  demo: { pt: 'Demonstração simplificada da interface, com os padrões da versão {version}. Não treina nem lê arquivos.', en: 'A simplified demonstration of the interface, with the defaults of version {version}. It does not train or read files.' },
-  trained: { pt: 'Na aplicação, o treino começa aqui: a tela passa a mostrar o log, as curvas por época e a melhor época. Esta demonstração para neste ponto.', en: 'In the application, training starts here: the screen switches to the log, the per-epoch curves and the best epoch. This demonstration stops at this point.' },
+  demo: { pt: 'Demonstração simplificada da interface do ramo de desenvolvimento, conferida em 14/11/2026; a versão publicada é a {version}. Não treina nem lê arquivos.', en: 'A simplified demonstration of the interface on the development branch, checked on 2026-11-14; the published release is {version}. It does not train or read files.' },
+  trained: { pt: 'Na aplicação, o treino começa aqui: a tela passa a mostrar o log, as curvas por época e a aba Código ao vivo, e Ver resultados abre a execução no Histórico. Esta demonstração para neste ponto.', en: 'In the application, training starts here: the screen switches to the log, the per-epoch curves and the Live code tab, and View results opens the run in History. This demonstration stops at this point.' },
   tourLabel: { pt: 'Roteiro da interface', en: 'Interface tour' },
   tourEyebrow: { pt: 'roteiro', en: 'tour' },
   tourSkip: { pt: 'Pular', en: 'Skip' },
@@ -126,7 +128,7 @@ export const studioText = {
 } satisfies Record<string, Text>;
 
 /**
- * Stops of the tour, in the order the application's own interface tour walks the screen (lib/tour.ts at v0.21.0).
+ * Stops of the tour, in the order the application's own interface tour walks the screen (lib/tour.ts, development branch).
  * Each stop names what the replica must show (task, step, strategy), the part to light up and what to say.
  */
 export const studioTour: Array<{ target: string; task: StudioTask['id']; step: (typeof studioSteps)[number]['id']; strategy?: keyof typeof strategies; title: Text; text: Text }> = [
@@ -134,8 +136,8 @@ export const studioTour: Array<{ target: string; task: StudioTask['id']; step: (
   { target: 'dataset', task: 'classification', step: 'data', title: { pt: 'Aponte a pasta do dataset', en: 'Point at the dataset folder' }, text: { pt: 'Você escolhe uma pasta local. A interface procura as subpastas de treino, validação e teste e mostra a contagem por classe antes de qualquer treino.', en: 'You choose a local folder. The interface looks for the train, validation and test subfolders and shows the count per class before any training.' } },
   { target: 'rail', task: 'classification', step: 'data', title: { pt: 'Seis etapas, sempre à vista', en: 'Six steps, always in view' }, text: { pt: 'Cada etapa resume o que está definido. "padrão" vira "N ajustes" quando você muda algo, e "falta" marca um valor obrigatório ainda vazio.', en: 'Each step summarises what is set. "default" becomes "N changes" once you edit something, and "missing" marks a required value that is still empty.' } },
   { target: 'card', task: 'classification', step: 'model', title: { pt: 'O modelo da tarefa', en: 'The model for the task' }, text: { pt: 'As arquiteturas disponíveis mudam com a aba. Um modelo seu, registrado em user_models/, é usado por YAML e pela CLI.', en: 'The available architectures change with the tab. A model of your own, registered in user_models/, is used through YAML and the CLI.' } },
-  { target: 'card', task: 'regression', step: 'strategy', strategy: 'replicates', title: { pt: 'Um treino ou vários', en: 'One run or several' }, text: { pt: 'Treino simples, K-fold, sweep ou réplicas. Com réplicas, a mesma configuração roda com N seeds e o resultado sai como média ± IC 95%.', en: 'A single run, K-fold, a sweep or replicates. With replicates the same configuration runs with N seeds and the result is a mean ± 95% CI.' } },
-  { target: 'train', task: 'classification', step: 'review', title: { pt: 'Treinar', en: 'Train' }, text: { pt: 'O botão roda o que está selecionado e só é liberado na Revisão, com o dataset definido. Durante o treino, a tela mostra o log e as curvas por época.', en: 'The button runs what is selected and only unlocks in Review, once the dataset is set. While training, the screen shows the log and the per-epoch curves.' } },
-  { target: 'history', task: 'classification', step: 'review', title: { pt: 'Tudo fica salvo', en: 'Everything is kept' }, text: { pt: 'Histórico guarda cada execução com a configuração, as métricas e os pesos, e compara duas lado a lado. Datasets baixa benchmarks para uma pasta local.', en: 'History keeps every run with its configuration, metrics and weights, and compares two side by side. Datasets downloads benchmarks to a local folder.' } },
+  { target: 'card', task: 'regression', step: 'strategy', strategy: 'replicates', title: { pt: 'Um treino ou vários', en: 'One run or several' }, text: { pt: 'Treino simples, K-fold, sweep, réplicas ou comparação replicada. Com réplicas, a mesma configuração roda com N seeds e o resultado sai como média ± IC 95%.', en: 'A single run, K-fold, a sweep, replicates or a replicated comparison. With replicates the same configuration runs with N seeds and the result is a mean ± 95% CI.' } },
+  { target: 'train', task: 'classification', step: 'review', title: { pt: 'Treinar', en: 'Train' }, text: { pt: 'O botão roda o que está selecionado e só é liberado na Revisão, com o dataset definido. Durante o treino, a tela mostra o log, as curvas por época e o código do passo em execução.', en: 'The button runs what is selected and only unlocks in Review, once the dataset is set. While training, the screen shows the log, the per-epoch curves and the code of the running step.' } },
+  { target: 'history', task: 'classification', step: 'review', title: { pt: 'Tudo fica salvo', en: 'Everything is kept' }, text: { pt: 'Histórico guarda cada execução com a configuração, as métricas e os pesos, abre os resultados de cada uma e compara duas lado a lado. Datasets baixa benchmarks para uma pasta local.', en: 'History keeps every run with its configuration, metrics and weights, opens the results of each one and compares two side by side. Datasets downloads benchmarks to a local folder.' } },
   { target: 'device', task: 'classification', step: 'review', title: { pt: 'GPU ou CPU', en: 'GPU or CPU' }, text: { pt: 'A aplicação detecta o que existe na máquina e escolhe a GPU quando há uma. Dá para forçar a CPU aqui: mais lento, mas roda em qualquer lugar.', en: 'The application detects what the machine has and picks the GPU when there is one. You can force the CPU here: slower, but it runs anywhere.' } },
 ];

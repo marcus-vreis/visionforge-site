@@ -110,7 +110,7 @@ test('complete case shows all nine files and keeps the model example available',
 test('guides list the steps of a capture to its left and open one at a time', async ({ page, browser }) => {
   test.slow();
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const expected: Array<[string, number]> = [['', 6], ['task/', 5], ['colab/', 3], ['codigo/', 5]];
+  const expected: Array<[string, number]> = [['', 7], ['task/', 5], ['colab/', 3], ['codigo/', 6]];
   for (const prefix of ['./', './en/']) {
     for (const [slug, count] of expected) {
       await page.goto(`${prefix}docs/${slug}`);

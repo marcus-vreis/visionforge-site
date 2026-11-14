@@ -95,7 +95,7 @@ export function renderStudio(state: StudioState, lang: Language, version: string
   <div class="vf-head">
     <span class="vf-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2"/><path d="M16 4v6m0 12v6M4 16h6m12 0h6" stroke="currentColor" stroke-width="2"/></svg></span>
     <span class="vf-brand"><span>Vision<b>Forge</b></span><small>${t('subtitle')} · v${escape(version)}</small></span>
-    <span class="vf-head-chips" aria-hidden="true"><span class="vf-pill">${t('colab')}</span><span class="vf-pill"><b>${lang === 'pt' ? 'PT' : 'EN'}</b> ${lang === 'pt' ? 'EN' : 'PT'}</span></span>
+    <span class="vf-head-chips" aria-hidden="true"><span class="vf-pill">${t('colab')}</span><span class="vf-pill">${lang === 'pt' ? '<b>PT</b> EN' : 'PT <b>EN</b>'}</span><span class="vf-pill vf-profile"><i></i>${t('greeting')} <b>Researcher</b></span></span>
     <button type="button" class="vf-pill" data-act="tour" title="${t('tourReplay')}">◎ ${t('guide')}</button>
   </div>
   <div class="vf-tabs" role="tablist" data-spot="tabs">${studioTasks.map(item => `<button type="button" role="tab" data-act="task" data-value="${item.id}" aria-selected="${item.id === task.id}" tabindex="${item.id === task.id ? 0 : -1}" style="--dot:${item.accent}"><i aria-hidden="true"></i>${escape(item.label[lang])}</button>`).join('')}</div>

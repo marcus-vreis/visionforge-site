@@ -44,7 +44,7 @@ Para usar um Chromium já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 - `public/images/`: capturas reais da interface e imagem de compartilhamento. A procedência de cada uma fica em `docs/ASSETS.md`.
 - `src/styles/global.css`: tokens de cor e tipografia dos dois temas; a direção visual está no ADR-007 de `docs/DECISIONS.md`.
 - `src/content/updates.ts`: versões anteriores mostradas em Atualizações, resumidas do `CHANGELOG.md` do produto.
-- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas nos guias; a explicação abre sobre a imagem. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
+- `src/content/figures.ts` e `src/components/AnnotatedShot.astro`: capturas com alvos numerados, usadas nos guias; os passos ficam à esquerda da imagem. As posições são porcentagens da imagem; uma seção de guia pede a captura pelo campo `figure`.
 - `src/content/studio.ts`, `src/scripts/studio-render.ts` e `src/components/Studio.astro`: réplica simplificada e clicável da interface, em largura total, com o roteiro que começa sozinho quando ela entra na tela. Rótulos e padrões vêm do frontend do produto e devem ser conferidos a cada versão.
 - `src/content/runjson.ts`: linhas de um `run.json` real, mostradas como arquivo.
 
