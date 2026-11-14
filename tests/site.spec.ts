@@ -18,6 +18,13 @@ for (const language of ['pt','en'] as const) {
     await expect(page.locator('h1')).toContainText(language === 'pt' ? 'Plataforma local para treinar e comparar modelos' : 'A local platform for training and comparing');
     for (const line of ['pip install visionforge-studio', 'visionforge doctor', 'visionforge selftest --quick', 'visionforge gui']) await expect(page.locator('.hero-terminal .t-cmd', { hasText: line }).first()).toBeAttached();
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',`https://marcus-vreis.github.io/visionforge-site/${language === 'en' ? 'en/' : ''}`);
+    // The link preview is in the page's language and is served as a 1200 px wide PNG.
+    const suffix = language === 'pt' ? '' : '-en';
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', `https://marcus-vreis.github.io/visionforge-site/images/social${suffix}.png`);
+    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', /visão computacional|computer-vision/);
+    const preview = await page.request.get(`http://127.0.0.1:4322/visionforge-site/images/social${suffix}.png`);
+    expect(preview.headers()['content-type']).toContain('image/png');
+    expect((await preview.body()).readUInt32BE(16)).toBe(1200);
     await expect(page.locator('a[href$=".whl"]')).toHaveCount(1);
     await expect(page.locator('a[href$=".tar.gz"]')).toHaveCount(1);
     await page.evaluate(() => document.fonts.ready);
