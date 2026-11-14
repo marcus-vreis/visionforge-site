@@ -209,3 +209,6 @@ button.vf-btn:hover, .vf-btn.is-accent { border-color: var(--vf-accent); color: 
   .studio-tour, .studio-tour * { transition-duration: .01ms !important; animation: none !important; }
   .studio-window[data-enter] :is(.vf-panel, .vf-hero) > * { animation: none; }
 }
+/* Profile chip of the header: the name is shown as typed, after the greeting. */
+.vf-profile i { width: 6px; height: 6px; border-radius: 50%; background: var(--vf-accent); }
+.vf-profile b { color: var(--vf-text); text-transform: none; }

@@ -127,7 +127,7 @@ export const copy: SiteCopy = {
     tabEarlier: '0.20 series',
     kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
     intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
-    figure: 'Code tab after one epoch on CPU: the real training function read from the installed package, with the note for line 622. Captured from the development branch, Portuguese interface.',
+    figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right. Captured from the development branch.',
     groups: [
       {
         id: 'released',
@@ -161,8 +161,8 @@ export const copy: SiteCopy = {
         heading: 'In development · {planned}',
         items: [
           {
-            title: 'Code tab',
-            description: 'Shows the real functions that train, validate and test the model, read from the installed package, with notes beside the lines and the path your training settings follow marked. There is one tour per task.',
+            title: 'Live code tab',
+            description: 'Shows the run in steps and, beside them, the real functions that carry out each one, read from the installed package, with notes on the lines and the path your training settings follow marked. While training runs, the step in progress is marked. There is one tour per task.',
             mark: 'From {planned}',
             guide: 'docs/codigo/',
           },

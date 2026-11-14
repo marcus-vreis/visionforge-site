@@ -108,7 +108,7 @@ export const copy: SiteCopy = {
       },
       {
         title: 'Acompanhe o treino',
-        description: 'Treine no seu hardware, com fila local automática, métricas escalares do TensorBoard e a aba Resultados com curvas e a melhor época. Na classificação, também é possível treinar numa máquina do Google Colab, com a sua conta.',
+        description: 'Treine no seu hardware, com fila local automática, métricas escalares do TensorBoard e a aba Resultados com curvas e a melhor época. Ao fim, Ver resultados abre a execução no Histórico, com as métricas e as curvas por época. Na classificação, também é possível treinar numa máquina do Google Colab, com a sua conta.',
       },
       {
         title: 'Compare e exporte',
@@ -127,7 +127,7 @@ export const copy: SiteCopy = {
     tabEarlier: 'Série 0.20',
     kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
     intro: 'A versão publicada é a {version}. Os recursos marcados com "a partir da {planned}" estão no ramo de desenvolvimento e ainda não foram lançados.',
-    figure: 'Aba Código depois de uma época na CPU: a função real de treino lida do pacote instalado, com a nota da linha 622. Captura do ramo de desenvolvimento, interface em português.',
+    figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita. Captura do ramo de desenvolvimento.',
     groups: [
       {
         id: 'released',
@@ -161,8 +161,8 @@ export const copy: SiteCopy = {
         heading: 'Em desenvolvimento · {planned}',
         items: [
           {
-            title: 'Aba Código',
-            description: 'Mostra as funções reais que treinam, validam e testam o modelo, lidas do pacote instalado, com notas ao lado das linhas e o caminho que a configuração do treino segue marcado. Há um roteiro por tarefa.',
+            title: 'Aba Código ao vivo',
+            description: 'Mostra o treino em passos e, ao lado, as funções reais que executam cada um, lidas do pacote instalado, com notas nas linhas e o caminho que a configuração do treino segue marcado. Durante o treino, o passo em execução fica marcado. Há um roteiro por tarefa.',
             mark: 'A partir da {planned}',
             guide: 'docs/codigo/',
           },

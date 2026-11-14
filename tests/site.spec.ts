@@ -113,6 +113,8 @@ test('interface replica: tabs, steps, strategy and the Train lock behave like th
     const train = studio.locator('[data-act=train]');
     await expect(studio.getByRole('tab')).toHaveCount(5);
     await expect(studio.locator('.vf-rail button')).toHaveCount(6);
+    // The header carries the profile chip, as the application does since the profile menu moved there.
+    await expect(studio.locator('.vf-profile')).toContainText('Researcher');
     // Classification starts with the sample dataset, but Train stays locked outside Review.
     await expect(train).toHaveAttribute('aria-disabled', 'true');
     await studio.locator('.vf-rail button', { hasText: labels.review }).click();
@@ -127,6 +129,10 @@ test('interface replica: tabs, steps, strategy and the Train lock behave like th
     await studio.locator('[data-act=strategy]', { hasText: labels.replicates }).click();
     await expect(train).toContainText(labels.run);
     await expect(studio.locator('.vf-rail button', { hasText: labels.strategy })).toContainText(labels.replicates);
+    // Every task offers the replicated comparison, which renames the button too.
+    await studio.locator('[data-act=strategy][data-value=replicatedComparison]').click();
+    await expect(train).toContainText(path === './' ? 'Rodar comparação' : 'Run comparison');
+    await studio.locator('[data-act=strategy]', { hasText: labels.replicates }).click();
     // Arrow keys move between task tabs.
     await studio.getByRole('tab', { name: labels.reg }).focus();
     await page.keyboard.press('ArrowRight');
@@ -486,8 +492,8 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText(release.version);
         await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
-        // The exporters still have no real capture; Colab and the Code tab show one annotated capture each.
-        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : slug === 'colab' ? 2 : 1);
+        // The exporters still have no real capture; Colab and the Live code tab show one annotated capture each, in two themes.
+        await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : 2);
       }
     });
   }

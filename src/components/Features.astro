@@ -41,9 +41,10 @@ const kinds = copy.features.kinds;
               ))}
             </ul>
             {group.id === 'planned' && (
-              <figure class="figure figure-narrow">
+              <figure class="figure figure-code">
                 <div class="figure-frame">
-                  <img src={`${base}images/code-tab-pt-dark.webp`} alt={copy.features.figure} width="760" height="792" loading="lazy" decoding="async" />
+                  <img class="shot-dark" src={`${base}images/code-tab-${copy.lang}-dark.webp`} alt={copy.features.figure} width="2192" height="1624" loading="lazy" decoding="async" />
+                  <img class="shot-light" src={`${base}images/code-tab-${copy.lang}-light.webp`} alt={copy.features.figure} width="2192" height="1624" loading="lazy" decoding="async" />
                 </div>
                 <figcaption><b>{copy.labels.figure} 4</b>{copy.features.figure}</figcaption>
               </figure>

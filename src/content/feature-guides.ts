@@ -59,6 +59,7 @@ export const featureGuides: Guide[] = [
       { id: 'drive', title: 'Dataset no Google Drive', paragraphs: [
         'Disponível a partir da ' + plannedVersion + '. Na versão ' + release.version + ', use a origem por URL ou por provedor.',
         'Quando a pasta do dataset da configuração está no Google Drive para desktop, o treino pode lê-la sem upload. O servidor traduz data.base_dir para /content/drive/MyDrive/... e envia a contagem de arquivos local. A pasta "Meu Drive" ou "My Drive" é procurada nesta ordem: a pasta digitada, o DefaultMountPoint do Drive para desktop no registro, e um componente "My Drive" ou "Meu Drive" logo abaixo de uma letra de unidade ou da pasta pessoal. Uma pasta fora do Drive, ou vazia, é recusada antes de gastar uma máquina.',
+        'No painel do Colab, "Escolher pasta no Drive" navega pelas pastas do "Meu Drive" deste computador: clique para entrar e use "Usar esta pasta" para confirmar; o caminho no Colab aparece antes de confirmar. O navegador de pastas lê a pasta local que o Drive para desktop sincroniza e não usa a API do Google. Sem o Drive para desktop, o painel mostra três passos (instalar, colocar o dataset no "Meu Drive", voltar e escolher) e um campo para digitar a pasta.',
         'O Google pede a permissão a cada máquina nova, e ela não é guardada. A folha de treino mostra "Permitir acesso ao Drive", que abre a página do Google numa aba nova. Ao voltar à janela, a interface avisa o servidor e o treino continua. "Já permiti" é o recurso quando o foco da janela não dispara. Ninguém precisa de um terminal.',
         'Se a montagem falha com erro 400, a CLI é reiniciada e tenta de novo com um endereço novo, até 3 vezes. A espera pela pessoa é de 600 s por tentativa, e o silêncio da CLI, de 120 s. Um treino na fila que chega à montagem sem ninguém na tela espera até 3 vezes 10 minutos, falha e libera a máquina.',
         'A VM copia a pasta para o disco dela e falha se achar menos arquivos do que este computador tem, o que costuma indicar uma pasta que o Drive ainda está enviando. Opcionalmente, o pacote da execução também é gravado em MyDrive/VisionForge/runs/. Uma falha nessa gravação não derruba o treino.',
@@ -72,7 +73,7 @@ export const featureGuides: Guide[] = [
         'Este guia vem da leitura do código e das decisões ADR-163 e ADR-164. Os testes do repositório usam uma CLI falsa.',
         'A medição da ADR-163 foi uma execução, numa conta paga: o T4 foi alocado em 4,1 s, 180 dos 180 ticks de 1 s chegaram e colab stop não deixou sessão. Contas gratuitas não foram testadas, e não se sabe se recebem uma GPU nem o que colab usage mostra para elas.',
         'A detecção do "Meu Drive" nunca rodou numa máquina com o Google Drive para desktop instalado.',
-        'Este guia não tem capturas de tela. O site ainda não tem capturas reais desta parte da interface, e o guia não usa imagens reconstruídas.',
+        'A captura deste guia mostra o painel sem a CLI instalada. O painel com a conta conectada e o navegador de pastas do Drive não foram abertos nem capturados; o guia não usa imagens reconstruídas.',
       ] },
     ],
   },
@@ -136,12 +137,12 @@ export const featureGuides: Guide[] = [
         'Roda o git e o DVC reais, sem terminal e com DVC_NO_ANALYTICS=1. O DVC vem do extra visionforge-studio[dvc] ou do PATH, e o git, do PATH. A saída deles fica no log do servidor. Os pesos ocupam o tamanho do checkpoint duas vezes em disco, na pasta e no cache do DVC. Como as rotas rodam git e DVC numa pasta do servidor, só respondem a um cliente local.',
       ] },
       { id: 'mlflow', title: 'MLflow local', paragraphs: [
-        'Em Perfis, ative o MLflow. Vale para treinos de classificação enviados depois, a partir de um treino local. O servidor precisa do extra visionforge-studio[mlflow]; sem ele o treino roda normalmente e o Histórico mostra que a exportação ficou indisponível.',
+        'No menu do perfil, no cabeçalho, ative o MLflow. Vale para treinos de classificação enviados depois, a partir de um treino local. O servidor precisa do extra visionforge-studio[mlflow]; sem ele o treino roda normalmente e o Histórico mostra que a exportação ficou indisponível.',
         'Nada sai da máquina: os dados vão para um banco SQLite em outputs/mlflow/mlflow.db, sem servidor nem conta, agrupados por perfil. São enviados os parâmetros públicos da configuração, as métricas de cada época e o run.json final. Parâmetros cujo nome sugere segredo ou caminho (token, password, secret, credential, path, uri, url e chaves terminadas em _dir) ficam de fora. Dataset, pesos e gráficos não são copiados.',
         'O run.json anexado é o registro completo, com os caminhos da sua máquina. Não compartilhe a pasta outputs/mlflow sem olhar o conteúdo. Uma falha no MLflow nunca derruba o treino: o erro vai para o tracking.json da execução, e repetir pelo Histórico grava só as métricas que faltam, sem duplicar.',
       ] },
       { id: 'wandb', title: 'Weights & Biases privado', paragraphs: [
-        'Em Perfis, ative o W&B, informe o projeto (padrão visionforge) e, se quiser, a organização; vazia, vale o usuário dono da chave. É opcional, vem desligado e vale para treinos de classificação. O servidor precisa do extra visionforge-studio[wandb].',
+        'No menu do perfil, ative o W&B, informe o projeto (padrão visionforge) e, se quiser, a organização; vazia, vale o usuário dono da chave. É opcional, vem desligado e vale para treinos de classificação. O servidor precisa do extra visionforge-studio[wandb].',
         'Antes do primeiro envio, o VisionForge cria o projeto como privado ou lê o que já existe. Se o projeto existente não for privado, recusa e não envia nada, sem alterá-lo. Um projeto criado privado pode ser tornado público depois, no site. Servidor W&B próprio não é suportado.',
         'São enviados os parâmetros públicos, as métricas de cada época e as métricas finais públicas como resumo. Não vão o run.json, o código, o git, o console, as estatísticas do sistema, o nome da máquina, o requirements.txt, a linha de comando, o dataset, os pesos nem os gráficos. O envio usa só a chave do perfil, não o wandb login do ambiente. O log logs/debug.log do W&B fica neste computador e cita a sua pasta.',
         'Se falhar, o erro vai para o wandb.json da execução e o treino segue. Repetir pelo Histórico reabre o mesmo run, e só as épocas que faltam são acrescentadas.',
@@ -153,19 +154,21 @@ export const featureGuides: Guide[] = [
     ],
   },
   {
-    lang: 'pt', slug: 'codigo', title: 'A aba Código',
-    description: 'A aba que mostra, na tela de treino, as funções reais que treinam, validam e testam o modelo, lidas do pacote instalado.',
+    lang: 'pt', slug: 'codigo', title: 'A aba Código ao vivo',
+    description: 'A aba que mostra, na tela de treino, os passos do treino e as funções reais que executam cada um, lidas do pacote instalado.',
     source: 'docs/gui/codigo.md', sourceRef: 'development',
     availability: ptPlanned,
-    references: [{ label: 'ADR-173 e ADR-181 (decisões)', url: decisions }],
+    references: [{ label: 'ADR-173, ADR-181 e ADR-204 (decisões)', url: decisions }],
     sections: [
       { id: 'how', figure: 'code-tab', title: 'Como a aba funciona', paragraphs: [
-        'Na tela de treino, a aba Código mostra as funções que o VisionForge executa para treinar, validar e testar o modelo, com notas em português ou inglês ao lado das linhas. Ela vem depois de "Como funciona".',
+        'Na tela de treino, a aba Código ao vivo mostra o treino em passos (dados, modelo, loss, época de treino, validação, teste e relatório) e, ao lado, as funções que o VisionForge executa em cada um, com notas nas linhas. Ela junta as antigas abas "Como funciona" e "Código".',
       ], list: [
         'Não é uma cópia. O servidor lê cada função do pacote instalado com inspect a cada pedido, então o texto que você vê é o que roda. A resposta traz o arquivo como caminho dentro do pacote, nunca o caminho absoluto da instalação.',
         'As notas apontam para o texto da linha, nunca para o número. Um teste confere que toda nota ainda encontra a sua linha; se o código mudar e a nota ficar sem linha, a CI falha em vez de apontar para o lugar errado.',
         'O caminho desta execução. Uma nota que depende de uma configuração, como binário ou multiclasse, precisão mista, aumento de dados, família do modelo, perda ou método de anomalia, aparece como o caminho que o seu treino segue ou como um ramo que ele não toma. Uma configuração que o formulário não decide fica sem marca, em vez de adivinhada.',
-        'Sem acompanhamento linha a linha. O treino informa uma vez por época; a aba diz que caminho o código toma, não qual linha roda agora.',
+        'Acompanha o treino por passo, não por linha. Enquanto o treino roda, o passo em execução fica marcado e o código dele aparece como "trecho em execução". A posição vem só do que o treino informa (início, lotes, fim de cada época, fim); nenhum rastreador roda. Quando os eventos não separam dois passos, como dados e modelo na preparação, o grupo inteiro fica marcado.',
+        'Você pode olhar outro passo. Clicar em outro passo ou função pausa o acompanhamento, e "voltar ao que está rodando" retoma. Depois que o treino termina, nada fica marcado e a navegação é livre.',
+        'Uma frase por passo, notas sob demanda. Cada passo tem uma frase simples do que faz. Uma linha com nota tem uma marca na margem; clicar abre a nota no lugar.',
       ] },
       { id: 'tasks', title: 'Um roteiro por tarefa', paragraphs: [
         'Classificação, regressão, segmentação, anomalia e detecção têm um roteiro cada. O mapa está em core/code_tour.py, e a lista de tarefas vem do servidor, então uma tarefa nova com roteiro aparece sem mudar a página.',
@@ -192,8 +195,8 @@ export const featureGuides: Guide[] = [
         'A rota lê as configurações da consulta. Uma chave que a tarefa não conhece, ou um valor que ela não aceita, é descartado, e as notas dessa configuração ficam sem marca. Uma tarefa sem roteiro, ou um treino que não usa o código do projeto, devolve 404 com o motivo no idioma do pedido.',
       ] },
       { id: 'unverified', title: 'O que não foi verificado', paragraphs: [
-        'A aba não foi aberta no navegador ao escrever o guia do repositório, e este guia também não foi conferido com ela aberta: as frases vêm do código, das notas do catálogo de mensagens e das ADR-173 e ADR-181. O teste test_docs_code_tab.py do repositório exige que cada função de cada roteiro esteja citada no guia de lá e que os trechos de código existam literalmente na fonte. Os dois trechos acima foram conferidos contra o ramo development.',
-        'Este guia não tem capturas de tela. O site ainda não tem capturas reais da aba, e o guia não usa imagens reconstruídas.',
+        'A captura deste guia foi feita com a aba aberta no navegador, em 14/11/2026, no ramo development (commit b5ae08a): uma classificação com o dataset de exemplo, uma época, com o treino já concluído. O acompanhamento do passo em execução durante o treino e a abertura de uma nota não foram observados; essas frases vêm de docs/gui/codigo.md e das ADR-173, ADR-181 e ADR-204. O teste test_docs_code_tab.py do repositório exige que cada função de cada roteiro esteja citada no guia de lá e que os trechos de código existam literalmente na fonte. Os dois trechos acima foram conferidos contra o ramo development.',
+        'Só a classificação foi aberta. As abas das outras tarefas não foram capturadas, e o guia não usa imagens reconstruídas.',
       ] },
     ],
   },
@@ -234,6 +237,7 @@ export const featureGuides: Guide[] = [
       { id: 'drive', title: 'Dataset on Google Drive', paragraphs: [
         'Available from ' + plannedVersion + '. In version ' + release.version + ', use the URL or provider source.',
         'When the dataset folder of the configuration is in Google Drive for desktop, training can read it with no upload. The server translates data.base_dir to /content/drive/MyDrive/... and sends the local file count. The "My Drive" or "Meu Drive" folder is looked up in this order: the folder you typed, the DefaultMountPoint of Drive for desktop in the registry, and a "My Drive" or "Meu Drive" component right under a drive letter or the home folder. A folder outside the Drive, or an empty one, is refused before a machine is paid for.',
+        'In the Colab panel, "Escolher pasta no Drive" (choose a Drive folder) browses the "My Drive" folders of this computer: click to enter and use "Usar esta pasta" (use this folder) to confirm; the path on Colab is shown before you confirm. The folder browser reads the local folder that Drive for desktop syncs and does not use the Google API. Without Drive for desktop, the panel shows three steps (install it, put the dataset in "My Drive", come back and choose) and a field to type the folder.',
         'Google asks for permission for every new machine, and the permission is not kept. The training sheet shows "Permitir acesso ao Drive" (allow Drive access), which opens the Google page in a new tab. When you return to the window, the interface tells the server and training continues. "Já permiti" (I already allowed) is the fallback when window focus does not fire. Nobody needs a terminal.',
         'If the mount fails with a 400 error, the CLI is restarted and tries again with a new address, up to 3 times. The wait for the person is 600 s per attempt, and the CLI silence limit is 120 s. A queued job that reaches the mount with nobody at the screen waits up to 3 times 10 minutes, fails and releases the machine.',
         'The VM copies the folder to its own disk and fails if it finds fewer files than this computer has, which usually means a folder the Drive is still uploading. Optionally, the run bundle is also written to MyDrive/VisionForge/runs/. A failure there does not fail the run.',
@@ -247,7 +251,7 @@ export const featureGuides: Guide[] = [
         'This guide comes from reading the code and decisions ADR-163 and ADR-164. The repository tests use a fake CLI.',
         'The ADR-163 measurement was one run on a paid account: the T4 was granted in 4.1 s, 180 of 180 one-second ticks arrived and colab stop left no session behind. Free accounts were not tested, and it is not known whether they get a GPU or what colab usage shows for them.',
         'The "My Drive" detection never ran on a machine with Google Drive for desktop installed.',
-        'This guide has no screenshots. The site does not yet have real screenshots of this part of the interface, and the guide uses no reconstructed images.',
+        'The capture in this guide shows the panel with no CLI installed. The panel with a connected account and the Drive folder browser were not opened or captured; the guide uses no reconstructed images.',
       ] },
     ],
   },
@@ -311,12 +315,12 @@ export const featureGuides: Guide[] = [
         'It runs the real git and DVC, without a terminal and with DVC_NO_ANALYTICS=1. DVC comes from the visionforge-studio[dvc] extra or from the PATH, and git from the PATH. Their output stays in the server log. The weights take the checkpoint size twice on disk, in the folder and in the DVC cache. Because the routes run git and DVC in a server folder, they answer only a local client.',
       ] },
       { id: 'mlflow', title: 'Local MLflow', paragraphs: [
-        'In Profiles, turn on MLflow. It applies to classification trainings submitted afterwards, from a local run. The server needs the visionforge-studio[mlflow] extra; without it training runs normally and History shows that the export is unavailable.',
+        'In the profile menu, in the header, turn on MLflow. It applies to classification trainings submitted afterwards, from a local run. The server needs the visionforge-studio[mlflow] extra; without it training runs normally and History shows that the export is unavailable.',
         'Nothing leaves the machine: data goes to a SQLite database in outputs/mlflow/mlflow.db, with no server or account, grouped by profile. What is sent is the public config parameters, the metrics of each epoch and the final run.json. Parameters whose name suggests a secret or a path (token, password, secret, credential, path, uri, url and keys ending in _dir) are left out. Dataset, weights and plots are not copied.',
         'The attached run.json is the full record, with your machine paths. Do not share the outputs/mlflow folder without checking its content. An MLflow failure never stops training: the error goes to the run tracking.json, and retrying from History writes only the missing metrics, without duplicates.',
       ] },
       { id: 'wandb', title: 'Private Weights & Biases', paragraphs: [
-        'In Profiles, turn on W&B, enter the project (default visionforge) and, if you want, the organization; when empty, the key owner user is used. It is optional, off by default and applies to classification trainings. The server needs the visionforge-studio[wandb] extra.',
+        'In the profile menu, turn on W&B, enter the project (default visionforge) and, if you want, the organization; when empty, the key owner user is used. It is optional, off by default and applies to classification trainings. The server needs the visionforge-studio[wandb] extra.',
         'Before the first upload, VisionForge creates the project as private or reads the existing one. If an existing project is not private, it refuses and sends nothing, without changing the project. A project created as private can be made public later, on the site. A self-hosted W&B server is not supported.',
         'What is sent is the public parameters, the metrics of each epoch and the public final metrics as the summary. The run.json, code, git, console, system stats, host name, requirements.txt, command line, dataset, weights and plots are not sent. The upload uses only the profile key, not the environment wandb login. The W&B logs/debug.log stays on this computer and names your folder.',
         'If it fails, the error goes to the run wandb.json and training continues. Retrying from History reopens the same run, and only the missing epochs are added.',
@@ -328,19 +332,21 @@ export const featureGuides: Guide[] = [
     ],
   },
   {
-    lang: 'en', slug: 'codigo', title: 'The Code tab',
-    description: 'The tab that shows, on the training screen, the real functions that train, validate and test the model, read from the installed package.',
+    lang: 'en', slug: 'codigo', title: 'The Live code tab',
+    description: 'The tab that shows, on the training screen, the steps of a run and the real functions that carry out each one, read from the installed package.',
     source: 'docs/gui/codigo.md', sourceRef: 'development',
     availability: enPlanned,
-    references: [{ label: 'ADR-173 and ADR-181 (decisions)', url: decisions }],
+    references: [{ label: 'ADR-173, ADR-181 and ADR-204 (decisions)', url: decisions }],
     sections: [
       { id: 'how', figure: 'code-tab', title: 'How the tab works', paragraphs: [
-        'On the training screen, the Code tab shows the functions VisionForge runs to train, validate and test the model, with notes in Portuguese or English beside the lines. It comes after "How it works".',
+        'On the training screen, the Live code tab shows the run in steps (data, model, loss, training epoch, validation, test and report) and, beside them, the functions VisionForge runs in each one, with notes on the lines. It merges the former "How it works" and "Code" tabs.',
       ], list: [
         'It is not a copy. The server reads each function from the installed package with inspect on every request, so the text you see is what runs. The response gives the file as a path inside the package, never the absolute install path.',
         'Notes point at the text of a line, never at its number. A test checks that every note still finds its line; if the code changes and a note loses its line, CI fails instead of pointing at the wrong place.',
         'This run path. A note that depends on a setting, such as binary or multiclass, mixed precision, augmentation, model family, loss or anomaly method, shows up as the path your training follows or as a branch it does not take. A setting the form does not decide is left unmarked rather than guessed.',
-        'No line-by-line tracking. Training reports once per epoch; the tab says which path the code takes, not which line is running now.',
+        'It follows the run by step, not by line. While training runs, the step in progress is marked and its code is shown as the running section. The position comes only from what training reports (start, batches, end of each epoch, end); no tracer runs. When the events cannot tell two steps apart, such as data and model during preparation, the whole group is marked.',
+        'You can look at another step. Clicking another step or function pauses the tracking, and going back to what is running resumes it. After training ends nothing is marked and navigation is free.',
+        'One sentence per step, notes on demand. Each step has a plain sentence on what it does. A line with a note has a mark in the margin; clicking opens the note in place.',
       ] },
       { id: 'tasks', title: 'One tour per task', paragraphs: [
         'Classification, regression, segmentation, anomaly and detection have one tour each. The map is in core/code_tour.py, and the task list comes from the server, so a new task with a tour shows up without changing the page.',
@@ -367,8 +373,8 @@ export const featureGuides: Guide[] = [
         'The route reads settings from the query. A key the task does not know, or a value it does not accept, is dropped, and the notes for that setting stay unmarked. A task with no tour, or a training that does not use the project code, returns 404 with the reason in the language of the request.',
       ] },
       { id: 'unverified', title: 'What was not verified', paragraphs: [
-        'The tab was not opened in a browser when the repository guide was written, and this guide was not checked with it open either: the sentences come from the code, the message catalog notes and ADR-173 and ADR-181. The repository test test_docs_code_tab.py requires every function of every tour to be cited in its guide and the code snippets to exist literally in the source. The two snippets above were checked against the development branch.',
-        'This guide has no screenshots. The site does not yet have real screenshots of the tab, and the guide uses no reconstructed images.',
+        'The capture in this guide was taken with the tab open in a browser, on 2026-11-14, on the development branch (commit b5ae08a): a classification with the sample dataset, one epoch, with training already finished. Tracking of the running step during training and an open note were not observed; those sentences come from docs/gui/codigo.md and ADR-173, ADR-181 and ADR-204. The repository test test_docs_code_tab.py requires every function of every tour to be cited in its guide and the code snippets to exist literally in the source. The two snippets above were checked against the development branch.',
+        'Only classification was opened. The tabs of the other tasks were not captured, and the guide uses no reconstructed images.',
       ] },
     ],
   },
