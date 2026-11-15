@@ -1,0 +1,35 @@
+---
+import CodeBlock from './CodeBlock.astro';
+import type { GuideBlock } from '../content/guide-types';
+import type { Language } from '../content/types';
+/** Renders the blocks parsed from a product Markdown guide: text, lists, tables, code and screenshots. */
+interface Props { blocks: GuideBlock[]; lang: Language; id: string }
+const { blocks, lang, id } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const tableLabel = lang === 'pt' ? 'Tabela' : 'Table';
+---
+{blocks.map((block, index) => {
+  if (block.kind === 'p') return <p set:html={block.html} />;
+  if (block.kind === 'h3') return <h3 id={block.id} set:html={block.html} />;
+  if (block.kind === 'ul') return <ul>{block.items.map(item => <li set:html={item} />)}</ul>;
+  if (block.kind === 'ol') return <ol>{block.items.map(item => <li set:html={item} />)}</ol>;
+  if (block.kind === 'code') return <CodeBlock code={block.code} label={block.label} lang={lang} id={`${id}-code-${index}`} />;
+  if (block.kind === 'table') return (
+    <div class="guide-table" role="region" tabindex="0" aria-label={`${tableLabel}: ${block.head.map(cell => cell.replace(/<[^>]+>/g, '')).join(', ')}`}>
+      <table class="data-table">
+        <thead><tr>{block.head.map(cell => <th scope="col" set:html={cell} />)}</tr></thead>
+        <tbody>{block.rows.map(row => <tr>{row.map(cell => <td set:html={cell} />)}</tr>)}</tbody>
+      </table>
+    </div>
+  );
+  return (
+    <figure class="figure guide-shot">
+      <div class="figure-frame">
+        {block.still
+          ? <picture><source media="(prefers-reduced-motion: reduce)" srcset={`${base}images/guias/${block.still}`} /><img src={`${base}images/guias/${block.file}`} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" /></picture>
+          : <img src={`${base}images/guias/${block.file}`} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" />}
+      </div>
+      <figcaption>{block.alt}</figcaption>
+    </figure>
+  );
+})}

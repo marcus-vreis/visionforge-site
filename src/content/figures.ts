@@ -55,8 +55,8 @@ export const figures = {
   'code-tab': {
     image: 'code-tab', localized: 'infix', themed: true, width: 2192, height: 1624, displayWidth: 1096,
     caption: {
-      pt: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo, no passo Época de treino. Captura do ramo de desenvolvimento.',
-      en: 'Live code tab after a one-epoch run on the sample dataset, at the Training epoch step. Captured from the development branch.',
+      pt: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo, no passo Época de treino.',
+      en: 'Live code tab after a one-epoch run on the sample dataset, at the Training epoch step.',
     },
     targets: [
       { x: 28, y: 16.9, title: { pt: 'A aba', en: 'The tab' }, text: { pt: 'Código ao vivo é a terceira aba da tela de treino, depois de Log e Resultados. Ela junta as antigas "Como funciona" e "Código".', en: 'Live code is the third tab of the training screen, after Log and Results. It merges the former "How it works" and "Code" tabs.' } },

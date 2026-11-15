@@ -3,6 +3,7 @@ import Shell from './Shell.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import AnnotatedShot from '../components/AnnotatedShot.astro';
 import ProjectFiles from '../components/ProjectFiles.astro';
+import GuideBlocks from '../components/GuideBlocks.astro';
 import type { Guide } from '../content/guide-types';
 import { guides } from '../content/guides';
 import { copy as ptCopy } from '../content/pt';
@@ -17,14 +18,22 @@ const base = import.meta.env.BASE_URL;
 const home = `${base}${pt ? '' : 'en/'}`;
 const route = `docs/${guide.slug ? `${guide.slug}/` : ''}`;
 const siblings = guides.filter(item => item.lang === guide.lang);
+const entries = siblings.filter(item => item.entry);
+const manuals = siblings.filter(item => !item.entry);
+const link = (item: Guide) => `${home}docs/${item.slug ? `${item.slug}/` : ''}`;
+const number = (index: number) => String(index + 1).padStart(2, '0');
 ---
 <Shell copy={copy} title={`${guide.title} | VisionForge`} description={guide.description} route={route}>
   <div class="container docs-layout">
     <aside class="docs-sidebar">
       <a class="docs-home" href={home}>← {pt ? 'Apresentação' : 'Overview'}</a>
+      <nav class="docs-entries" aria-label={pt ? 'Por onde começar' : 'Where to start'}>
+        <span class="eyebrow">{pt ? 'Por onde começar' : 'Where to start'}</span>
+        {entries.map((item, index) => <a href={link(item)} aria-current={item.slug === guide.slug ? 'page' : undefined}><span>{'ABC'[index]}</span>{item.title}</a>)}
+      </nav>
       <nav aria-label={pt ? 'Guias de uso' : 'User guides'}>
         <span class="eyebrow">{pt ? 'Guias de uso' : 'User guides'}</span>
-        {siblings.map((item, index) => <a href={`${home}docs/${item.slug ? `${item.slug}/` : ''}`} aria-current={item.slug === guide.slug ? 'page' : undefined}><span>0{index + 1}</span>{item.title}</a>)}
+        {manuals.map((item, index) => <a href={link(item)} aria-current={item.slug === guide.slug ? 'page' : undefined}><span>{number(index)}</span>{item.title}</a>)}
       </nav>
       <nav class="docs-toc" aria-label={pt ? 'Nesta página' : 'On this page'}>
         <span class="eyebrow">{pt ? 'Nesta página' : 'On this page'}</span>
@@ -39,11 +48,14 @@ const siblings = guides.filter(item => item.lang === guide.lang);
         <p class="guide-lede">{guide.description}</p>
         <p class="guide-version">{guide.availability ?? `v${release.version}`}</p>
       </header>
+      {guide.entry && !pt && <aside class="notice"><p>The screenshots on this page show the interface in Portuguese; the application also runs in English, and the labels quoted here are the English ones.</p></aside>}
+      {guide.intro && <div class="guide-intro"><GuideBlocks blocks={guide.intro} lang={guide.lang} id="intro" /></div>}
       {guide.slug === 'model' && <aside class="notice guide-case"><p>{pt ? 'Para executar esta CNN com dados reais, siga o caso de dígitos manuscritos. Ele reúne os nove arquivos do projeto, desde a preparação das imagens até a leitura do run.json.' : 'To run this CNN with real data, follow the handwritten digits case. It includes all nine project files, from image preparation to reading run.json.'}</p><a href={`${home}docs/project/`}>{pt ? 'Abrir o caso completo' : 'Open the complete case'} →</a></aside>}
       {guide.slug === 'project' && <a class="button button-primary project-download" download href={`${base}downloads/visionforge-digits-project.zip`}>{pt ? 'Baixar projeto completo (.zip)' : 'Download complete project (.zip)'}</a>}
       {guide.sections.map((section, index) => <section id={section.id} class="guide-section" aria-labelledby={`${section.id}-title`}>
         <h2 id={`${section.id}-title`}><a href={`#${section.id}`}>{section.title}</a></h2>
         {section.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+        {section.blocks && <GuideBlocks blocks={section.blocks} lang={guide.lang} id={section.id} />}
         {section.figure && <AnnotatedShot figure={section.figure} lang={guide.lang} />}
         {section.steps && <ol>{section.steps.map(step => <li>{step}</li>)}</ol>}
         {section.list && <ul>{section.list.map(item => <li>{item}</li>)}</ul>}
@@ -53,7 +65,7 @@ const siblings = guides.filter(item => item.lang === guide.lang);
       </section>)}
       {(guide.slug === 'model' || guide.slug === 'task') && <div class="guide-download notice"><p>{pt ? 'Arquivo completo do exemplo, pronto para salvar na pasta indicada no guia:' : 'Complete example file, ready to save in the folder specified in the guide:'}</p><a class="button" download href={`${base}examples/${guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'}`}>{pt ? 'Baixar' : 'Download'} {guide.slug === 'model' ? 'research_cnn.py' : 'research_method.py'} ↓</a></div>}
       <footer class="guide-sources"><p>{pt ? 'Referência do projeto' : 'Project reference'}: <a href={`${release.repository}/blob/${guide.sourceRef ?? `v${release.version}`}/${guide.source}`}>{guide.source} ↗</a></p>{guide.references?.map(reference => <p><a href={reference.url}>{reference.label} ↗</a></p>)}{guide.slug === 'task' && <p>{pt ? 'A tarefa usa dados sintéticos e uma penalização ilustrativa. Sua aplicação em pesquisa exige definir e validar o método e o protocolo experimental.' : 'The task uses synthetic data and an illustrative penalty. Research use requires defining and validating the method and experimental protocol.'}</p>}</footer>
-      <nav class="guide-next" aria-label={pt ? 'Outros guias' : 'Other guides'}>{siblings.filter(item => item.slug !== guide.slug).map(item => <a href={`${home}docs/${item.slug ? `${item.slug}/` : ''}`}>{item.title} →</a>)}</nav>
+      <nav class="guide-next" aria-label={pt ? 'Outros guias' : 'Other guides'}>{siblings.filter(item => item.slug !== guide.slug).map(item => <a href={link(item)}>{item.title} →</a>)}</nav>
     </article>
   </div>
 </Shell>

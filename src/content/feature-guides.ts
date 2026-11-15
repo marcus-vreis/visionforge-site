@@ -1,10 +1,10 @@
 import type { Guide } from './guide-types';
-import { release, plannedVersion } from './release';
+import { release } from './release';
 
 const docs = `${release.repository}/blob/development/docs/gui/`;
 const decisions = `${release.repository}/blob/development/docs/dev/DECISIONS.md`;
 
-/** Excerpt of TOURS in src/visionforge/core/code_tour.py on the development branch, checked against that file. */
+/** Excerpt of TOURS in src/visionforge/core/code_tour.py at v0.22.0, checked against that file. */
 const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "classification": CLASSIFICATION,
     "regression": REGRESSION,
@@ -12,21 +12,18 @@ const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "anomaly": ANOMALY,
     "detection": DETECTION,
 }`;
-/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py on the development branch, checked against that file. */
+/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py at v0.22.0, checked against that file. */
 const criterionSnippet = `if self._config.task == "binary":
     return nn.BCEWithLogitsLoss()
 return nn.CrossEntropyLoss()`;
-
-const ptPlanned = `A partir da ${plannedVersion} (em desenvolvimento). A versão publicada é a ${release.version} e não tem este recurso.`;
-const enPlanned = `From ${plannedVersion} (in development). The published version is ${release.version} and does not have this feature.`;
 
 /** Guides for Colab training, exporters and the Code tab, written from the product documentation and ADRs. */
 export const featureGuides: Guide[] = [
   {
     lang: 'pt', slug: 'colab', title: 'Treinar no Google Colab',
     description: 'Como o VisionForge treina uma classificação numa máquina do Colab, na sua conta Google, e traz o resultado de volta como uma execução local.',
-    source: 'docs/gui/colab.md', sourceRef: 'development',
-    availability: `Treino no Colab: desde a ${release.version}. Dataset no Drive e exportação para o Drive: a partir da ${plannedVersion}.`,
+    source: 'docs/gui/colab.md',
+    availability: `Treino no Colab: desde a 0.21.0. Dataset no Drive e exportação para o Drive: desde a ${release.version}.`,
     references: [{ label: 'ADR-163 e ADR-164 (decisões)', url: decisions }],
     sections: [
       { id: 'overview', title: 'O que o treino no Colab faz', paragraphs: [
@@ -57,7 +54,7 @@ export const featureGuides: Guide[] = [
         'A execução entra em models/ do perfil como qualquer execução local, com device_used e o ambiente da VM (GPU, torch, Python). O Histórico a marca como Colab e o run.json ganha origin com kind "colab".',
       ], note: 'Os gráficos não fazem parte do formato do bundle. Uma execução importada traz o run.json e o checkpoint, sem os PNGs.' },
       { id: 'drive', title: 'Dataset no Google Drive', paragraphs: [
-        'Disponível a partir da ' + plannedVersion + '. Na versão ' + release.version + ', use a origem por URL ou por provedor.',
+        'Disponível desde a ' + release.version + '. Na 0.21.0, use a origem por URL ou por provedor.',
         'Quando a pasta do dataset da configuração está no Google Drive para desktop, o treino pode lê-la sem upload. O servidor traduz data.base_dir para /content/drive/MyDrive/... e envia a contagem de arquivos local. A pasta "Meu Drive" ou "My Drive" é procurada nesta ordem: a pasta digitada, o DefaultMountPoint do Drive para desktop no registro, e um componente "My Drive" ou "Meu Drive" logo abaixo de uma letra de unidade ou da pasta pessoal. Uma pasta fora do Drive, ou vazia, é recusada antes de gastar uma máquina.',
         'No painel do Colab, "Escolher pasta no Drive" navega pelas pastas do "Meu Drive" deste computador: clique para entrar e use "Usar esta pasta" para confirmar; o caminho no Colab aparece antes de confirmar. O navegador de pastas lê a pasta local que o Drive para desktop sincroniza e não usa a API do Google. Sem o Drive para desktop, o painel mostra três passos (instalar, colocar o dataset no "Meu Drive", voltar e escolher) e um campo para digitar a pasta.',
         'O Google pede a permissão a cada máquina nova, e ela não é guardada. A folha de treino mostra "Permitir acesso ao Drive", que abre a página do Google numa aba nova. Ao voltar à janela, a interface avisa o servidor e o treino continua. "Já permiti" é o recurso quando o foco da janela não dispara. Ninguém precisa de um terminal.',
@@ -80,8 +77,7 @@ export const featureGuides: Guide[] = [
   {
     lang: 'pt', slug: 'publicar', title: 'Publicar e registrar execuções',
     description: 'O que o Histórico envia a Zenodo, Hugging Face Hub, GitHub, DVC, MLflow e Weights & Biases, o que não envia, e como tratar os tokens.',
-    source: 'docs/gui/zenodo.md', sourceRef: 'development',
-    availability: ptPlanned,
+    source: 'docs/gui/zenodo.md',
     references: [
       { label: 'Zenodo (guia do repositório)', url: `${docs}zenodo.md` },
       { label: 'Hugging Face Hub (guia do repositório)', url: `${docs}hugging-face-hub.md` },
@@ -102,7 +98,7 @@ export const featureGuides: Guide[] = [
         'DVC: o relatório no git de um repositório deste computador e os pesos sob o DVC.',
         'MLflow: parâmetros públicos, métricas por época e o run.json, num banco SQLite local.',
         'Weights & Biases: parâmetros públicos e métricas, num projeto privado.',
-      ], note: 'Zenodo, Hub, GitHub e DVC são envios explícitos, feitos pelo Histórico depois de uma prévia local. MLflow e Weights & Biases são opções do perfil, aplicadas a treinos de classificação enviados depois de ativá-las. O Histórico repete uma exportação que falhou.' },
+      ], note: 'Zenodo, Hub, GitHub e DVC são envios explícitos, feitos pelo Histórico depois de uma prévia local. MLflow e Weights & Biases são opções do perfil, aplicadas a treinos locais de qualquer tarefa enviados depois de ativá-las. O Histórico repete uma exportação que falhou.' },
       { id: 'tokens', title: 'Tokens', paragraphs: [
         'O VisionForge guarda os tokens neste computador, em texto puro, em ~/.visionforge/ (a variável VISIONFORGE_HOME troca a pasta). Cada serviço tem uma pasta, como hub-tokens, wandb-tokens, zenodo-tokens, zenodo-sandbox-tokens e github-tokens, e o token é salvo por perfil. A interface só informa se existe um token salvo. Se a pasta de modelos do perfil mudar de caminho, o token deixa de ser encontrado e é preciso salvá-lo de novo.',
         'Crie sempre um token novo, dedicado ao VisionForge. O escopo mínimo que o repositório documenta:',
@@ -137,12 +133,12 @@ export const featureGuides: Guide[] = [
         'Roda o git e o DVC reais, sem terminal e com DVC_NO_ANALYTICS=1. O DVC vem do extra visionforge-studio[dvc] ou do PATH, e o git, do PATH. A saída deles fica no log do servidor. Os pesos ocupam o tamanho do checkpoint duas vezes em disco, na pasta e no cache do DVC. Como as rotas rodam git e DVC numa pasta do servidor, só respondem a um cliente local.',
       ] },
       { id: 'mlflow', title: 'MLflow local', paragraphs: [
-        'No menu do perfil, no cabeçalho, ative o MLflow. Vale para treinos de classificação enviados depois, a partir de um treino local. O servidor precisa do extra visionforge-studio[mlflow]; sem ele o treino roda normalmente e o Histórico mostra que a exportação ficou indisponível.',
+        'No menu do perfil, no cabeçalho, ative o MLflow. Vale para os treinos locais enviados depois, de qualquer tarefa: classificação, regressão, segmentação, anomalia, detecção e tarefas próprias. Sweeps, K-fold, comparações, réplicas e continuações não são exportados. O servidor precisa do extra visionforge-studio[mlflow]; sem ele o treino roda normalmente e o Histórico mostra que a exportação ficou indisponível.',
         'Nada sai da máquina: os dados vão para um banco SQLite em outputs/mlflow/mlflow.db, sem servidor nem conta, agrupados por perfil. São enviados os parâmetros públicos da configuração, as métricas de cada época e o run.json final. Parâmetros cujo nome sugere segredo ou caminho (token, password, secret, credential, path, uri, url e chaves terminadas em _dir) ficam de fora. Dataset, pesos e gráficos não são copiados.',
         'O run.json anexado é o registro completo, com os caminhos da sua máquina. Não compartilhe a pasta outputs/mlflow sem olhar o conteúdo. Uma falha no MLflow nunca derruba o treino: o erro vai para o tracking.json da execução, e repetir pelo Histórico grava só as métricas que faltam, sem duplicar.',
       ] },
       { id: 'wandb', title: 'Weights & Biases privado', paragraphs: [
-        'No menu do perfil, ative o W&B, informe o projeto (padrão visionforge) e, se quiser, a organização; vazia, vale o usuário dono da chave. É opcional, vem desligado e vale para treinos de classificação. O servidor precisa do extra visionforge-studio[wandb].',
+        'No menu do perfil, ative o W&B, informe o projeto (padrão visionforge) e, se quiser, a organização; vazia, vale o usuário dono da chave. É opcional, vem desligado e vale para treinos de qualquer tarefa. O servidor precisa do extra visionforge-studio[wandb].',
         'Antes do primeiro envio, o VisionForge cria o projeto como privado ou lê o que já existe. Se o projeto existente não for privado, recusa e não envia nada, sem alterá-lo. Um projeto criado privado pode ser tornado público depois, no site. Servidor W&B próprio não é suportado.',
         'São enviados os parâmetros públicos, as métricas de cada época e as métricas finais públicas como resumo. Não vão o run.json, o código, o git, o console, as estatísticas do sistema, o nome da máquina, o requirements.txt, a linha de comando, o dataset, os pesos nem os gráficos. O envio usa só a chave do perfil, não o wandb login do ambiente. O log logs/debug.log do W&B fica neste computador e cita a sua pasta.',
         'Se falhar, o erro vai para o wandb.json da execução e o treino segue. Repetir pelo Histórico reabre o mesmo run, e só as épocas que faltam são acrescentadas.',
@@ -156,8 +152,7 @@ export const featureGuides: Guide[] = [
   {
     lang: 'pt', slug: 'codigo', title: 'A aba Código ao vivo',
     description: 'A aba que mostra, na tela de treino, os passos do treino e as funções reais que executam cada um, lidas do pacote instalado.',
-    source: 'docs/gui/codigo.md', sourceRef: 'development',
-    availability: ptPlanned,
+    source: 'docs/gui/codigo.md',
     references: [{ label: 'ADR-173, ADR-181 e ADR-204 (decisões)', url: decisions }],
     sections: [
       { id: 'how', figure: 'code-tab', title: 'Como a aba funciona', paragraphs: [
@@ -173,7 +168,7 @@ export const featureGuides: Guide[] = [
       { id: 'tasks', title: 'Um roteiro por tarefa', paragraphs: [
         'Classificação, regressão, segmentação, anomalia e detecção têm um roteiro cada. O mapa está em core/code_tour.py, e a lista de tarefas vem do servidor, então uma tarefa nova com roteiro aparece sem mudar a página.',
         'A detecção só tem roteiro com backend torchvision: o laço do Ultralytics é da biblioteca, e a aba explica por que não há código do VisionForge para mostrar. Uma execução que não diz o backend recebe a mesma explicação, porque Ultralytics é o padrão.',
-      ], code: toursSnippet, codeLabel: `Python · core/code_tour.py, ramo development (a partir da ${plannedVersion})` },
+      ], code: toursSnippet, codeLabel: `Python · core/code_tour.py, v${release.version}` },
       { id: 'classification', title: 'Classificação', paragraphs: ['Seis seções, na ordem em que aparecem na aba:'], list: [
         '_build_transforms (core/data.py): monta as transformações da imagem, com tamanho fixo, aumento de dados só no treino, tensor e normalização.',
         'replace_final_layer (models/factory.py): troca a última camada linear por uma com uma saída por classe do seu dataset; o ramo muda com a família do modelo.',
@@ -181,7 +176,7 @@ export const featureGuides: Guide[] = [
         'Trainer._train_epoch: uma época de treino, com forward, perda, backward, passo do otimizador e a contagem de acertos.',
         'Trainer._eval_epoch: a validação, em modo de avaliação e sem gradientes, que calcula a val_loss. A época de menor val_loss fica no best_model.pth.',
         'Evaluator.evaluate (core/evaluator.py): roda a inferência no conjunto de teste, uma vez, e devolve as métricas de classificação.',
-      ], code: criterionSnippet, codeLabel: `Python · Trainer._build_criterion em core/trainer.py, ramo development (a partir da ${plannedVersion})` },
+      ], code: criterionSnippet, codeLabel: `Python · Trainer._build_criterion em core/trainer.py, v${release.version}` },
       { id: 'others', title: 'Regressão, segmentação, anomalia e detecção', paragraphs: [
         'Cada tarefa lista as funções reais que usa, e a aba as abre na mesma ordem. Os nomes abaixo são os de core/code_tour.py.',
       ], list: [
@@ -203,8 +198,8 @@ export const featureGuides: Guide[] = [
   {
     lang: 'en', slug: 'colab', title: 'Training on Google Colab',
     description: 'How VisionForge trains a classification on a Colab machine, under your Google account, and brings the result back as a local run.',
-    source: 'docs/gui/colab.md', sourceRef: 'development',
-    availability: `Colab training: since ${release.version}. Drive dataset and export to Drive: from ${plannedVersion}.`,
+    source: 'docs/gui/colab.md',
+    availability: `Colab training: since 0.21.0. Drive dataset and export to Drive: since ${release.version}.`,
     references: [{ label: 'ADR-163 and ADR-164 (decisions)', url: decisions }],
     sections: [
       { id: 'overview', title: 'What Colab training does', paragraphs: [
@@ -235,7 +230,7 @@ export const featureGuides: Guide[] = [
         'The run goes into the profile models/ folder like any local run, with device_used and the VM environment (GPU, torch, Python). History marks it as Colab, and run.json gets an origin with kind "colab".',
       ], note: 'Plots are not part of the bundle format. An imported run has run.json and the checkpoint, without the PNGs.' },
       { id: 'drive', title: 'Dataset on Google Drive', paragraphs: [
-        'Available from ' + plannedVersion + '. In version ' + release.version + ', use the URL or provider source.',
+        'Available since ' + release.version + '. In 0.21.0, use the URL or provider source.',
         'When the dataset folder of the configuration is in Google Drive for desktop, training can read it with no upload. The server translates data.base_dir to /content/drive/MyDrive/... and sends the local file count. The "My Drive" or "Meu Drive" folder is looked up in this order: the folder you typed, the DefaultMountPoint of Drive for desktop in the registry, and a "My Drive" or "Meu Drive" component right under a drive letter or the home folder. A folder outside the Drive, or an empty one, is refused before a machine is paid for.',
         'In the Colab panel, "Escolher pasta no Drive" (choose a Drive folder) browses the "My Drive" folders of this computer: click to enter and use "Usar esta pasta" (use this folder) to confirm; the path on Colab is shown before you confirm. The folder browser reads the local folder that Drive for desktop syncs and does not use the Google API. Without Drive for desktop, the panel shows three steps (install it, put the dataset in "My Drive", come back and choose) and a field to type the folder.',
         'Google asks for permission for every new machine, and the permission is not kept. The training sheet shows "Permitir acesso ao Drive" (allow Drive access), which opens the Google page in a new tab. When you return to the window, the interface tells the server and training continues. "Já permiti" (I already allowed) is the fallback when window focus does not fire. Nobody needs a terminal.',
@@ -258,8 +253,7 @@ export const featureGuides: Guide[] = [
   {
     lang: 'en', slug: 'publicar', title: 'Publishing and tracking runs',
     description: 'What History sends to Zenodo, Hugging Face Hub, GitHub, DVC, MLflow and Weights & Biases, what it does not send, and how to handle tokens.',
-    source: 'docs/gui/zenodo.md', sourceRef: 'development',
-    availability: enPlanned,
+    source: 'docs/gui/zenodo.md',
     references: [
       { label: 'Zenodo (repository guide, Portuguese)', url: `${docs}zenodo.md` },
       { label: 'Hugging Face Hub (repository guide, Portuguese)', url: `${docs}hugging-face-hub.md` },
@@ -280,7 +274,7 @@ export const featureGuides: Guide[] = [
         'DVC: the report in the git of a repository on this computer, and the weights under DVC.',
         'MLflow: public parameters, per-epoch metrics and run.json, in a local SQLite database.',
         'Weights & Biases: public parameters and metrics, in a private project.',
-      ], note: 'Zenodo, Hub, GitHub and DVC are explicit uploads, made from History after a local preview. MLflow and Weights & Biases are profile options, applied to classification trainings submitted after you turn them on. History retries an export that failed.' },
+      ], note: 'Zenodo, Hub, GitHub and DVC are explicit uploads, made from History after a local preview. MLflow and Weights & Biases are profile options, applied to local trainings of any task submitted after you turn them on. History retries an export that failed.' },
       { id: 'tokens', title: 'Tokens', paragraphs: [
         'VisionForge keeps tokens on this computer, in plain text, in ~/.visionforge/ (the VISIONFORGE_HOME variable changes the folder). Each service has a folder, such as hub-tokens, wandb-tokens, zenodo-tokens, zenodo-sandbox-tokens and github-tokens, and the token is saved per profile. The interface only says whether a token is saved. If the profile models folder changes path, the token is no longer found and must be saved again.',
         'Always create a new token dedicated to VisionForge. The minimum scope the repository documents:',
@@ -315,12 +309,12 @@ export const featureGuides: Guide[] = [
         'It runs the real git and DVC, without a terminal and with DVC_NO_ANALYTICS=1. DVC comes from the visionforge-studio[dvc] extra or from the PATH, and git from the PATH. Their output stays in the server log. The weights take the checkpoint size twice on disk, in the folder and in the DVC cache. Because the routes run git and DVC in a server folder, they answer only a local client.',
       ] },
       { id: 'mlflow', title: 'Local MLflow', paragraphs: [
-        'In the profile menu, in the header, turn on MLflow. It applies to classification trainings submitted afterwards, from a local run. The server needs the visionforge-studio[mlflow] extra; without it training runs normally and History shows that the export is unavailable.',
+        'In the profile menu, in the header, turn on MLflow. It applies to local trainings submitted afterwards, of any task: classification, regression, segmentation, anomaly, detection and custom tasks. Sweeps, K-fold, comparisons, replicates and resumed runs are not exported. The server needs the visionforge-studio[mlflow] extra; without it training runs normally and History shows that the export is unavailable.',
         'Nothing leaves the machine: data goes to a SQLite database in outputs/mlflow/mlflow.db, with no server or account, grouped by profile. What is sent is the public config parameters, the metrics of each epoch and the final run.json. Parameters whose name suggests a secret or a path (token, password, secret, credential, path, uri, url and keys ending in _dir) are left out. Dataset, weights and plots are not copied.',
         'The attached run.json is the full record, with your machine paths. Do not share the outputs/mlflow folder without checking its content. An MLflow failure never stops training: the error goes to the run tracking.json, and retrying from History writes only the missing metrics, without duplicates.',
       ] },
       { id: 'wandb', title: 'Private Weights & Biases', paragraphs: [
-        'In the profile menu, turn on W&B, enter the project (default visionforge) and, if you want, the organization; when empty, the key owner user is used. It is optional, off by default and applies to classification trainings. The server needs the visionforge-studio[wandb] extra.',
+        'In the profile menu, turn on W&B, enter the project (default visionforge) and, if you want, the organization; when empty, the key owner user is used. It is optional, off by default and applies to trainings of any task. The server needs the visionforge-studio[wandb] extra.',
         'Before the first upload, VisionForge creates the project as private or reads the existing one. If an existing project is not private, it refuses and sends nothing, without changing the project. A project created as private can be made public later, on the site. A self-hosted W&B server is not supported.',
         'What is sent is the public parameters, the metrics of each epoch and the public final metrics as the summary. The run.json, code, git, console, system stats, host name, requirements.txt, command line, dataset, weights and plots are not sent. The upload uses only the profile key, not the environment wandb login. The W&B logs/debug.log stays on this computer and names your folder.',
         'If it fails, the error goes to the run wandb.json and training continues. Retrying from History reopens the same run, and only the missing epochs are added.',
@@ -334,8 +328,7 @@ export const featureGuides: Guide[] = [
   {
     lang: 'en', slug: 'codigo', title: 'The Live code tab',
     description: 'The tab that shows, on the training screen, the steps of a run and the real functions that carry out each one, read from the installed package.',
-    source: 'docs/gui/codigo.md', sourceRef: 'development',
-    availability: enPlanned,
+    source: 'docs/gui/codigo.md',
     references: [{ label: 'ADR-173, ADR-181 and ADR-204 (decisions)', url: decisions }],
     sections: [
       { id: 'how', figure: 'code-tab', title: 'How the tab works', paragraphs: [
@@ -351,7 +344,7 @@ export const featureGuides: Guide[] = [
       { id: 'tasks', title: 'One tour per task', paragraphs: [
         'Classification, regression, segmentation, anomaly and detection have one tour each. The map is in core/code_tour.py, and the task list comes from the server, so a new task with a tour shows up without changing the page.',
         'Detection has a tour only with the torchvision backend: the Ultralytics loop belongs to the library, and the tab explains why there is no VisionForge code to show. A run that does not state the backend gets the same explanation, because Ultralytics is the default.',
-      ], code: toursSnippet, codeLabel: `Python · core/code_tour.py, development branch (from ${plannedVersion})` },
+      ], code: toursSnippet, codeLabel: `Python · core/code_tour.py, v${release.version}` },
       { id: 'classification', title: 'Classification', paragraphs: ['Six sections, in the order they appear in the tab:'], list: [
         '_build_transforms (core/data.py): builds the image transforms, with fixed size, data augmentation only in training, tensor conversion and normalization.',
         'replace_final_layer (models/factory.py): swaps the last linear layer for one with an output per class in your dataset; the branch changes with the model family.',
@@ -359,7 +352,7 @@ export const featureGuides: Guide[] = [
         'Trainer._train_epoch: one training epoch, with forward, loss, backward, optimizer step and the count of correct predictions.',
         'Trainer._eval_epoch: validation, in evaluation mode and without gradients, which computes val_loss. The epoch with the lowest val_loss is kept as best_model.pth.',
         'Evaluator.evaluate (core/evaluator.py): runs inference on the test set, once, and returns the classification metrics.',
-      ], code: criterionSnippet, codeLabel: `Python · Trainer._build_criterion in core/trainer.py, development branch (from ${plannedVersion})` },
+      ], code: criterionSnippet, codeLabel: `Python · Trainer._build_criterion in core/trainer.py, v${release.version}` },
       { id: 'others', title: 'Regression, segmentation, anomaly and detection', paragraphs: [
         'Each task lists the real functions it uses, and the tab opens them in the same order. The names below are the ones in core/code_tour.py.',
       ], list: [

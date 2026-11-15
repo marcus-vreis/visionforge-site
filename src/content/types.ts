@@ -7,12 +7,12 @@ export interface SiteCopy {
   title: string;
   description: string;
   nav: { tasks: string; research: string; install: string; docs: string; skip: string; theme: string; system: string; light: string; dark: string };
-  hero: { title: string; description: string; install: string; github: string; platforms: string; development: string; terminalLabel: string; terminalCaption: string; replay: string };
+  hero: { title: string; description: string; install: string; github: string; platforms: string; released: string; terminalLabel: string; terminalCaption: string; replay: string };
   tour: { eyebrow: string; title: string; intro: string };
   labels: { figure: string; table: string; section: string };
   tasks: { eyebrow: string; title: string; intro: string; models: string; metrics: string; task: string; caption: string; items: Array<{ id: string; name: string; short: string; description: string; models: string; metrics: string }> };
   workflow: { eyebrow: string; title: string; where: string[]; whereLabel: string; steps: Array<{ title: string; description: string }> };
-  features: { eyebrow: string; title: string; logTitle: string; logLink: string; published: string; tabPlanned: string; tabReleased: string; tabEarlier: string; kinds: Record<'added' | 'changed' | 'fixed', string>; intro: string; figure: string; groups: Array<{ id: string; heading: string; items: Array<{ title: string; description: string; mark: string; guide?: string }> }> };
+  features: { eyebrow: string; title: string; logTitle: string; logLink: string; published: string; tabReleased: string; tabEarlier: string; kinds: Record<'added' | 'changed' | 'fixed', string>; intro: string; figure: string; groups: Array<{ id: string; heading: string; items: Array<{ title: string; description: string; mark: string; guide?: string }> }> };
   research: { eyebrow: string; title: string; intro: string; items: Array<{ title: string; description: string }>; note: string; figure: string; replicas: { seed: string; summary: string; caption: string }; runJson: { title: string; hint: string; caption: string } };
   install: { eyebrow: string; title: string; intro: string; requirements: string; osLabel: string; copy: string; copied: string; copyFailed: string; prerequisites: string; steps: string; gpu: string; cpu: string; mac: string; terminal: string; verified: string; guide: string; downloads: string; wheel: string; source: string; noExecutable: string; update: string };
   resources: { eyebrow: string; title: string; intro: string; items: Array<{ title: string; description: string; path: string }>; citation: string; citeLabel: string };

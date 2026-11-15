@@ -26,6 +26,17 @@
 .guide-section p,.guide-section li { line-height:1.8; }
 .guide-section li { padding-left:6px; margin-bottom:12px; }
 .guide-section ol,.guide-section ul { padding-left:24px; }
+.guide-intro { padding-top:28px; }
+.guide-intro p,.guide-intro li { line-height:1.8; }
+.guide-section h3 { margin-top:36px; font-size:20px; scroll-margin-top:105px; }
+.guide-section :is(p,li,td) code,.guide-intro :is(p,li) code { font-size:.9em; overflow-wrap:anywhere; }
+.guide-table { margin-block:24px; overflow-x:auto; }
+.guide-table .data-table { font-size:15px; }
+.guide-table .data-table th,.guide-table .data-table td { padding:11px 18px 11px 0; line-height:1.6; overflow-wrap:normal; }
+.guide-table .data-table td:first-child { min-width:9em; }
+.guide-shot { margin-block:28px; }
+.guide-shot img { display:block; width:100%; height:auto; }
+.docs-sidebar .docs-entries a span { color:var(--accent); }
 .guide-code pre { line-height:1.8; overflow-wrap:normal; white-space:pre; }
 .guide-code .copy-status { padding-inline:18px; font-size:13px; }
 .guide-code .terminal-bar { flex-wrap:wrap; overflow-wrap:anywhere; }

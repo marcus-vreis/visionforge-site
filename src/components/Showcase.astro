@@ -6,7 +6,6 @@ import Replicas from './Replicas.astro';
 import TaskGlyph from './TaskGlyph.astro';
 import RunJson from './RunJson.astro';
 import { studioTasks } from '../content/studio';
-import { plannedVersion } from '../content/release';
 import '../styles/showcase.css';
 
 /** Props for the opening statement plus the tasks, workflow and method sections. */
@@ -44,7 +43,7 @@ const { figure, table } = copy.labels;
         <a class="button button-primary" href="#install">{copy.hero.install}<span aria-hidden="true">↓</span></a>
         <a class="button" href={release.repository}>{copy.hero.github}<span aria-hidden="true">↗</span></a>
       </div>
-      <a class="hero-live" href="#features"><span class="pulse" aria-hidden="true"></span>{copy.hero.development.replace('{planned}', plannedVersion)}<span aria-hidden="true"> →</span></a>
+      <a class="hero-live" href="#features"><span class="pulse" aria-hidden="true"></span>{copy.hero.released.replace('{version}', release.version).replace('{date}', release.releasedOn)}<span aria-hidden="true"> →</span></a>
     </div>
     <figure class="hero-session" data-session>
       <div class="terminal hero-terminal">
