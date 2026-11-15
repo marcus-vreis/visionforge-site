@@ -4,7 +4,7 @@ import { release } from './release';
 const docs = `${release.repository}/blob/development/docs/gui/`;
 const decisions = `${release.repository}/blob/development/docs/dev/DECISIONS.md`;
 
-/** Excerpt of TOURS in src/visionforge/core/code_tour.py at v0.22.0, checked against that file. */
+/** Excerpt of TOURS in src/visionforge/core/code_tour.py at v0.22.1, checked against that file. */
 const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "classification": CLASSIFICATION,
     "regression": REGRESSION,
@@ -12,7 +12,7 @@ const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "anomaly": ANOMALY,
     "detection": DETECTION,
 }`;
-/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py at v0.22.0, checked against that file. */
+/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py at v0.22.1, checked against that file. */
 const criterionSnippet = `if self._config.task == "binary":
     return nn.BCEWithLogitsLoss()
 return nn.CrossEntropyLoss()`;
@@ -23,7 +23,7 @@ export const featureGuides: Guide[] = [
     lang: 'pt', slug: 'colab', title: 'Treinar no Google Colab',
     description: 'Como o VisionForge treina uma classificação numa máquina do Colab, na sua conta Google, e traz o resultado de volta como uma execução local.',
     source: 'docs/gui/colab.md',
-    availability: `Treino no Colab: desde a 0.21.0. Dataset no Drive e exportação para o Drive: desde a ${release.version}.`,
+    availability: `Treino no Colab: desde a 0.21.0. Dataset no Drive e exportação para o Drive: desde a 0.22.0.`,
     references: [{ label: 'ADR-163 e ADR-164 (decisões)', url: decisions }],
     sections: [
       { id: 'overview', title: 'O que o treino no Colab faz', paragraphs: [
@@ -54,7 +54,7 @@ export const featureGuides: Guide[] = [
         'A execução entra em models/ do perfil como qualquer execução local, com device_used e o ambiente da VM (GPU, torch, Python). O Histórico a marca como Colab e o run.json ganha origin com kind "colab".',
       ], note: 'Os gráficos não fazem parte do formato do bundle. Uma execução importada traz o run.json e o checkpoint, sem os PNGs.' },
       { id: 'drive', title: 'Dataset no Google Drive', paragraphs: [
-        'Disponível desde a ' + release.version + '. Na 0.21.0, use a origem por URL ou por provedor.',
+        'Disponível desde a 0.22.0. Na 0.21.0, use a origem por URL ou por provedor.',
         'Quando a pasta do dataset da configuração está no Google Drive para desktop, o treino pode lê-la sem upload. O servidor traduz data.base_dir para /content/drive/MyDrive/... e envia a contagem de arquivos local. A pasta "Meu Drive" ou "My Drive" é procurada nesta ordem: a pasta digitada, o DefaultMountPoint do Drive para desktop no registro, e um componente "My Drive" ou "Meu Drive" logo abaixo de uma letra de unidade ou da pasta pessoal. Uma pasta fora do Drive, ou vazia, é recusada antes de gastar uma máquina.',
         'No painel do Colab, "Escolher pasta no Drive" navega pelas pastas do "Meu Drive" deste computador: clique para entrar e use "Usar esta pasta" para confirmar; o caminho no Colab aparece antes de confirmar. O navegador de pastas lê a pasta local que o Drive para desktop sincroniza e não usa a API do Google. Sem o Drive para desktop, o painel mostra três passos (instalar, colocar o dataset no "Meu Drive", voltar e escolher) e um campo para digitar a pasta.',
         'O Google pede a permissão a cada máquina nova, e ela não é guardada. A folha de treino mostra "Permitir acesso ao Drive", que abre a página do Google numa aba nova. Ao voltar à janela, a interface avisa o servidor e o treino continua. "Já permiti" é o recurso quando o foco da janela não dispara. Ninguém precisa de um terminal.',
@@ -199,7 +199,7 @@ export const featureGuides: Guide[] = [
     lang: 'en', slug: 'colab', title: 'Training on Google Colab',
     description: 'How VisionForge trains a classification on a Colab machine, under your Google account, and brings the result back as a local run.',
     source: 'docs/gui/colab.md',
-    availability: `Colab training: since 0.21.0. Drive dataset and export to Drive: since ${release.version}.`,
+    availability: `Colab training: since 0.21.0. Drive dataset and export to Drive: since 0.22.0.`,
     references: [{ label: 'ADR-163 and ADR-164 (decisions)', url: decisions }],
     sections: [
       { id: 'overview', title: 'What Colab training does', paragraphs: [
@@ -230,7 +230,7 @@ export const featureGuides: Guide[] = [
         'The run goes into the profile models/ folder like any local run, with device_used and the VM environment (GPU, torch, Python). History marks it as Colab, and run.json gets an origin with kind "colab".',
       ], note: 'Plots are not part of the bundle format. An imported run has run.json and the checkpoint, without the PNGs.' },
       { id: 'drive', title: 'Dataset on Google Drive', paragraphs: [
-        'Available since ' + release.version + '. In 0.21.0, use the URL or provider source.',
+        'Available since 0.22.0. In 0.21.0, use the URL or provider source.',
         'When the dataset folder of the configuration is in Google Drive for desktop, training can read it with no upload. The server translates data.base_dir to /content/drive/MyDrive/... and sends the local file count. The "My Drive" or "Meu Drive" folder is looked up in this order: the folder you typed, the DefaultMountPoint of Drive for desktop in the registry, and a "My Drive" or "Meu Drive" component right under a drive letter or the home folder. A folder outside the Drive, or an empty one, is refused before a machine is paid for.',
         'In the Colab panel, "Escolher pasta no Drive" (choose a Drive folder) browses the "My Drive" folders of this computer: click to enter and use "Usar esta pasta" (use this folder) to confirm; the path on Colab is shown before you confirm. The folder browser reads the local folder that Drive for desktop syncs and does not use the Google API. Without Drive for desktop, the panel shows three steps (install it, put the dataset in "My Drive", come back and choose) and a field to type the folder.',
         'Google asks for permission for every new machine, and the permission is not kept. The training sheet shows "Permitir acesso ao Drive" (allow Drive access), which opens the Google page in a new tab. When you return to the window, the interface tells the server and training continues. "Já permiti" (I already allowed) is the fallback when window focus does not fire. Nobody needs a terminal.',

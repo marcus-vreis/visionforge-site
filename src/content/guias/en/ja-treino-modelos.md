@@ -99,6 +99,10 @@ training:
 | Detection | YOLO layout (`images/<split>` and `labels/<split>`, or `<split>/images` and `<split>/labels`) or a `data.yaml`; COCO is converted in the dataset lab | `map50_95` |
 | Anomaly | MVTec AD style: `train/good/` with normal images only; `test/good/` and one subfolder per defect | `auroc` |
 
+Anomaly has no validation split: training scores each epoch on the test split,
+which is why the result shows "AUROC (best epoch)" next to "AUROC (test)",
+with no "(val)" at all.
+
 The main metric orders the ranking of the strategies when you do not choose
 another. The column and folder names above are the defaults of the
 configuration (`image_column`, `target_columns`, `normal_dir`, ...). Detection

@@ -125,7 +125,7 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Versões anteriores',
     kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
-    intro: 'A versão publicada é a {version}. Os cartões marcados com "novo na {version}" entraram nesta versão; os demais já existiam.',
+    intro: 'A versão publicada é a {version}, uma correção sobre a 0.22.0, sem funcionalidade nova: o detalhe de uma execução de regressão, segmentação ou anomalia passa a mostrar rótulos legíveis das métricas. Os cartões marcados com "novo na 0.22.0" entraram naquela versão; os demais já existiam.',
     figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita.',
     groups: [
       {
@@ -135,30 +135,30 @@ export const copy: SiteCopy = {
           {
             title: 'Começando do zero',
             description: 'A primeira entrada do menu guia: uma página em tela cheia para quem nunca treinou um modelo, com os conceitos em oito capítulos, figuras e a gravação de um treino. O mesmo texto está nos guias deste site.',
-            mark: 'Novo na {version}',
+            mark: 'Novo na 0.22.0',
             guide: 'docs/comecando-do-zero/',
           },
           {
             title: 'Aba Código ao vivo',
             description: 'Mostra o treino em passos e, ao lado, as funções reais que executam cada um, lidas do pacote instalado, com notas nas linhas e o caminho que a configuração do treino segue marcado. Durante o treino, o passo em execução fica marcado. Há um roteiro por tarefa.',
-            mark: 'Novo na {version}',
+            mark: 'Novo na 0.22.0',
             guide: 'docs/codigo/',
           },
           {
             title: 'Exportadores a partir do Histórico',
             description: 'Rascunho no Zenodo, versionamento com DVC, repositório privado do Hugging Face Hub, relatório num repositório privado do GitHub, e acompanhamento no MLflow local ou no Weights & Biases. Cada envio mostra uma prévia e usa um token salvo por perfil.',
-            mark: 'Novo na {version}',
+            mark: 'Novo na 0.22.0',
             guide: 'docs/publicar/',
           },
           {
             title: 'Explorador de datasets',
             description: 'Uma aba Explorar no botão Datasets, em classificação e detecção YOLO: distribuição por classe e split, galeria com miniaturas e varredura de integridade que pode ser cancelada. Também cria datasets novos ao incorporar imagens, juntar, refazer a divisão ou converter YOLO e COCO, sem alterar o original.',
-            mark: 'Novo na {version}',
+            mark: 'Novo na 0.22.0',
           },
           {
             title: 'Dataset do Google Drive no Colab',
             description: 'Um treino no Colab pode ler a pasta do dataset do Google Drive para desktop, sem upload, com a permissão dada pela interface a cada máquina. O pacote da execução também pode ser gravado no Drive.',
-            mark: 'Novo na {version}',
+            mark: 'Novo na 0.22.0',
             guide: 'docs/colab/',
           },
           {
