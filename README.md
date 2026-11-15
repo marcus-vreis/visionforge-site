@@ -59,7 +59,7 @@ Para atualizar uma versão:
 
 Os downloads são pacotes Python (`.whl` e `.tar.gz`), não instaladores autônomos. O `pip install visionforge-studio` é a instalação recomendada. Os metadados de download são um snapshot revisado; o link de releases permite consultar versões mais recentes.
 
-Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Os três guias de entrada (`/docs/comecando-do-zero/`, `/docs/ja-treino-modelos/` e `/docs/o-que-o-visionforge-faz/`) são gerados por `src/content/entry-guides.ts` a partir dos arquivos de `src/content/guias/`: os de `pt/` são cópias de `docs/guias/` do produto na tag publicada e os de `en/` são traduções deles. Para atualizar, copie os arquivos de novo, rode `python scripts/guide_images.py <checkout do VisionForge> <tag>` e revise as traduções.
+Os guias ficam em `/docs/`, `/docs/model/`, `/docs/task/` e `/docs/project/`, com equivalentes sob `/en/`. Os guias `/docs/colab/`, `/docs/publicar/` e `/docs/codigo/` ficam em `src/content/feature-guides.ts`. Os três guias de entrada (`/docs/comecando-do-zero/`, `/docs/ja-treino-modelos/` e `/docs/o-que-o-visionforge-faz/`) são gerados por `src/content/entry-guides.ts` a partir dos arquivos de `src/content/guias/`: os de `pt/` são cópias de `docs/guias/` do produto na tag publicada e os de `en/` são traduções deles. Para atualizar, copie os arquivos de novo, ajuste `TAG` em `scripts/guide_images.py`, rode `python scripts/guide_images.py` e revise as traduções.
 
 Para verificar exemplos contra o ambiente local do VisionForge, sem baixar datasets ou pesos e usando somente CPU:
 
