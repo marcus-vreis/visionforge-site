@@ -118,18 +118,8 @@ const readParagraph: Reader = (lines, index, { inline }) => {
 };
 const readers: Reader[] = [readHeading, readCode, readImage, readTable, readList, readParagraph];
 
-function parse(source: string, lang: Language, slug: Slug): Guide {
-  const label = `${slug} (${lang})`;
-  const home = `${import.meta.env.BASE_URL}${lang === 'pt' ? '' : 'en/'}`;
-  const anchors: string[] = [];
-  const link = (text: string, url: string) => {
-    if (url.startsWith('#')) anchors.push(url.slice(1));
-    return `<a href="${escape(resolve(url, home, label))}">${marks(escape(text))}</a>`;
-  };
-  const inline = (text: string) => spans(text).map(span => 'url' in span ? link(span.label, span.url) : marks(escape(span.text))).join('');
-  const context: Context = { label, inline };
-
-  const lines = source.replaceAll('\r\n', '\n').split('\n');
+/** Title, blocks before the first section and the sections of a file, in order. */
+function outline(lines: string[], context: Context): { title: string; intro: GuideBlock[]; sections: GuideSection[] } {
   let title = '';
   const intro: GuideBlock[] = [];
   const sections: GuideSection[] = [];
@@ -150,6 +140,20 @@ function parse(source: string, lang: Language, slug: Slug): Guide {
     target.push(read!.block);
     index = read!.next;
   }
+  return { title, intro, sections };
+}
+
+function parse(source: string, lang: Language, slug: Slug): Guide {
+  const label = `${slug} (${lang})`;
+  const home = `${import.meta.env.BASE_URL}${lang === 'pt' ? '' : 'en/'}`;
+  const anchors: string[] = [];
+  const link = (text: string, url: string) => {
+    if (url.startsWith('#')) anchors.push(url.slice(1));
+    return `<a href="${escape(resolve(url, home, label))}">${marks(escape(text))}</a>`;
+  };
+  const inline = (text: string) => spans(text).map(span => 'url' in span ? link(span.label, span.url) : marks(escape(span.text))).join('');
+  const lines = source.replaceAll('\r\n', '\n').split('\n');
+  const { title, intro, sections } = outline(lines, { label, inline });
 
   const opening = lines.slice(1).join('\n').trim().split('\n\n')[0].replaceAll('\n', ' ');
   const first = intro.shift();
