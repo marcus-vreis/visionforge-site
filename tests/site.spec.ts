@@ -460,7 +460,8 @@ test('landing: six workflow steps, exporters, Colab and release marks in both la
     for (const name of ['Zenodo', 'DVC', 'Hugging Face', 'MLflow', 'Weights & Biases', 'GitHub', 'Docker']) await expect(section).toContainText(name);
     // Every card carries the published version: either new in it or already there.
     const marks = await page.locator('#features [data-group=released] .feature-mark').allTextContents();
-    const fresh = language === 'pt' ? `Novo na ${release.version}` : `New in ${release.version}`;
+    // The features came with 0.22.0; a later patch keeps that label.
+    const fresh = language === 'pt' ? 'Novo na 0.22.0' : 'New in 0.22.0';
     const kept = `${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`;
     for (const mark of marks) expect([fresh, kept]).toContain(mark);
     await expect(section).not.toContainText(language === 'pt' ? 'em desenvolvimento' : 'in development');
@@ -493,8 +494,8 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         await expect(page.locator('link[hreflang=en]')).toHaveAttribute('href', urlFor('en', slug));
         await expect(page.locator('link[hreflang=x-default]')).toHaveAttribute('href', urlFor('pt', slug));
         // The three features are released: the mark is the published version, and the Colab guide also names the one that brought training.
-        await expect(page.locator('.guide-version')).toContainText(release.version);
-        if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText('0.21.0');
+        if (slug === 'colab') { await expect(page.locator('.guide-version')).toContainText('0.21.0'); await expect(page.locator('.guide-version')).toContainText('0.22.0'); }
+        else await expect(page.locator('.guide-version')).toHaveText(`v${release.version}`);
         await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', new RegExp(`/blob/v${release.version}/docs/gui/`));
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
         // The exporters still have no real capture; Colab and the Live code tab show one annotated capture each, in two themes.
@@ -515,7 +516,7 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
 
   test('Colab guide keeps the 0.21.0 and 0.22.0 boundary, and the Code guide quotes the real tour map', async ({ page }) => {
     await page.goto('docs/colab/');
-    await expect(page.locator('#drive')).toContainText(`desde a ${release.version}`);
+    await expect(page.locator('#drive')).toContainText('desde a 0.22.0');
     await expect(page.locator('#drive')).toContainText('Na 0.21.0');
     await page.goto('en/docs/codigo/');
     await expect(page.locator('article')).toContainText('"classification": CLASSIFICATION,');
@@ -574,6 +575,10 @@ test.describe('entry guides, one per reader (docs/guias of the product)', () => 
     await expect(page.locator('#c6-veja-um-treino-acontecer img')).toHaveAttribute('src', /vf-training-film\.gif$/);
     await page.goto('docs/ja-treino-modelos/');
     await expect(page.locator('#instalar-e-abrir pre')).toContainText('pip install visionforge-studio');
+    await expect(page.locator('#as-cinco-tarefas')).toContainText('A anomalia não tem split de validação');
+    await page.goto('en/docs/ja-treino-modelos/');
+    await expect(page.locator('#the-five-tasks')).toContainText('Anomaly has no validation split');
+    await page.goto('docs/ja-treino-modelos/');
     await page.locator('#onde-fica-o-que-voce-ja-faz a[href="#linha-de-comando"]').click();
     await expect(page).toHaveURL(/#linha-de-comando$/);
     for (const language of ['pt', 'en'] as const) {

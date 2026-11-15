@@ -125,7 +125,7 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Earlier releases',
     kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
-    intro: 'The published release is {version}. Cards marked "new in {version}" came with this release; the others were already there.',
+    intro: 'The published release is {version}, a patch over 0.22.0 with no new feature: the detail of a regression, segmentation or anomaly run now shows readable metric labels. Cards marked "new in 0.22.0" came with that release; the others were already there.',
     figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right.',
     groups: [
       {
@@ -135,30 +135,30 @@ export const copy: SiteCopy = {
           {
             title: 'Starting from zero',
             description: 'The first entry of the guide menu: a full-screen page for people who have never trained a model, with the concepts in eight chapters, figures and the recording of a training. The same text is in the guides of this site.',
-            mark: 'New in {version}',
+            mark: 'New in 0.22.0',
             guide: 'docs/comecando-do-zero/',
           },
           {
             title: 'Live code tab',
             description: 'Shows the run in steps and, beside them, the real functions that carry out each one, read from the installed package, with notes on the lines and the path your training settings follow marked. While training runs, the step in progress is marked. There is one tour per task.',
-            mark: 'New in {version}',
+            mark: 'New in 0.22.0',
             guide: 'docs/codigo/',
           },
           {
             title: 'Exporters from History',
             description: 'A Zenodo draft, DVC versioning, a private Hugging Face Hub repository, a report in a private GitHub repository, and tracking in local MLflow or Weights & Biases. Each upload shows a preview and uses a token saved per profile.',
-            mark: 'New in {version}',
+            mark: 'New in 0.22.0',
             guide: 'docs/publicar/',
           },
           {
             title: 'Dataset explorer',
             description: 'An Explore tab in the Datasets button, for classification and YOLO detection: distribution by class and split, a thumbnail gallery and an integrity scan that can be cancelled. It also creates new datasets by adding images, merging, re-splitting or converting YOLO and COCO, leaving the original untouched.',
-            mark: 'New in {version}',
+            mark: 'New in 0.22.0',
           },
           {
             title: 'Google Drive dataset on Colab',
             description: 'A Colab run can read the dataset folder from Google Drive for desktop, with no upload, with permission granted in the interface for each machine. The run bundle can also be saved to the Drive.',
-            mark: 'New in {version}',
+            mark: 'New in 0.22.0',
             guide: 'docs/colab/',
           },
           {
