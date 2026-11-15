@@ -21,7 +21,7 @@ export const copy: SiteCopy = {
     description: 'Classificação, detecção, regressão, segmentação e anomalia na mesma interface. Datasets e resultados ficam em pastas locais, e cada execução grava a configuração, a semente e o ambiente num run.json.',
     install: 'Ver guia de instalação',
     github: 'Código no GitHub',
-    development: '{planned} em desenvolvimento',
+    released: '{version} publicada em {date}',
     terminalLabel: 'Terminal · ambiente virtual ativo',
     terminalCaption: 'Comandos do guia de instalação. As saídas mostradas são o final que o guia documenta para doctor e selftest, e o endereço em que a interface abre.',
     replay: 'Repetir',
@@ -118,21 +118,49 @@ export const copy: SiteCopy = {
   },
   features: {
     eyebrow: 'Atualizações',
-    title: 'O que está sendo feito agora e o que já foi publicado',
+    title: 'O que entrou na versão publicada e nas anteriores',
     logTitle: 'Versões anteriores',
     logLink: 'Changelog completo',
     published: 'publicada em {date}',
-    tabPlanned: '{planned} · em desenvolvimento',
     tabReleased: '{version} · {date}',
-    tabEarlier: 'Série 0.20',
+    tabEarlier: 'Versões anteriores',
     kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
-    intro: 'A versão publicada é a {version}. Os recursos marcados com "a partir da {planned}" estão no ramo de desenvolvimento e ainda não foram lançados.',
-    figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita. Captura do ramo de desenvolvimento.',
+    intro: 'A versão publicada é a {version}. Os cartões marcados com "novo na {version}" entraram nesta versão; os demais já existiam.',
+    figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita.',
     groups: [
       {
         id: 'released',
         heading: 'Versão {version}',
         items: [
+          {
+            title: 'Começando do zero',
+            description: 'A primeira entrada do menu guia: uma página em tela cheia para quem nunca treinou um modelo, com os conceitos em oito capítulos, figuras e a gravação de um treino. O mesmo texto está nos guias deste site.',
+            mark: 'Novo na {version}',
+            guide: 'docs/comecando-do-zero/',
+          },
+          {
+            title: 'Aba Código ao vivo',
+            description: 'Mostra o treino em passos e, ao lado, as funções reais que executam cada um, lidas do pacote instalado, com notas nas linhas e o caminho que a configuração do treino segue marcado. Durante o treino, o passo em execução fica marcado. Há um roteiro por tarefa.',
+            mark: 'Novo na {version}',
+            guide: 'docs/codigo/',
+          },
+          {
+            title: 'Exportadores a partir do Histórico',
+            description: 'Rascunho no Zenodo, versionamento com DVC, repositório privado do Hugging Face Hub, relatório num repositório privado do GitHub, e acompanhamento no MLflow local ou no Weights & Biases. Cada envio mostra uma prévia e usa um token salvo por perfil.',
+            mark: 'Novo na {version}',
+            guide: 'docs/publicar/',
+          },
+          {
+            title: 'Explorador de datasets',
+            description: 'Uma aba Explorar no botão Datasets, em classificação e detecção YOLO: distribuição por classe e split, galeria com miniaturas e varredura de integridade que pode ser cancelada. Também cria datasets novos ao incorporar imagens, juntar, refazer a divisão ou converter YOLO e COCO, sem alterar o original.',
+            mark: 'Novo na {version}',
+          },
+          {
+            title: 'Dataset do Google Drive no Colab',
+            description: 'Um treino no Colab pode ler a pasta do dataset do Google Drive para desktop, sem upload, com a permissão dada pela interface a cada máquina. O pacote da execução também pode ser gravado no Drive.',
+            mark: 'Novo na {version}',
+            guide: 'docs/colab/',
+          },
           {
             title: 'Treino no Google Colab',
             description: 'Na classificação, o treino roda numa máquina do Colab com a sua conta Google, entra na mesma fila dos treinos locais e volta como execução do Histórico, marcada como Colab. A VM é liberada ao fim.',
@@ -153,35 +181,6 @@ export const copy: SiteCopy = {
             title: 'Docker',
             description: 'O repositório traz um Dockerfile e um docker-compose.yml para subir a interface em contêiner, com GPU NVIDIA ou só CPU. Datasets entram somente para leitura e outputs/ é gravado na pasta do host.',
             mark: 'Versão {version}',
-          },
-        ],
-      },
-      {
-        id: 'planned',
-        heading: 'Em desenvolvimento · {planned}',
-        items: [
-          {
-            title: 'Aba Código ao vivo',
-            description: 'Mostra o treino em passos e, ao lado, as funções reais que executam cada um, lidas do pacote instalado, com notas nas linhas e o caminho que a configuração do treino segue marcado. Durante o treino, o passo em execução fica marcado. Há um roteiro por tarefa.',
-            mark: 'A partir da {planned}',
-            guide: 'docs/codigo/',
-          },
-          {
-            title: 'Exportadores a partir do Histórico',
-            description: 'Rascunho no Zenodo, versionamento com DVC, repositório privado do Hugging Face Hub, relatório num repositório privado do GitHub, e acompanhamento no MLflow local ou no Weights & Biases. Cada envio mostra uma prévia e usa um token salvo por perfil.',
-            mark: 'A partir da {planned}',
-            guide: 'docs/publicar/',
-          },
-          {
-            title: 'Explorador de datasets',
-            description: 'Uma aba Explorar no botão Datasets, em classificação e detecção YOLO: distribuição por classe e split, galeria com miniaturas e varredura de integridade que pode ser cancelada. Também cria datasets novos ao incorporar imagens, juntar, refazer a divisão ou converter YOLO e COCO, sem alterar o original.',
-            mark: 'A partir da {planned}',
-          },
-          {
-            title: 'Dataset do Google Drive no Colab',
-            description: 'Um treino no Colab pode ler a pasta do dataset do Google Drive para desktop, sem upload, com a permissão dada pela interface a cada máquina. O pacote da execução também pode ser gravado no Drive.',
-            mark: 'A partir da {planned}',
-            guide: 'docs/colab/',
           },
         ],
       },
@@ -248,8 +247,23 @@ export const copy: SiteCopy = {
   resources: {
     eyebrow: 'Documentação',
     title: 'Guias e referências',
-    intro: 'A documentação técnica fica no repositório oficial do projeto.',
+    intro: 'Três guias de entrada, um por leitor, e a documentação técnica do repositório oficial do projeto.',
     items: [
+      {
+        title: 'Começando do zero',
+        description: 'Para quem nunca treinou um modelo: o que um treino faz, o que cada tela pede e o que os números do resultado querem dizer.',
+        path: 'docs/guias/comecando-do-zero.md',
+      },
+      {
+        title: 'Já treino modelos',
+        description: 'Para quem já escreve o próprio loop em PyTorch: onde fica o que você já faz e o que o projeto faz por você.',
+        path: 'docs/guias/ja-treino-modelos.md',
+      },
+      {
+        title: 'O que o VisionForge faz',
+        description: 'Tela por tela: o que cada funcionalidade é, para que serve e onde fica.',
+        path: 'docs/guias/o-que-o-visionforge-faz.md',
+      },
       {
         title: 'Início rápido',
         description: 'Passo a passo do primeiro treino, download de datasets e automação por CLI e arquivos YAML.',

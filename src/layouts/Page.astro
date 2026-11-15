@@ -9,7 +9,7 @@ import { release } from '../content/release';
 interface Props { copy: SiteCopy }
 const { copy } = Astro.props;
 const home = `${import.meta.env.BASE_URL}${copy.lang === 'en' ? 'en/' : ''}`;
-const resourceUrl = (path: string) => path === 'docs/QUICKSTART.md' ? `${home}docs/` : path === 'docs/custom/README.md' ? `${home}docs/task/` : `${release.repository}/blob/main/${path}`;
+const resourceUrl = (path: string) => path.startsWith('docs/guias/') ? `${home}docs/${path.slice(11, -3)}/` : path === 'docs/QUICKSTART.md' ? `${home}docs/` : path === 'docs/custom/README.md' ? `${home}docs/task/` : `${release.repository}/blob/main/${path}`;
 ---
 <Shell copy={copy}>
       <Showcase copy={copy} />

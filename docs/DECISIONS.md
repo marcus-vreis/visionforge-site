@@ -119,3 +119,20 @@ IBM Plex Sans sets headings and text and IBM Plex Mono the data, labels and comm
 **Reason:** Review of ADR-008's page: the tour's caption sat in a bar above the replica, far from what it described, and had to be started by hand; in the guides the explanation opened over the capture and hid part of it; the segmentation diagram was not understood.
 
 **Consequences:** Tests wait for CSS transitions to end before measuring contrast, because colours now cross-fade on theme and task changes. The tour's text is a second copy of the application's tour and must be rechecked with `studio.ts` on each release. On a viewport shorter than about 560 px the replica cannot be nine tenths on screen, so the tour only starts from the "guide" button there.
+
+## ADR-010: entry guides are the product's Markdown files, parsed at build time
+
+**Status:** accepted, 2026-11-15.
+
+**Context:** Release 0.22.0 added three entry guides to the product (`docs/guias/`), one per kind of reader. The site's guides were TypeScript objects written by hand, with no tables or plain screenshots.
+
+**Decision:**
+
+- The Portuguese files are copied unchanged into `src/content/guias/pt/`; the English ones are translations kept beside them. `src/content/entry-guides.ts` parses the subset of Markdown they use (headings, paragraphs, lists, tables, fenced code, images, bold, code spans, links) into typed blocks. No Markdown dependency was added.
+- Relative links are rewritten: another entry guide stays on the site, `docs/gui/colab.md` and `docs/gui/codigo.md` go to the site's own guides, everything else goes to the repository at the published tag. A link or image the parser does not know stops the build.
+- Screenshots come from the product's `docs/images/` at the same tag (`scripts/guide_images.py`). They exist only in Portuguese and in the dark theme; the English pages say so.
+- With 0.22.0 out, the "in development" group, its tab and `plannedVersion` are gone. Cards say "new in 0.22.0" or carry the published version.
+
+**Reason:** The request was to mirror the three files without writing new text. Copying them keeps the Portuguese pages identical to the product's documentation and makes the next update a file copy.
+
+**Consequences:** The English pages can drift from the Portuguese ones when the product files change; the translation has to be redone by hand. The screenshots of these pages do not follow the site's theme.

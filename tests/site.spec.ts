@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { release, plannedVersion } from '../src/content/release';
+import { release } from '../src/content/release';
 
 /** Waits for running CSS transitions (theme change, entrances) to end, so colours are read at rest. */
 const settle = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(item => item instanceof CSSTransition).map(item => item.finished.catch(() => undefined))).then(() => undefined));
@@ -221,7 +221,7 @@ test('tour stops light the right part, keep the card inside the replica and the 
   await expect(plain.locator('[data-studio-stage]')).toHaveCSS('opacity', '1');
   await expect(plain.locator('[data-tour]')).toBeHidden();
   for (const note of await plain.locator('.runjson .rj-note').all()) await expect(note).toBeVisible();
-  await expect(plain.locator('#features [data-updates-panel]:visible')).toHaveCount(3);
+  await expect(plain.locator('#features [data-updates-panel]:visible')).toHaveCount(2);
   await context.close();
 });
 
@@ -251,30 +251,30 @@ test('terminal session shows every line when motion is reduced and can be replay
   await expect(page.locator('.hero-terminal .t-line').last()).toBeHidden();
 });
 
-test('updates are tabs: development first, the release with its date, then the earlier series', async ({ page }) => {
+test('updates are tabs: the release with its date, then the earlier releases', async ({ page }) => {
   const versions: Record<string, string[]> = {};
   for (const language of ['pt', 'en'] as const) {
     await page.goto(language === 'pt' ? './' : './en/');
     const tabs = page.locator('#features [data-updates-tab]');
-    await expect(tabs).toHaveCount(3);
-    await expect(tabs.nth(0)).toContainText(plannedVersion);
-    await expect(tabs.nth(1)).toContainText(`${release.version} · ${release.releasedOn}`);
+    // Nothing is "in development" on the page once the release is out.
+    await expect(tabs).toHaveCount(2);
+    await expect(tabs.nth(0)).toContainText(`${release.version} · ${release.releasedOn}`);
     await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('#features [role=tabpanel]:visible')).toHaveCount(1);
-    await expect(page.locator('#updates-planned')).toBeVisible();
-    await tabs.nth(1).click();
     await expect(page.locator('#updates-released')).toBeVisible();
-    await expect(page.locator('#updates-planned')).toBeHidden();
-    await tabs.nth(1).focus();
+    await expect(page.locator('#updates-planned')).toHaveCount(0);
+    await expect(page.locator('.hero-live')).toContainText(release.version);
+    await tabs.nth(0).focus();
     await page.keyboard.press('ArrowRight');
-    await expect(tabs.nth(2)).toBeFocused();
+    await expect(tabs.nth(1)).toBeFocused();
     await expect(page.locator('#updates-earlier')).toBeVisible();
+    await expect(page.locator('#updates-released')).toBeHidden();
     versions[language] = await page.locator('.release-log .release-version').allTextContents();
     for (const entry of await page.locator('.release-log li p').all()) await expect(entry).not.toBeEmpty();
     await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
   }
   expect(versions.pt).toEqual(versions.en);
-  expect(versions.pt).toEqual(['0.20.2', '0.20.1', '0.20.0']);
+  expect(versions.pt).toEqual(['0.21.0', '0.21.0', '0.20.2', '0.20.1', '0.20.0']);
 });
 
 test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
@@ -451,18 +451,21 @@ test('twitter title and description mirror the page metadata', async ({ page }) 
   await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', (await page.locator('meta[name=description]').getAttribute('content'))!);
 });
 
-test('landing: six workflow steps, exporters, Colab and planned marks in both languages (issue 219)', async ({ page }) => {
-  const shape: Record<string, { steps: number; cards: number; planned: number }> = {};
+test('landing: six workflow steps, exporters, Colab and release marks in both languages (issue 219)', async ({ page }) => {
+  const shape: Record<string, { steps: number; cards: number; fresh: number }> = {};
   for (const language of ['pt', 'en'] as const) {
     await page.goto(language === 'pt' ? './' : './en/');
     const section = page.locator('#features');
     await expect(section).toContainText('Colab');
     for (const name of ['Zenodo', 'DVC', 'Hugging Face', 'MLflow', 'Weights & Biases', 'GitHub', 'Docker']) await expect(section).toContainText(name);
-    const planned = page.locator('#features [data-group=planned] .feature-card');
-    const mark = language === 'pt' ? `A partir da ${plannedVersion}` : `From ${plannedVersion}`;
-    for (const card of await planned.all()) await expect(card.locator('.feature-mark')).toHaveText(mark);
-    await expect(page.locator('#features [data-group=released] .feature-mark').first()).toHaveText(`${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`);
-    shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), planned: await planned.count() };
+    // Every card carries the published version: either new in it or already there.
+    const marks = await page.locator('#features [data-group=released] .feature-mark').allTextContents();
+    const fresh = language === 'pt' ? `Novo na ${release.version}` : `New in ${release.version}`;
+    const kept = `${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`;
+    for (const mark of marks) expect([fresh, kept]).toContain(mark);
+    await expect(section).not.toContainText(language === 'pt' ? 'em desenvolvimento' : 'in development');
+    shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), fresh: marks.filter(mark => mark === fresh).length };
+    expect(shape[language].fresh).toBe(5);
     expect(shape[language].steps).toBe(6);
     for (const theme of ['dark', 'light']) {
       await page.locator(`[data-theme-option=${theme}]`).click();
@@ -489,10 +492,10 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
         await expect(page.locator('link[hreflang=pt-BR]')).toHaveAttribute('href', urlFor('pt', slug));
         await expect(page.locator('link[hreflang=en]')).toHaveAttribute('href', urlFor('en', slug));
         await expect(page.locator('link[hreflang=x-default]')).toHaveAttribute('href', urlFor('pt', slug));
-        // Unreleased features say so; the Colab guide also names the version that already has training.
-        await expect(page.locator('.guide-version')).toContainText(plannedVersion);
-        if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText(release.version);
-        await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', /\/blob\/development\/docs\/gui\//);
+        // The three features are released: the mark is the published version, and the Colab guide also names the one that brought training.
+        await expect(page.locator('.guide-version')).toContainText(release.version);
+        if (slug === 'colab') await expect(page.locator('.guide-version')).toContainText('0.21.0');
+        await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', new RegExp(`/blob/v${release.version}/docs/gui/`));
         for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
         // The exporters still have no real capture; Colab and the Live code tab show one annotated capture each, in two themes.
         await expect(page.locator('article img')).toHaveCount(slug === 'publicar' ? 0 : 2);
@@ -510,11 +513,72 @@ test.describe('Colab, publishing and Code guides (issue 222)', () => {
     for (const slug of slugs) await expect(page.locator(`.docs-sidebar a[href$="/docs/${slug}/"]`)).toHaveCount(1);
   });
 
-  test('Colab guide keeps the 0.21.0 and 0.22 boundary, and the Code guide quotes the real tour map', async ({ page }) => {
+  test('Colab guide keeps the 0.21.0 and 0.22.0 boundary, and the Code guide quotes the real tour map', async ({ page }) => {
     await page.goto('docs/colab/');
-    await expect(page.locator('#drive')).toContainText(`a partir da ${plannedVersion}`);
+    await expect(page.locator('#drive')).toContainText(`desde a ${release.version}`);
+    await expect(page.locator('#drive')).toContainText('Na 0.21.0');
     await page.goto('en/docs/codigo/');
     await expect(page.locator('article')).toContainText('"classification": CLASSIFICATION,');
     await expect(page.locator('article')).toContainText('nn.BCEWithLogitsLoss()');
+  });
+});
+
+test.describe('entry guides, one per reader (docs/guias of the product)', () => {
+  const slugs = ['comecando-do-zero', 'ja-treino-modelos', 'o-que-o-visionforge-faz'] as const;
+  const titles = { pt: ['Começando do zero', 'Já treino modelos: o VisionForge em dez minutos', 'O que o VisionForge faz'], en: ['Starting from zero', 'I already train models: VisionForge in ten minutes', 'What VisionForge does'] };
+  // Sections and screenshots of each Markdown file; a guide that loses one fails here.
+  const shape = { 'comecando-do-zero': { sections: 8, images: 5, tables: 10 }, 'ja-treino-modelos': { sections: 8, images: 2, tables: 4 }, 'o-que-o-visionforge-faz': { sections: 10, images: 15, tables: 2 } };
+
+  for (const [index, slug] of slugs.entries()) {
+    test(`/docs/${slug}/ renders the whole file in both languages`, async ({ page, request }) => {
+      for (const language of ['pt', 'en'] as const) {
+        const errors: string[] = [];
+        page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+        const prefix = language === 'en' ? 'en/' : '';
+        const response = await page.goto(`${prefix}docs/${slug}/`);
+        expect(response?.status()).toBe(200);
+        await expect(page.locator('h1')).toHaveText(titles[language][index]);
+        await expect(page.locator('.guide-version')).toHaveText(`v${release.version}`);
+        await expect(page.locator('.guide-sources a').first()).toHaveAttribute('href', `${release.repository}/blob/v${release.version}/docs/guias/${slug}.md`);
+        await expect(page.locator('.docs-entries a')).toHaveCount(3);
+        await expect(page.locator('.docs-sidebar a[aria-current=page]')).toHaveCount(1);
+        await expect(page.locator('article .guide-section')).toHaveCount(shape[slug].sections);
+        await expect(page.locator('article .guide-shot img')).toHaveCount(shape[slug].images);
+        await expect(page.locator('article .guide-table')).toHaveCount(shape[slug].tables);
+        for (const anchor of await page.locator('.docs-toc a').all()) await expect(page.locator((await anchor.getAttribute('href'))!)).toHaveCount(1);
+        // Links inside the text: other entry guides stay on the site, the rest goes to the tagged repository or out.
+        const hrefs = await page.locator('article .guide-section a, article .guide-intro a').evaluateAll(links => links.map(link => link.getAttribute('href') ?? ''));
+        for (const href of hrefs) expect(href).toMatch(new RegExp(`^(#|https?://|/visionforge-site/${prefix}docs/)`));
+        expect(hrefs.filter(href => href.includes('/blob/')).every(href => href.includes(`/blob/v${release.version}/docs/`))).toBe(true);
+        expect(hrefs.some(href => href.endsWith('.md') && !href.startsWith('http'))).toBe(false);
+        for (const href of hrefs.filter(item => item.startsWith('#'))) await expect(page.locator(href)).toHaveCount(1);
+        await page.locator('img').evaluateAll(images => images.forEach(img => { (img as HTMLImageElement).loading = 'eager'; }));
+        await expect.poll(() => page.locator('img').evaluateAll(images => images.every(node => { const img = node as HTMLImageElement; return img.complete && img.naturalWidth > 0; }))).toBe(true);
+        const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+        expect(result.violations).toEqual([]);
+        expect(errors).toEqual([]);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+      }
+      const sitemap = await (await request.get('sitemap-0.xml')).text();
+      expect(sitemap).toContain(`<loc>https://marcus-vreis.github.io/visionforge-site/docs/${slug}/</loc>`);
+      expect(sitemap).toContain(`<loc>https://marcus-vreis.github.io/visionforge-site/en/docs/${slug}/</loc>`);
+    });
+  }
+
+  test('the Portuguese pages carry the text of the product files, and the landing lists the three guides', async ({ page }) => {
+    await page.goto('docs/comecando-do-zero/');
+    await expect(page.locator('#c1-o-que-e-treinar-um-modelo')).toContainText('Ninguém escreve as regras dessa resposta.');
+    await expect(page.locator('#c5-o-resultado-quanto-o-modelo-acerta')).toContainText('18 + 16 + 17 = 51 em 60, acurácia de 85%');
+    // The recording stays an animation, with a still for people who ask for less motion.
+    await expect(page.locator('#c6-veja-um-treino-acontecer picture source')).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
+    await expect(page.locator('#c6-veja-um-treino-acontecer img')).toHaveAttribute('src', /vf-training-film\.gif$/);
+    await page.goto('docs/ja-treino-modelos/');
+    await expect(page.locator('#instalar-e-abrir pre')).toContainText('pip install visionforge-studio');
+    await page.locator('#onde-fica-o-que-voce-ja-faz a[href="#linha-de-comando"]').click();
+    await expect(page).toHaveURL(/#linha-de-comando$/);
+    for (const language of ['pt', 'en'] as const) {
+      await page.goto(language === 'pt' ? './' : './en/');
+      for (const slug of slugs) await expect(page.locator(`#resources .link-list a[href$="/docs/${slug}/"]`)).toHaveCount(1);
+    }
   });
 });

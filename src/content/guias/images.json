@@ -1,0 +1,83 @@
+{
+  "vf-classification.png": {
+    "file": "vf-classification.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-code-tab.png": {
+    "file": "vf-code-tab.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-colab.png": {
+    "file": "vf-colab.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-datasets-explorer.png": {
+    "file": "vf-datasets-explorer.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-guide-menu.png": {
+    "file": "vf-guide-menu.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-learn-curves.png": {
+    "file": "vf-learn-curves.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-learn.png": {
+    "file": "vf-learn.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-preprocessing.png": {
+    "file": "vf-preprocessing.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-replicates.png": {
+    "file": "vf-replicates.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-results.png": {
+    "file": "vf-results.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-review.png": {
+    "file": "vf-review.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-run-detail.png": {
+    "file": "vf-run-detail.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-strategy.png": {
+    "file": "vf-strategy.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-training-film.gif": {
+    "file": "vf-training-film.gif",
+    "still": "vf-training-film-still.webp",
+    "width": 640,
+    "height": 427
+  },
+  "vf-training.png": {
+    "file": "vf-training.webp",
+    "width": 1440,
+    "height": 960
+  },
+  "vf-transfer.png": {
+    "file": "vf-transfer.webp",
+    "width": 1440,
+    "height": 960
+  }
+}

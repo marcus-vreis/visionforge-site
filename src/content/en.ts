@@ -21,7 +21,7 @@ export const copy: SiteCopy = {
     description: 'Classification, detection, regression, segmentation and anomaly detection in one interface. Datasets and results stay in local folders, and every run writes its configuration, seed and environment to a run.json.',
     install: 'View install guide',
     github: 'GitHub repository',
-    development: '{planned} in development',
+    released: '{version} released on {date}',
     terminalLabel: 'Terminal · virtual environment active',
     terminalCaption: 'Commands from the install guide. The output shown is the ending the guide documents for doctor and selftest, and the address where the interface opens.',
     replay: 'Replay',
@@ -118,21 +118,49 @@ export const copy: SiteCopy = {
   },
   features: {
     eyebrow: 'Updates',
-    title: 'What is being built now and what has been released',
+    title: 'What came with the published release and the earlier ones',
     logTitle: 'Earlier versions',
     logLink: 'Full changelog',
     published: 'released on {date}',
-    tabPlanned: '{planned} · in development',
     tabReleased: '{version} · {date}',
-    tabEarlier: '0.20 series',
+    tabEarlier: 'Earlier releases',
     kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
-    intro: 'The published release is {version}. Features marked "from {planned}" are on the development branch and have not been released yet.',
-    figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right. Captured from the development branch.',
+    intro: 'The published release is {version}. Cards marked "new in {version}" came with this release; the others were already there.',
+    figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right.',
     groups: [
       {
         id: 'released',
         heading: 'Version {version}',
         items: [
+          {
+            title: 'Starting from zero',
+            description: 'The first entry of the guide menu: a full-screen page for people who have never trained a model, with the concepts in eight chapters, figures and the recording of a training. The same text is in the guides of this site.',
+            mark: 'New in {version}',
+            guide: 'docs/comecando-do-zero/',
+          },
+          {
+            title: 'Live code tab',
+            description: 'Shows the run in steps and, beside them, the real functions that carry out each one, read from the installed package, with notes on the lines and the path your training settings follow marked. While training runs, the step in progress is marked. There is one tour per task.',
+            mark: 'New in {version}',
+            guide: 'docs/codigo/',
+          },
+          {
+            title: 'Exporters from History',
+            description: 'A Zenodo draft, DVC versioning, a private Hugging Face Hub repository, a report in a private GitHub repository, and tracking in local MLflow or Weights & Biases. Each upload shows a preview and uses a token saved per profile.',
+            mark: 'New in {version}',
+            guide: 'docs/publicar/',
+          },
+          {
+            title: 'Dataset explorer',
+            description: 'An Explore tab in the Datasets button, for classification and YOLO detection: distribution by class and split, a thumbnail gallery and an integrity scan that can be cancelled. It also creates new datasets by adding images, merging, re-splitting or converting YOLO and COCO, leaving the original untouched.',
+            mark: 'New in {version}',
+          },
+          {
+            title: 'Google Drive dataset on Colab',
+            description: 'A Colab run can read the dataset folder from Google Drive for desktop, with no upload, with permission granted in the interface for each machine. The run bundle can also be saved to the Drive.',
+            mark: 'New in {version}',
+            guide: 'docs/colab/',
+          },
           {
             title: 'Training on Google Colab',
             description: 'In classification, training runs on a Colab machine under your Google account, joins the same queue as local runs and comes back as a History run marked Colab. The VM is released when the job ends.',
@@ -153,35 +181,6 @@ export const copy: SiteCopy = {
             title: 'Docker',
             description: 'The repository ships a Dockerfile and a docker-compose.yml to start the interface in a container, with an NVIDIA GPU or CPU only. Datasets are mounted read-only and outputs/ is written to a host folder.',
             mark: 'Version {version}',
-          },
-        ],
-      },
-      {
-        id: 'planned',
-        heading: 'In development · {planned}',
-        items: [
-          {
-            title: 'Live code tab',
-            description: 'Shows the run in steps and, beside them, the real functions that carry out each one, read from the installed package, with notes on the lines and the path your training settings follow marked. While training runs, the step in progress is marked. There is one tour per task.',
-            mark: 'From {planned}',
-            guide: 'docs/codigo/',
-          },
-          {
-            title: 'Exporters from History',
-            description: 'A Zenodo draft, DVC versioning, a private Hugging Face Hub repository, a report in a private GitHub repository, and tracking in local MLflow or Weights & Biases. Each upload shows a preview and uses a token saved per profile.',
-            mark: 'From {planned}',
-            guide: 'docs/publicar/',
-          },
-          {
-            title: 'Dataset explorer',
-            description: 'An Explore tab in the Datasets button, for classification and YOLO detection: distribution by class and split, a thumbnail gallery and an integrity scan that can be cancelled. It also creates new datasets by adding images, merging, re-splitting or converting YOLO and COCO, leaving the original untouched.',
-            mark: 'From {planned}',
-          },
-          {
-            title: 'Google Drive dataset on Colab',
-            description: 'A Colab run can read the dataset folder from Google Drive for desktop, with no upload, with permission granted in the interface for each machine. The run bundle can also be saved to the Drive.',
-            mark: 'From {planned}',
-            guide: 'docs/colab/',
           },
         ],
       },
@@ -248,8 +247,23 @@ export const copy: SiteCopy = {
   resources: {
     eyebrow: 'Documentation',
     title: 'Guides and references',
-    intro: 'The technical documentation lives in the project\'s official repository.',
+    intro: 'Three entry guides, one per reader, and the technical documentation of the project\'s official repository.',
     items: [
+      {
+        title: 'Starting from zero',
+        description: 'For people who have never trained a model: what a training does, what each screen asks for and what the numbers in the result mean.',
+        path: 'docs/guias/comecando-do-zero.md',
+      },
+      {
+        title: 'I already train models',
+        description: 'For people who already write their own loop in PyTorch: where the things you already do are and what the project does for you.',
+        path: 'docs/guias/ja-treino-modelos.md',
+      },
+      {
+        title: 'What VisionForge does',
+        description: 'Screen by screen: what each feature is, what it is for and where it is.',
+        path: 'docs/guias/o-que-o-visionforge-faz.md',
+      },
       {
         title: 'Quickstart',
         description: 'Walkthrough of the first training run, dataset downloads, and automation through the CLI and YAML configs.',

@@ -2,7 +2,7 @@ import type { Language } from './types';
 
 type Text = Record<Language, string>;
 
-/** One task of the simplified interface: labels, colours and defaults read from the product's frontend on the development branch (commit b5ae08a, 2026-11-14). */
+/** One task of the simplified interface: labels, colours and defaults read from the product's frontend (development branch at 5e3bcba, 2026-11-14, released as 0.22.0). */
 export interface StudioTask {
   id: 'classification' | 'detection' | 'regression' | 'segmentation' | 'anomaly';
   /** Chip and breadcrumb value shown by the application. */
@@ -131,7 +131,7 @@ export const studioText = {
   lockedStep: { pt: 'Abra a etapa Revisão para liberar o Treinar', en: 'Open the Review step to enable Train' },
   lockedData: { pt: 'Escolha o dataset na etapa Dados para liberar o Treinar', en: 'Choose the dataset in the Data step to enable Train' },
   // Words of the replica itself, not of the application.
-  demo: { pt: 'Demonstração simplificada da interface do ramo de desenvolvimento, conferida em 14/11/2026; a versão publicada é a {version}. Não treina nem lê arquivos.', en: 'A simplified demonstration of the interface on the development branch, checked on 2026-11-14; the published release is {version}. It does not train or read files.' },
+  demo: { pt: 'Demonstração simplificada da interface da versão {version}. Não treina nem lê arquivos.', en: 'A simplified demonstration of the interface of release {version}. It does not train or read files.' },
   trained: { pt: 'Na aplicação, o treino começa aqui: a tela passa a mostrar o log, as curvas por época e a aba Código ao vivo, e Ver resultados abre a execução no Histórico. Esta demonstração para neste ponto.', en: 'In the application, training starts here: the screen switches to the log, the per-epoch curves and the Live code tab, and View results opens the run in History. This demonstration stops at this point.' },
   tourLabel: { pt: 'Roteiro da interface', en: 'Interface tour' },
   tourEyebrow: { pt: 'roteiro', en: 'tour' },
