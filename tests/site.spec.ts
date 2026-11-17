@@ -274,7 +274,7 @@ test('updates are tabs: the release with its date, then the earlier releases', a
     await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
   }
   expect(versions.pt).toEqual(versions.en);
-  expect(versions.pt).toEqual(['0.21.0', '0.21.0', '0.20.2', '0.20.1', '0.20.0']);
+  expect(versions.pt).toEqual(['0.22.1', '0.21.0', '0.21.0', '0.20.2', '0.20.1', '0.20.0']);
 });
 
 test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
@@ -460,10 +460,13 @@ test('landing: six workflow steps, exporters, Colab and release marks in both la
     for (const name of ['Zenodo', 'DVC', 'Hugging Face', 'MLflow', 'Weights & Biases', 'GitHub', 'Docker']) await expect(section).toContainText(name);
     // Every card carries the published version: either new in it or already there.
     const marks = await page.locator('#features [data-group=released] .feature-mark').allTextContents();
-    // The features came with 0.22.0; a later patch keeps that label.
+    // A card keeps the release that brought its feature; a later patch does not relabel it.
     const fresh = language === 'pt' ? 'Novo na 0.22.0' : 'New in 0.22.0';
+    const latest = language === 'pt' ? 'Novo na 0.22.2' : 'New in 0.22.2';
     const kept = `${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`;
-    for (const mark of marks) expect([fresh, kept]).toContain(mark);
+    for (const mark of marks) expect([fresh, latest, kept]).toContain(mark);
+    expect(marks.filter(mark => mark === latest)).toHaveLength(1);
+    await expect(section).toContainText('visionforge reproduce');
     await expect(section).not.toContainText(language === 'pt' ? 'em desenvolvimento' : 'in development');
     shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), fresh: marks.filter(mark => mark === fresh).length };
     expect(shape[language].fresh).toBe(5);
@@ -576,8 +579,10 @@ test.describe('entry guides, one per reader (docs/guias of the product)', () => 
     await page.goto('docs/ja-treino-modelos/');
     await expect(page.locator('#instalar-e-abrir pre')).toContainText('pip install visionforge-studio');
     await expect(page.locator('#as-cinco-tarefas')).toContainText('A anomalia não tem split de validação');
+    await expect(page.locator('#linha-de-comando')).toContainText('visionforge reproduce destino.zip');
     await page.goto('en/docs/ja-treino-modelos/');
     await expect(page.locator('#the-five-tasks')).toContainText('Anomaly has no validation split');
+    await expect(page.locator('#command-line')).toContainText('visionforge reproduce target.zip');
     await page.goto('docs/ja-treino-modelos/');
     await page.locator('#onde-fica-o-que-voce-ja-faz a[href="#linha-de-comando"]').click();
     await expect(page).toHaveURL(/#linha-de-comando$/);

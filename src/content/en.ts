@@ -125,13 +125,18 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Earlier releases',
     kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
-    intro: 'The published release is {version}, a patch over 0.22.0 with no new feature: the detail of a regression, segmentation or anomaly run now shows readable metric labels. Cards marked "new in 0.22.0" came with that release; the others were already there.',
+    intro: 'The published release is {version}. Each card says which release brought the feature; the ones marked only with the published version were there before 0.22.0. {version} also drops the cu118, cu121 and cu124 extras: the torch install options are now cpu, cu126, cu128 and cu130.',
     figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right.',
     groups: [
       {
         id: 'released',
         heading: 'Version {version}',
         items: [
+          {
+            title: 'visionforge reproduce',
+            description: 'Retrains one seed of a verified experiment bundle, on a local copy of the dataset, and compares it with what the bundle recorded. In a group of replicates, the verdict uses the 95% prediction interval of a new seed, not the 95% CI of the mean.',
+            mark: 'New in 0.22.2',
+          },
           {
             title: 'Starting from zero',
             description: 'The first entry of the guide menu: a full-screen page for people who have never trained a model, with the concepts in eight chapters, figures and the recording of a training. The same text is in the guides of this site.',

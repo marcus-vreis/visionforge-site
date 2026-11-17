@@ -125,13 +125,18 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Versões anteriores',
     kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
-    intro: 'A versão publicada é a {version}, uma correção sobre a 0.22.0, sem funcionalidade nova: o detalhe de uma execução de regressão, segmentação ou anomalia passa a mostrar rótulos legíveis das métricas. Os cartões marcados com "novo na 0.22.0" entraram naquela versão; os demais já existiam.',
+    intro: 'A versão publicada é a {version}. Cada cartão diz em que versão o recurso entrou; os marcados só com a versão publicada já existiam antes da 0.22.0. A {version} também retira os extras cu118, cu121 e cu124: as opções de instalação do torch passam a ser cpu, cu126, cu128 e cu130.',
     figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita.',
     groups: [
       {
         id: 'released',
         heading: 'Versão {version}',
         items: [
+          {
+            title: 'visionforge reproduce',
+            description: 'Retreina uma semente de um pacote de experimento verificado, numa cópia local do dataset, e compara com o que o pacote registrou. Num grupo de réplicas, o veredito usa o intervalo de predição de 95% de uma semente nova, não o IC 95% da média.',
+            mark: 'Novo na 0.22.2',
+          },
           {
             title: 'Começando do zero',
             description: 'A primeira entrada do menu guia: uma página em tela cheia para quem nunca treinou um modelo, com os conceitos em oito capítulos, figuras e a gravação de um treino. O mesmo texto está nos guias deste site.',
