@@ -7,6 +7,12 @@ updates:
     groups:
       development:
         dependency-type: development
+    ignore:
+      # @astrojs/check 0.9.12, the latest on 2026-11-17, declares the peer
+      # typescript ^5.0.0 || ^6.0.0, so `npm ci` fails with ERESOLVE on
+      # TypeScript 7. Remove this entry when @astrojs/check accepts TypeScript 7.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
