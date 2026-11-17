@@ -177,6 +177,9 @@ and the other libraries, GPU, git commit).
   The strategies (replicates, comparison, sweep, K-fold) also run this way.
 - `visionforge bundle` and `visionforge verify-bundle` generate and check a ZIP
   with `run.json` and artifacts, with the SHA-256 of each file.
+- `visionforge reproduce` retrains one seed of that ZIP and says whether the
+  result falls within the 95% prediction interval of one seed, computed from
+  the recorded replicates.
 
 How to use: [`../REPRODUCIBILITY.md`](../REPRODUCIBILITY.md) and
 [`../QUICKSTART.md`](../QUICKSTART.md).

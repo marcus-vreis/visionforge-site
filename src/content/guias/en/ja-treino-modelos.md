@@ -121,9 +121,10 @@ autoencoder and PatchCore. Layouts and download providers:
 | `visionforge audit-data FOLDER` | looks for exact duplicates across splits, unreadable images and, with `--groups`, groups that cross splits |
 | `visionforge bundle RUN target.zip` | exports the run with a manifest of hashes |
 | `visionforge verify-bundle target.zip` | checks the manifest without extracting the ZIP |
+| `visionforge reproduce target.zip` | retrains one seed of the bundle and checks whether it falls within the 95% prediction interval of the replicates (`--data`, `--seed`, `--output`) |
 | `visionforge new-task KEY` | creates `user_tasks/KEY.py`, a task of yours that already trains |
 
-`run` and `gui` accept `--offline`, which refuses every connection out of the
+`run`, `gui` and `reproduce` accept `--offline`, which refuses every connection out of the
 computer. `visionforge run --help` lists the options of each strategy, and the
 format of each one is in [`../QUICKSTART.md`](../QUICKSTART.md), section 5.
 
