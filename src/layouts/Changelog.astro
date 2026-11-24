@@ -1,0 +1,48 @@
+---
+import Shell from './Shell.astro';
+import { getEntry, render } from 'astro:content';
+import { guides } from '../content/guides';
+import { copy as ptCopy } from '../content/pt';
+import { copy as enCopy } from '../content/en';
+import { release } from '../content/release';
+import '../styles/guides.css';
+interface Props { lang: 'pt' | 'en' }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const copy = pt ? ptCopy : enCopy;
+const home = `${import.meta.env.BASE_URL}${pt ? '' : 'en/'}`;
+const siblings = guides.filter(item => item.lang === lang);
+const link = (slug: string) => `${home}docs/${slug ? `${slug}/` : ''}`;
+const entry = (await getEntry('changelog', release.version))!;
+const { Content, headings } = await render(entry);
+const versions = headings.filter(heading => heading.depth === 2 && heading.text.startsWith('['));
+const title = 'Changelog';
+const description = pt ? `Histórico de mudanças do VisionForge, na versão v${release.version}.` : `VisionForge change history, as of v${release.version}.`;
+---
+<Shell copy={copy} title={`${title} | VisionForge`} description={description} route="docs/changelog/">
+  <div class="container docs-layout">
+    <aside class="docs-sidebar">
+      <a class="docs-home" href={home}>← {pt ? 'Apresentação' : 'Overview'}</a>
+      <nav aria-label={pt ? 'Documentação' : 'Documentation'}>
+        <span class="eyebrow">{pt ? 'Documentação' : 'Documentation'}</span>
+        {siblings.map(item => <a href={link(item.slug)}>{item.title}</a>)}
+        <a href={link('changelog')} aria-current="page">{title}</a>
+      </nav>
+      <nav class="docs-toc" aria-label={pt ? 'Versões' : 'Versions'}>
+        <span class="eyebrow">{pt ? 'Versões' : 'Versions'}</span>
+        {versions.map(heading => <a href={`#${heading.slug}`}>{heading.text.replace(/^\[|\]/g, '').replace(' — ', ' · ')}</a>)}
+      </nav>
+    </aside>
+    <article class="guide-article changelog">
+      <header class="guide-header">
+        <span class="eyebrow">VisionForge / {pt ? 'Documentação' : 'Documentation'}</span>
+        <h1>{title}</h1>
+        <p class="guide-lede">{description}</p>
+        <p class="guide-version">v{release.version}</p>
+      </header>
+      {!pt && <aside class="notice"><p>The changelog is the product's CHANGELOG.md, written in Portuguese; this page shows it as published.</p></aside>}
+      <Content />
+      <footer class="guide-sources"><p>{pt ? 'Referência do projeto' : 'Project reference'}: <a href={`${release.repository}/blob/v${release.version}/CHANGELOG.md`}>CHANGELOG.md ↗</a></p></footer>
+    </article>
+  </div>
+</Shell>

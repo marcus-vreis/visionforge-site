@@ -87,7 +87,7 @@ const structuredData = JSON.stringify({
       <slot />
     </main>
     <footer class="site-footer"><div class="container">
-      <div class="footer-top"><div><a class="brand" href={home}><span>Vision<b>Forge</b></span></a><p>{copy.footer.description}</p></div><div class="footer-links"><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={release.repository}>GitHub</a><a href={release.pypi}>PyPI</a><a href={release.latest}>{copy.footer.release}</a><a href={`${release.repository}/blob/main/LICENSE`}>MIT</a></div></div>
+      <div class="footer-top"><div><a class="brand" href={home}><span>Vision<b>Forge</b></span></a><p>{copy.footer.description}</p></div><div class="footer-links"><a href={`${home}docs/`}>{copy.nav.docs}</a><a href={`${home}docs/changelog/`}>Changelog</a><a href={release.repository}>GitHub</a><a href={release.pypi}>PyPI</a><a href={release.latest}>{copy.footer.release}</a><a href={`${release.repository}/blob/main/LICENSE`}>MIT</a></div></div>
       <div class="footer-bottom"><p>{copy.footer.made} <a href="https://github.com/marcus-vreis">Marcus Reis</a></p><a href={release.websiteRepository}>{copy.footer.source} ↗</a><p>© {new Date().getFullYear()} VisionForge</p></div>
     </div></footer>
   </body>
