@@ -274,7 +274,7 @@ test('updates are tabs: the release with its date, then the earlier releases', a
     await expect(page.locator('.release-log a')).toHaveAttribute('href', release.changelog);
   }
   expect(versions.pt).toEqual(versions.en);
-  expect(versions.pt).toEqual(['0.22.1', '0.21.0', '0.21.0', '0.20.2', '0.20.1', '0.20.0']);
+  expect(versions.pt).toEqual(['0.22.3', '0.22.2', '0.22.2', '0.22.1', '0.21.0', '0.21.0', '0.20.2', '0.20.1', '0.20.0']);
 });
 
 test('section links stay reachable on a phone-sized viewport', async ({ page }) => {
@@ -462,11 +462,15 @@ test('landing: six workflow steps, exporters, Colab and release marks in both la
     const marks = await page.locator('#features [data-group=released] .feature-mark').allTextContents();
     // A card keeps the release that brought its feature; a later patch does not relabel it.
     const fresh = language === 'pt' ? 'Novo na 0.22.0' : 'New in 0.22.0';
-    const latest = language === 'pt' ? 'Novo na 0.22.2' : 'New in 0.22.2';
+    const patch = language === 'pt' ? 'Novo na 0.22.2' : 'New in 0.22.2';
+    const latest = language === 'pt' ? 'Novo na 0.23.0' : 'New in 0.23.0';
     const kept = `${language === 'pt' ? 'Versão' : 'Version'} ${release.version}`;
-    for (const mark of marks) expect([fresh, latest, kept]).toContain(mark);
-    expect(marks.filter(mark => mark === latest)).toHaveLength(1);
+    for (const mark of marks) expect([fresh, patch, latest, kept]).toContain(mark);
+    expect(marks.filter(mark => mark === patch)).toHaveLength(1);
+    expect(marks.filter(mark => mark === latest)).toHaveLength(2);
     await expect(section).toContainText('visionforge reproduce');
+    await expect(section).toContainText(language === 'pt' ? 'Modo servidor (experimental)' : 'Shared server mode (experimental)');
+    await expect(section).toContainText('cross_validation.select_on');
     await expect(section).not.toContainText(language === 'pt' ? 'em desenvolvimento' : 'in development');
     shape[language] = { steps: await page.locator('#workflow .step').count(), cards: await page.locator('#features .feature-card').count(), fresh: marks.filter(mark => mark === fresh).length };
     expect(shape[language].fresh).toBe(5);
@@ -569,6 +573,15 @@ test.describe('entry guides, one per reader (docs/guias of the product)', () => 
     });
   }
 
+  test('Ultralytics comes with the package: no guide calls it optional or sends readers to a detection extra', async ({ page }) => {
+    for (const [path, said] of [['docs/o-que-o-visionforge-faz/', 'já vem instalado'], ['en/docs/o-que-o-visionforge-faz/', 'comes installed'], ['docs/comecando-do-zero/', 'vem instalado com o VisionForge'], ['en/docs/comecando-do-zero/', 'comes installed with VisionForge']]) {
+      await page.goto(path);
+      const text = await page.locator('main').innerText();
+      expect(text).toContain(said);
+      expect(text).not.toMatch(/extra `?detection|installed separately|se instala à parte/);
+    }
+  });
+
   test('the Portuguese pages carry the text of the product files, and the landing lists the three guides', async ({ page }) => {
     await page.goto('docs/comecando-do-zero/');
     await expect(page.locator('#c1-o-que-e-treinar-um-modelo')).toContainText('Ninguém escreve as regras dessa resposta.');
@@ -583,6 +596,7 @@ test.describe('entry guides, one per reader (docs/guias of the product)', () => 
     await page.goto('en/docs/ja-treino-modelos/');
     await expect(page.locator('#the-five-tasks')).toContainText('Anomaly has no validation split');
     await expect(page.locator('#command-line')).toContainText('visionforge reproduce target.zip');
+    await expect(page.locator('#command-line')).toContainText('--near-duplicates');
     await page.goto('docs/ja-treino-modelos/');
     await page.locator('#onde-fica-o-que-voce-ja-faz a[href="#linha-de-comando"]').click();
     await expect(page).toHaveURL(/#linha-de-comando$/);
