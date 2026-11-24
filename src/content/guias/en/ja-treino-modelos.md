@@ -48,7 +48,7 @@ so on) sits in the bottom bar, next to **history** and **datasets**.
 | Grad-CAM | run detail, **Grad-CAM** | [After training](../gui/depois-do-treino.md) |
 | MLflow, W&B, Comet | **Profiles**: turns on the upload per profile | [MLflow](../gui/mlflow.md), [W&B](../gui/wandb.md), [Comet](../gui/comet.md) |
 | publish (Hub, Zenodo, GitHub, DVC) | run detail, **Publish** group | [Hub](../gui/hugging-face-hub.md), [Zenodo](../gui/zenodo.md), [GitHub](../gui/github.md), [DVC](../gui/dvc.md) |
-| train on Colab | the Colab button, classification only | [Colab](../gui/colab.md) |
+| train on Colab | the device selector (next to Train), classification only | [Colab](../gui/colab.md) |
 | command line | `visionforge run` with the YAML exported in the Review step | [Command line](#command-line), below |
 
 The strategies available change with the task; the
@@ -116,9 +116,9 @@ autoencoder and PatchCore. Layouts and download providers:
 | --- | --- |
 | `visionforge gui` | opens the interface (`--host`, `--port`, `--no-browser`) |
 | `visionforge run config.yaml` | runs an exported YAML; with `strategy:` + `config:`, runs replicates, comparison, sweep or K-fold |
-| `visionforge doctor` | checks the environment and points to the right torch; `--fix` installs after confirming |
+| `visionforge doctor` | checks the environment and points to the right torch; `--fix` installs after confirming; `--json` prints the same diagnosis as JSON (does not combine with `--fix`) |
 | `visionforge selftest` | trains each task with generated data; `--quick` only the single run |
-| `visionforge audit-data FOLDER` | looks for exact duplicates across splits, unreadable images and, with `--groups`, groups that cross splits |
+| `visionforge audit-data FOLDER` | looks for exact duplicates across splits, unreadable images, with `--groups` groups that cross splits and, with `--near-duplicates`, visual near-duplicates across splits |
 | `visionforge bundle RUN target.zip` | exports the run with a manifest of hashes |
 | `visionforge verify-bundle target.zip` | checks the manifest without extracting the ZIP |
 | `visionforge reproduce target.zip` | retrains one seed of the bundle and checks whether it falls within the 95% prediction interval of the replicates (`--data`, `--seed`, `--output`) |

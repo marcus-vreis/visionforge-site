@@ -125,13 +125,23 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Versões anteriores',
     kinds: { added: 'novo', changed: 'mudou', fixed: 'corrigido' },
-    intro: 'A versão publicada é a {version}. Cada cartão diz em que versão o recurso entrou; os marcados só com a versão publicada já existiam antes da 0.22.0. A {version} também retira os extras cu118, cu121 e cu124: as opções de instalação do torch passam a ser cpu, cu126, cu128 e cu130.',
+    intro: 'A versão publicada é a {version}. Cada cartão diz em que versão o recurso entrou; os marcados só com a versão publicada já existiam antes da 0.22.0. A {version} traz o modo servidor, ainda experimental, e a escolha da época que avalia cada fold do K-fold. O Ultralytics volta a vir com o pacote: o pip install visionforge-studio já instala YOLO e RT-DETR.',
     figure: 'Aba Código ao vivo depois de um treino de uma época com o dataset de exemplo: os passos do treino à esquerda e a função real de treino, lida do pacote instalado, à direita.',
     groups: [
       {
         id: 'released',
         heading: 'Versão {version}',
         items: [
+          {
+            title: 'Modo servidor (experimental)',
+            description: 'visionforge gui --server --trusted-proxy <endereço> põe a interface atrás de um proxy que faz o login (oauth2-proxy, Authelia). A conta que o proxy informa vira o perfil da pessoa, cada pessoa tem a própria pasta de datasets e runs, e os treinos entram numa fila que roda um run por vez. É experimental e serve a um grupo que já confia entre si; não é um serviço para expor à internet.',
+            mark: 'Novo na 0.23.0',
+          },
+          {
+            title: 'K-fold: época por fold',
+            description: 'Na classificação, cross_validation.select_on escolhe a época que avalia cada fold. best (padrão) mantém o comportamento de antes; last avalia a última época treinada, sem escolher a época no fold de validação, e a média deixa de ter esse viés otimista. O run.json e o cv_summary.json registram a regra e a época de cada fold. O schema_version passa a 3.',
+            mark: 'Novo na 0.23.0',
+          },
           {
             title: 'visionforge reproduce',
             description: 'Retreina uma semente de um pacote de experimento verificado, numa cópia local do dataset, e compara com o que o pacote registrou. Num grupo de réplicas, o veredito usa o intervalo de predição de 95% de uma semente nova, não o IC 95% da média.',

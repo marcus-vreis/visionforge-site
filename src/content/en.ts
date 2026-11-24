@@ -125,13 +125,23 @@ export const copy: SiteCopy = {
     tabReleased: '{version} · {date}',
     tabEarlier: 'Earlier releases',
     kinds: { added: 'new', changed: 'changed', fixed: 'fixed' },
-    intro: 'The published release is {version}. Each card says which release brought the feature; the ones marked only with the published version were there before 0.22.0. {version} also drops the cu118, cu121 and cu124 extras: the torch install options are now cpu, cu126, cu128 and cu130.',
+    intro: 'The published release is {version}. Each card says which release brought the feature; the ones marked only with the published version were there before 0.22.0. {version} brings the shared server mode, still experimental, and the choice of the epoch that scores each K-fold fold. Ultralytics comes with the package again: pip install visionforge-studio already installs YOLO and RT-DETR.',
     figure: 'Live code tab after a one-epoch run on the sample dataset: the steps of the run on the left and the real training function, read from the installed package, on the right.',
     groups: [
       {
         id: 'released',
         heading: 'Version {version}',
         items: [
+          {
+            title: 'Shared server mode (experimental)',
+            description: 'visionforge gui --server --trusted-proxy <address> puts the interface behind a proxy that does the login (oauth2-proxy, Authelia). The account the proxy reports becomes the person\'s profile, each person has their own datasets and runs folder, and trainings join a queue that runs one run at a time. It is experimental and meant for a group that already trusts each other; it is not a service to expose to the internet.',
+            mark: 'New in 0.23.0',
+          },
+          {
+            title: 'K-fold: epoch per fold',
+            description: 'In classification, cross_validation.select_on chooses the epoch that scores each fold. best (the default) keeps the previous behavior; last scores the last trained epoch, without picking the epoch on the validation fold, so the mean loses that optimistic bias. run.json and cv_summary.json record the rule and the epoch of each fold. schema_version becomes 3.',
+            mark: 'New in 0.23.0',
+          },
           {
             title: 'visionforge reproduce',
             description: 'Retrains one seed of a verified experiment bundle, on a local copy of the dataset, and compares it with what the bundle recorded. In a group of replicates, the verdict uses the 95% prediction interval of a new seed, not the 95% CI of the mean.',

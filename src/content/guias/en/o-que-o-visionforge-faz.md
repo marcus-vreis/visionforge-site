@@ -30,9 +30,8 @@ steps: Data, Strategy, Model, Training, Image & augmentation and Review.
 | Semantic segmentation | DeepLabV3, FCN, LR-ASPP, U-Net | mIoU, Dice, pixel accuracy |
 | Anomaly detection | convolutional autoencoder, PatchCore | image AUROC, F1, threshold |
 
-The YOLO and RT-DETR backends use Ultralytics (AGPL-3.0), which is only
-installed with the `detection` extra; the torchvision backend already comes
-with the installation.
+The YOLO and RT-DETR backends use Ultralytics (AGPL-3.0), which comes installed
+with the package; the torchvision backend does not use it.
 
 If your problem is none of the five, see [Extending](#extending).
 

@@ -4,7 +4,7 @@ import { release } from './release';
 const docs = `${release.repository}/blob/development/docs/gui/`;
 const decisions = `${release.repository}/blob/development/docs/dev/DECISIONS.md`;
 
-/** Excerpt of TOURS in src/visionforge/core/code_tour.py at v0.22.2, checked against that file. */
+/** Excerpt of TOURS in src/visionforge/core/code_tour.py at v0.23.0, checked against that file. */
 const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "classification": CLASSIFICATION,
     "regression": REGRESSION,
@@ -12,7 +12,7 @@ const toursSnippet = `TOURS: dict[str, tuple[Section, ...]] = {
     "anomaly": ANOMALY,
     "detection": DETECTION,
 }`;
-/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py at v0.22.2, checked against that file. */
+/** Body of Trainer._build_criterion in src/visionforge/core/trainer.py at v0.23.0, checked against that file. */
 const criterionSnippet = `if self._config.task == "binary":
     return nn.BCEWithLogitsLoss()
 return nn.CrossEntropyLoss()`;

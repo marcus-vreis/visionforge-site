@@ -18,7 +18,7 @@ from pathlib import Path
 
 from PIL import Image
 
-TAG = "v0.22.2"
+TAG = "v0.23.0"
 SOURCE = f"https://raw.githubusercontent.com/marcus-vreis/VisionForge/{TAG}/docs/images/"
 ROOT = Path(__file__).resolve().parent.parent
 GUIDES = ROOT / "src" / "content" / "guias"

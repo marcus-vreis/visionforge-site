@@ -168,7 +168,7 @@ whole field uses, and the **Live code** tab shows the code that is running
 | [PyTorch](https://pytorch.org/) | the neural network library every model is trained in |
 | [torchvision](https://docs.pytorch.org/vision/stable/) | ready-made architectures, pretrained weights and image transformations |
 | [timm](https://huggingface.co/docs/timm) | hundreds of further architectures, chosen by name |
-| [Ultralytics](https://docs.ultralytics.com/) | YOLO and RT-DETR for object detection; it is optional and installed separately |
+| [Ultralytics](https://docs.ultralytics.com/) | YOLO and RT-DETR for object detection; it comes installed with VisionForge (AGPL-3.0) |
 | [scikit-learn](https://scikit-learn.org/stable/) | the metrics of the result and the K-fold split |
 | [Optuna](https://optuna.org/) | the guided hyperparameter search |
 | [ONNX Runtime](https://onnxruntime.ai/) | runs the model exported to ONNX, outside PyTorch |
