@@ -39,6 +39,7 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
         <span class="eyebrow">{pt ? 'Nesta página' : 'On this page'}</span>
         {guide.sections.map(section => <a href={`#${section.id}`}>{section.title}</a>)}
       </nav>
+      <a href={`${home}docs/changelog/`}>Changelog</a>
       <a href={`${home}#install`}>{pt ? 'Instalação por sistema' : 'Installation by OS'} ↗</a>
     </aside>
     <article class="guide-article">

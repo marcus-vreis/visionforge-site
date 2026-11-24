@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { release } from '../src/content/release';
 
 /** Waits for running CSS transitions (theme change, entrances) to end, so colours are read at rest. */
 const settle = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(item => item instanceof CSSTransition).map(item => item.finished.catch(() => undefined))).then(() => undefined));
@@ -160,3 +161,17 @@ test('guides list the steps of a capture to its left and open one at a time', as
   for (const body of await plain.locator('[data-shot] .shot-step-body p').all()) await expect(body).toBeVisible();
   await context.close();
 });
+
+for (const lang of ['pt', 'en'] as const) {
+  test(`${lang}: changelog page shows the current version and is linked from docs and footer`, async ({ page }) => {
+    const prefix = lang === 'pt' ? './' : './en/';
+    await page.goto(`${prefix}docs/`);
+    await page.locator('.docs-sidebar').getByRole('link', { name: 'Changelog' }).click();
+    await expect(page).toHaveURL(new RegExp(lang === 'pt' ? '/visionforge-site/docs/changelog/$' : '/en/docs/changelog/$'));
+    await expect(page.locator('h1')).toHaveText('Changelog');
+    await expect(page.locator('.guide-version')).toHaveText(`v${release.version}`);
+    await expect(page.locator('article h2').filter({ hasText: `[${release.version}]` })).toHaveCount(1);
+    await expect(page.locator('article a[href*="/docs/dev/DECISIONS.md"]').first()).toHaveAttribute('href', `https://github.com/marcus-vreis/VisionForge/blob/v${release.version}/docs/dev/DECISIONS.md`);
+    await expect(page.locator('footer.site-footer a', { hasText: 'Changelog' })).toHaveAttribute('href', /\/docs\/changelog\/$/);
+  });
+}
